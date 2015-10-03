@@ -9,22 +9,28 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.*;
+import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Locale;
 
 public class WebCrawler {
 
     private static final boolean DEBUG = true;
+    private static final boolean VERBOSE = true;
+    private static final boolean SIMPLE_TEST = true;
 
     private static boolean backupFiles;
     private static String startingURL;
     private static HashMap<String, Integer> visitedURLs;
     private static String [] searchRegexes;
     private static String rootDir = "cache";
-    private static ArrayList<Smartphone> collectedSmartphones = new ArrayList<Smartphone>();
+    private static ArrayList<Smartphone> collectedSmartphones;
 
     /**
      * Web Crawler
@@ -41,21 +47,23 @@ public class WebCrawler {
      */
     public static void main(String[] args) {
 
-        Document doc = null;
-        try {
-            doc = Jsoup.connect("http://www.pixmania.pt/smartphone/lg-g4-32-gb-4g-titanio-smartphone/22623277-a.html").get();
-            addSmartphone(doc);
-        } catch (IOException e) {
-            e.printStackTrace();
+        if(SIMPLE_TEST){
+            // FIXME: for quick tests
+            Document doc = null;
+            try {
+                doc = Jsoup.connect("http://www.pixmania.pt/smartphone/lg-g4-32-gb-4g-titanio-smartphone/22623277-a.html").get();
+                createSmartphone(doc);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            System.exit(0);
         }
-        System.exit(0);
-
 
         if (args.length > 0) {
 
             startingURL = args[0];
 
-            if(args.length == 2) {
+            if(args.length >= 2) {
                 loadSearchRegexes(args[1]);
             }
 
@@ -65,13 +73,19 @@ public class WebCrawler {
 
             // TODO: Check if there are any umplublished messages to the JMS Topic and, if yes, send them
 
-            // Init our hashmap of visited websites
+            // Init our hashmap of visited websites and arraylist of collected smartphones
             visitedURLs = new HashMap<String, Integer>();
+            collectedSmartphones = new ArrayList<Smartphone>();
 
             // Fetch the website
             crawl(startingURL);
 
-            // TODO: create file(s) and send XML message(s) to the JMS Topic. Retry a couple fo times if they fail.
+            // TODO: create XML file(s)
+
+
+
+            // TODO: send XML message(s) to the JMS Topic.
+            // Retry a couple fo times if they fail.
 
             // Statistics for Geeks
             printStatistics();
@@ -135,7 +149,7 @@ public class WebCrawler {
             }
 
             // create Smartphone object and save it
-            addSmartphone(doc);
+            collectedSmartphones.add(createSmartphone(doc));
 
             // craw to other links on this page
             Elements links = doc.select("a[href]");
@@ -157,36 +171,83 @@ public class WebCrawler {
 
     /**
      * Creates a Smartphone object from the data in doc
-     * Adds the object to the arraylist of collected smartphones
      * @param doc HTML page of smartphone
      */
-    private static void addSmartphone(Document doc) {
+    private static Smartphone createSmartphone(Document doc) {
 
         Smartphone smartphone = new Smartphone();
 
         Smartphone.TechnicalData technicalData = new Smartphone.TechnicalData();
 
+        // Name and Brand
+        Elements pageTitle = doc.select("h1[class=pageTitle]");
+
+        smartphone.setName(pageTitle.select("span[itemprop=name]").text());
+        smartphone.setBrand(pageTitle.select("span[itemprop=brand]").text());
+
+        // Price and Currency
+        String[] priceAndCurrency = doc.select("div[class=currentPrice]").text().split(" ");
+        NumberFormat nf = NumberFormat.getInstance(Locale.GERMAN); // German locale has the same decimal and grouping separators as PT
+        try {
+            smartphone.setPrice( new BigDecimal(nf.parse(priceAndCurrency[0]).toString()));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        smartphone.setCurrency(priceAndCurrency[1]);
+
+        // Summary Data
+        smartphone.setSummaryData(doc.select("ul[class=customList],ul[itemprop=description]").text());
+
+        if(DEBUG) {
+            System.out.println("\n\nSmartphone");
+            System.out.println("Name: " + smartphone.getName());
+            System.out.println("Brand: " + smartphone.getBrand());
+            System.out.println("Price: " + smartphone.getPrice());
+            System.out.println("Currency: " + smartphone.getCurrency());
+            System.out.println("Summary: \n" + smartphone.getSummaryData());
+        }
+
+        // Technical Data
         Elements tablesFromDoc = doc.select("table[class=simpletable]");
         for(Element tableFromDoc : tablesFromDoc){
 
-            System.out.println("\n\nTable");
+            Smartphone.TechnicalData.Table table = new Smartphone.TechnicalData.Table();
+            table.setTableTitle(tableFromDoc.select("caption").text());
 
-            System.out.println("caption: " + tableFromDoc.select("caption").text());
-
-            for(Element rowfromTable : tableFromDoc.select("tbody").select("tr")) {
-                System.out.println("row name: " + rowfromTable.select("th").text());
-                System.out.println("row value: " + rowfromTable.select("td").text());
+            if(DEBUG) {
+                System.out.println("\nTable");
+                System.out.println("TableTitle: " + table.getTableTitle());
             }
 
-            //technicalData.getTable()
+            for(Element rowfromTable : tableFromDoc.select("tbody").select("tr")) {
+
+                Smartphone.TechnicalData.Table.TableData tableData = new Smartphone.TechnicalData.Table.TableData();
+
+                tableData.setDataName(rowfromTable.select("th").text());
+                tableData.setDataValue(rowfromTable.select("td").text());
+
+                if(DEBUG) {
+                    System.out.println("TableData name: " + tableData.getDataName());
+                    System.out.println("TableData value: " + tableData.getDataValue());
+                }
+
+                table.getTableData().add( tableData);
+            }
+
+            technicalData.getTable().add(table);
         }
 
         smartphone.setTechnicalData(technicalData);
 
+        return smartphone;
     }
 
+    /**
+     * Additional report at the end of crawling containing statistics and information about encountered URLs
+     */
     private static void printStatistics(){
-        if(DEBUG){
+
+        if(VERBOSE){
             System.out.println(
                 "\n*----------------------*" +
                 "\n| Statistics for Geeks |" +
@@ -194,9 +255,14 @@ public class WebCrawler {
             );
             System.out.println("Num. URLs Visited: " + visitedURLs.size());
             System.out.println("Num. URLs Visited Only Once: " + Collections.frequency(visitedURLs.values(), 1));
+            System.out.println("Num. Smartphones collected: " + collectedSmartphones.size());
         }
     }
 
+    /**
+     * Loads the regexes into memory by reading and treating the file as a json file
+     * @param filename json file containing array of regex strings
+     */
     private  static void loadSearchRegexes(String filename){
 
         String fileContent = "";

@@ -1,6 +1,7 @@
 
 package generated;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -57,12 +58,13 @@ import javax.xml.bind.annotation.XmlType;
  *       &lt;/sequence>
  *       &lt;attribute name="price">
  *         &lt;simpleType>
- *           &lt;restriction base="{http://www.w3.org/2001/XMLSchema}float">
+ *           &lt;restriction base="{http://www.w3.org/2001/XMLSchema}decimal">
  *             &lt;minInclusive value="0"/>
  *           &lt;/restriction>
  *         &lt;/simpleType>
  *       &lt;/attribute>
  *       &lt;attribute name="name" type="{http://www.w3.org/2001/XMLSchema}string" />
+ *       &lt;attribute name="brand" type="{http://www.w3.org/2001/XMLSchema}string" />
  *       &lt;attribute name="currency" type="{http://www.w3.org/2001/XMLSchema}string" />
  *       &lt;attribute name="summary_data" type="{http://www.w3.org/2001/XMLSchema}string" />
  *     &lt;/restriction>
@@ -82,9 +84,11 @@ public class Smartphone {
     @XmlElement(name = "technical_data")
     protected Smartphone.TechnicalData technicalData;
     @XmlAttribute(name = "price")
-    protected Float price;
+    protected BigDecimal price;
     @XmlAttribute(name = "name")
     protected String name;
+    @XmlAttribute(name = "brand")
+    protected String brand;
     @XmlAttribute(name = "currency")
     protected String currency;
     @XmlAttribute(name = "summary_data")
@@ -119,10 +123,10 @@ public class Smartphone {
      * 
      * @return
      *     possible object is
-     *     {@link Float }
+     *     {@link BigDecimal }
      *     
      */
-    public Float getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 
@@ -131,10 +135,10 @@ public class Smartphone {
      * 
      * @param value
      *     allowed object is
-     *     {@link Float }
+     *     {@link BigDecimal }
      *     
      */
-    public void setPrice(Float value) {
+    public void setPrice(BigDecimal value) {
         this.price = value;
     }
 
@@ -160,6 +164,30 @@ public class Smartphone {
      */
     public void setName(String value) {
         this.name = value;
+    }
+
+    /**
+     * Gets the value of the brand property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getBrand() {
+        return brand;
+    }
+
+    /**
+     * Sets the value of the brand property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setBrand(String value) {
+        this.brand = value;
     }
 
     /**

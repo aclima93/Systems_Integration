@@ -41,12 +41,13 @@
             <!-- Informação Principal -->
             <xs:attribute name="price">
                 <xs:simpleType>
-                    <xs:restriction base="xs:float">
+                    <xs:restriction base="xs:decimal">
                         <xs:minInclusive value="0"/>
                     </xs:restriction>
                 </xs:simpleType>
             </xs:attribute>
             <xs:attribute type="xs:string" name="name"/>
+            <xs:attribute type="xs:string" name="brand"/>
             <xs:attribute type="xs:string" name="currency"/>
             <xs:attribute type="xs:string" name="summary_data"/>
 
