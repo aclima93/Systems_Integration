@@ -162,12 +162,26 @@ public class WebCrawler {
      */
     private static void addSmartphone(Document doc) {
 
-        //<table class="simpleTable">
-        Elements tables = doc.select("table[class=simpletable]");
-        for(Element table : tables){
+        Smartphone smartphone = new Smartphone();
 
-            System.out.println("\n\nTable\n" + table.toString());
+        Smartphone.TechnicalData technicalData = new Smartphone.TechnicalData();
+
+        Elements tablesFromDoc = doc.select("table[class=simpletable]");
+        for(Element tableFromDoc : tablesFromDoc){
+
+            System.out.println("\n\nTable");
+
+            System.out.println("caption: " + tableFromDoc.select("caption").text());
+
+            for(Element rowfromTable : tableFromDoc.select("tbody").select("tr")) {
+                System.out.println("row name: " + rowfromTable.select("th").text());
+                System.out.println("row value: " + rowfromTable.select("td").text());
+            }
+
+            //technicalData.getTable()
         }
+
+        smartphone.setTechnicalData(technicalData);
 
     }
 
