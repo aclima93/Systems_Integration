@@ -8,6 +8,9 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 import java.io.*;
 import java.math.BigDecimal;
 import java.nio.file.Files;
@@ -21,16 +24,16 @@ import java.util.Locale;
 
 public class WebCrawler {
 
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
     private static final boolean VERBOSE = true;
-    private static final boolean SIMPLE_TEST = true;
+    private static final boolean SIMPLE_TEST = false;
 
     private static boolean backupFiles;
     private static String startingURL;
-    private static HashMap<String, Integer> visitedURLs;
+    private static HashMap<String, Integer> visitedURLs = new HashMap<String, Integer>();
     private static String [] searchRegexes;
     private static String rootDir = "cache";
-    private static ArrayList<Smartphone> collectedSmartphones;
+    private static ArrayList<Smartphone> collectedSmartphones = new ArrayList<Smartphone>();
 
     /**
      * Web Crawler
@@ -56,6 +59,9 @@ public class WebCrawler {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+
+            createXMLFiles();
+
             System.exit(0);
         }
 
@@ -73,15 +79,12 @@ public class WebCrawler {
 
             // TODO: Check if there are any umplublished messages to the JMS Topic and, if yes, send them
 
-            // Init our hashmap of visited websites and arraylist of collected smartphones
-            visitedURLs = new HashMap<String, Integer>();
-            collectedSmartphones = new ArrayList<Smartphone>();
 
             // Fetch the website
             crawl(startingURL);
 
             // TODO: create XML file(s)
-
+            createXMLFiles();
 
 
             // TODO: send XML message(s) to the JMS Topic.
@@ -95,6 +98,23 @@ public class WebCrawler {
         else {
             System.err.println("Invalid number of arguments.\nSyntax: WebCrawler <url> [<search_keywords.json>]");
             System.exit(1);
+        }
+    }
+
+    private static void createXMLFiles() {
+
+        JAXBContext jaxbContext;
+        Marshaller marshaller;
+        try {
+            jaxbContext = JAXBContext.newInstance(Smartphone.class);
+            marshaller = jaxbContext.createMarshaller();
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+
+            for(Smartphone smartphone : collectedSmartphones) {
+                marshaller.marshal(smartphone, System.out);
+            }
+        } catch (JAXBException e) {
+            e.printStackTrace();
         }
     }
 
@@ -186,14 +206,14 @@ public class WebCrawler {
         smartphone.setBrand(pageTitle.select("span[itemprop=brand]").text());
 
         // Price and Currency
-        String[] priceAndCurrency = doc.select("div[class=currentPrice]").select("ins[itemprop=price]").text().replace("\u00a0", " ").split("\\s+"); // pesky &no-break space
-        NumberFormat nf = NumberFormat.getInstance(Locale.GERMAN); // German locale has the same decimal and grouping separators as PT
         try {
+            String[] priceAndCurrency = doc.select("div[class=currentPrice]").select("ins[itemprop=price]").text().replace("\u00a0", " ").split("\\s+"); // pesky &no-break space
+            NumberFormat nf = NumberFormat.getInstance(Locale.GERMAN); // German locale has the same decimal and grouping separators as PT
             smartphone.setPrice( new BigDecimal(nf.parse(priceAndCurrency[0]).toString()));
+            smartphone.setCurrency(priceAndCurrency[1]);
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        smartphone.setCurrency(priceAndCurrency[1]);
 
         // Summary Data
         smartphone.setSummaryData(doc.select("ul[class=customList],ul[itemprop=description]").html());
