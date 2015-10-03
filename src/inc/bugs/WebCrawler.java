@@ -2,6 +2,7 @@ package inc.bugs;
 
 
 import com.google.gson.Gson;
+import generated.Smartphone;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -10,6 +11,7 @@ import org.jsoup.select.Elements;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 
@@ -17,10 +19,12 @@ public class WebCrawler {
 
     private static final boolean DEBUG = true;
 
+    private static boolean backupFiles;
     private static String startingURL;
     private static HashMap<String, Integer> visitedURLs;
     private static String [] searchRegexes;
     private static String rootDir = "cache";
+    private static ArrayList<Smartphone> collectedSmartphones = new ArrayList<Smartphone>();
 
     /**
      * Web Crawler
@@ -30,14 +34,33 @@ public class WebCrawler {
      * Create XML from DOM
      * Send XML message to JMS Topic
      *
-     * @param args <url> [<search_keywords.json>]
+     * Example input:
+     http://www.pixmania.pt/ /Users/aclima/Documents/Repositories/Systems_Integration/src/inc/bugs/search_regexes.json
+     *
+     * @param args &lt;url&gt; [&lt;search_regexes.json&gt;]
      */
     public static void main(String[] args) {
 
+        Document doc = null;
+        try {
+            doc = Jsoup.connect("http://www.pixmania.pt/smartphone/lg-g4-32-gb-4g-titanio-smartphone/22623277-a.html").get();
+            addSmartphone(doc);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.exit(0);
+
+
         if (args.length > 0) {
+
+            startingURL = args[0];
 
             if(args.length == 2) {
                 loadSearchRegexes(args[1]);
+            }
+
+            if(args.length == 3) {
+                backupFiles = Boolean.parseBoolean(args[2]);
             }
 
             // TODO: Check if there are any umplublished messages to the JMS Topic and, if yes, send them
@@ -46,7 +69,6 @@ public class WebCrawler {
             visitedURLs = new HashMap<String, Integer>();
 
             // Fetch the website
-            startingURL = args[0];
             crawl(startingURL);
 
             // TODO: create file(s) and send XML message(s) to the JMS Topic. Retry a couple fo times if they fail.
@@ -74,15 +96,11 @@ public class WebCrawler {
             return true;
 
         for(String regex: searchRegexes){
-
             // super regex
             //if( url.matches("(http://www\\.pixmania\\.pt/)((telefones/telemovel/)?(smartphone|iphone)/([a-z]|[A-Z]|-|_|\\d)+/(\\d+)-a\\.html)?") ) {
             if( url.matches(regex) ) {
-
                 return true;
             }
-
-
         }
 
         return false;
@@ -111,11 +129,16 @@ public class WebCrawler {
 
             Document doc = Jsoup.connect(url).get();
 
-            // save HTML page
-            saveHTMLPage(doc, url);
+            if(backupFiles) {
+                // save HTML page
+                saveHTMLPage(doc, url);
+            }
 
+            // create Smartphone object and save it
+            addSmartphone(doc);
+
+            // craw to other links on this page
             Elements links = doc.select("a[href]");
-
             for (Element link : links) {
 
                 String subUrl = link.attr("abs:href");
@@ -128,6 +151,22 @@ public class WebCrawler {
 
         } catch (IOException e) {
             // invalid url, file or something else
+        }
+
+    }
+
+    /**
+     * Creates a Smartphone object from the data in doc
+     * Adds the object to the arraylist of collected smartphones
+     * @param doc HTML page of smartphone
+     */
+    private static void addSmartphone(Document doc) {
+
+        //<table class="simpleTable">
+        Elements tables = doc.select("table[class=simpletable]");
+        for(Element table : tables){
+
+            System.out.println("\n\nTable\n" + table.toString());
         }
 
     }
@@ -175,10 +214,10 @@ public class WebCrawler {
         try{
 
             // remove the startingURL part from the name
-            String name = url.replace(startingURL, "");
+            //String name = url.replace(startingURL, "");
             //String[] parts = name.split("(.*)/(.*\\.html)");
 
-            String[] parts = name.split("/");
+            String[] parts = url.split("/");
             String path = rootDir;
 
             for(int i = 0; i < parts.length-1; i++){
