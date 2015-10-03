@@ -20,6 +20,7 @@ public class WebCrawler {
     private static String startingURL;
     private static HashMap<String, Integer> visitedURLs;
     private static String [] searchRegexes;
+    private static String rootDir = "cache";
 
     /**
      * Web Crawler
@@ -73,21 +74,11 @@ public class WebCrawler {
             return true;
 
         for(String regex: searchRegexes){
-            //"http://www.pixmania.pt/smartphone/"lg-g4-32-gb-4g-titanio-smartphone/22623277-a.html
 
-            //".*\/.*\/""((\d|\D)*(_|-))"
-
+            // super regex
             //if( url.matches("(http://www\\.pixmania\\.pt/)((telefones/telemovel/)?(smartphone|iphone)/([a-z]|[A-Z]|-|_|\\d)+/(\\d+)-a\\.html)?") ) {
             if( url.matches(regex) ) {
 
-                /*
-                // FIXME: REGEX TAKES CARE OF THIS NOW!
-                // remove the useless meta info at end of url
-                if(url.contains(".html#")) {
-                    String[] parts = url.split("/.html#");
-                    url = parts[0] + ".html";
-                }
-                */
                 return true;
             }
 
@@ -112,20 +103,16 @@ public class WebCrawler {
 
         visitedURLs.put(url, 1);
 
-        if(DEBUG)
+        if(DEBUG){
             System.out.println("url: "+ url);
+        }
 
         try {
+
             Document doc = Jsoup.connect(url).get();
 
-            File file = new File("cache" + File.separator + url);
-            if (file.getParentFile().mkdirs()){
-                FileOutputStream fileOutputStream = new FileOutputStream(file);
-                OutputStreamWriter outputStreamWriter = new OutputStreamWriter(fileOutputStream);
-                Writer writer = new BufferedWriter(outputStreamWriter);
-                writer.write(doc.toString());
-                writer.close();
-            }
+            // save HTML page
+            saveHTMLPage(doc, url);
 
             Elements links = doc.select("a[href]");
 
@@ -176,6 +163,46 @@ public class WebCrawler {
             // invalid file
         }
 
+    }
+
+    /**
+     * Saves the HTML pages just in case
+     * @param doc html page
+     * @param url URL of html page
+     */
+    private static void saveHTMLPage(Document doc, String url){
+
+        try{
+
+            // remove the startingURL part from the name
+            String name = url.replace(startingURL, "");
+            //String[] parts = name.split("(.*)/(.*\\.html)");
+
+            String[] parts = name.split("/");
+            String path = rootDir;
+
+            for(int i = 0; i < parts.length-1; i++){
+                path += File.separator + parts[i];
+            }
+
+            File dirs = new File(path);
+
+            if (dirs.mkdirs()){
+
+                File file = new File(path + File.separator + parts[parts.length-1]);
+
+                FileOutputStream fileOutputStream = new FileOutputStream(file);
+                OutputStreamWriter outputStreamWriter = new OutputStreamWriter(fileOutputStream);
+                Writer writer = new BufferedWriter(outputStreamWriter);
+
+                writer.write(doc.toString());
+
+                writer.close();
+            }
+
+        } catch (IOException e) {
+            // invalid url, file or something else
+        }
     }
 
 }
