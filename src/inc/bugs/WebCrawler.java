@@ -186,7 +186,7 @@ public class WebCrawler {
         smartphone.setBrand(pageTitle.select("span[itemprop=brand]").text());
 
         // Price and Currency
-        String[] priceAndCurrency = doc.select("div[class=currentPrice]").text().split(" ");
+        String[] priceAndCurrency = doc.select("div[class=currentPrice]").select("ins[itemprop=price]").text().replace("\u00a0", " ").split("\\s+"); // pesky &no-break space
         NumberFormat nf = NumberFormat.getInstance(Locale.GERMAN); // German locale has the same decimal and grouping separators as PT
         try {
             smartphone.setPrice( new BigDecimal(nf.parse(priceAndCurrency[0]).toString()));
@@ -196,7 +196,7 @@ public class WebCrawler {
         smartphone.setCurrency(priceAndCurrency[1]);
 
         // Summary Data
-        smartphone.setSummaryData(doc.select("ul[class=customList],ul[itemprop=description]").text());
+        smartphone.setSummaryData(doc.select("ul[class=customList],ul[itemprop=description]").html());
 
         if(DEBUG) {
             System.out.println("\n\nSmartphone");
