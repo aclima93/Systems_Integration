@@ -77,7 +77,7 @@ public class WebCrawler {
                 backupFiles = Boolean.parseBoolean(args[2]);
             }
 
-            // TODO: Check if there are any umplublished messages to the JMS Topic and, if yes, send them
+            // TODO: Check if there are any umpublished messages to the JMS Topic and, if yes, send them
 
 
             // Fetch the website
@@ -88,7 +88,7 @@ public class WebCrawler {
 
 
             // TODO: send XML message(s) to the JMS Topic.
-            // Retry a couple fo times if they fail.
+            // Retry a couple of times if they fail.
 
             // Statistics for Geeks
             printStatistics();
