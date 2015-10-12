@@ -24,15 +24,22 @@ import java.util.Locale;
 
 public class WebCrawler {
 
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG_URLS = false;
+    private static final boolean DEBUG_SMARTPHONE = false;
     private static final boolean VERBOSE = true;
     private static final boolean SIMPLE_TEST = false;
+
+
+    private static final int MAX_ATTEMPTS = 5;
+    private static int attemptCounter;
 
     private static boolean backupFiles;
     private static String startingURL;
     private static HashMap<String, Integer> visitedURLs = new HashMap<String, Integer>();
     private static String [] searchRegexes;
     private static String rootDir = "cache";
+    private static String htmlDir = "html";
+    private static String unpublishedDir = "unpublished";
     private static ArrayList<Smartphone> collectedSmartphones = new ArrayList<Smartphone>();
 
     /**
@@ -46,12 +53,11 @@ public class WebCrawler {
      * Example input:
      http://www.pixmania.pt/ /Users/aclima/Documents/Repositories/Systems_Integration/src/inc/bugs/search_regexes.json
      *
-     * @param args &lt;url&gt; [&lt;search_regexes.json&gt;]
+     * @param args &lt;url&gt; [&lt;file:search_regexes.json&gt;] [&lt;boolean:backupFiles&gt;]
      */
     public static void main(String[] args) {
 
         if(SIMPLE_TEST){
-            // FIXME: for quick tests
             Document doc = null;
             try {
                 doc = Jsoup.connect("http://www.pixmania.pt/smartphone/lg-g4-32-gb-4g-titanio-smartphone/22623277-a.html").get();
@@ -60,7 +66,7 @@ public class WebCrawler {
                 e.printStackTrace();
             }
 
-            createXMLFiles();
+            createAndSaveXMLFiles();
 
             System.exit(0);
         }
@@ -77,18 +83,26 @@ public class WebCrawler {
                 backupFiles = Boolean.parseBoolean(args[2]);
             }
 
-            // TODO: Check if there are any umpublished messages to the JMS Topic and, if yes, send them
+            // TODO: Check if there are any unplublished messages to the JMS Topic and, if yes, send them
 
 
             // Fetch the website
             crawl(startingURL);
 
-            // TODO: create XML file(s)
-            createXMLFiles();
+            // create XML file(s)
+            createAndSaveXMLFiles();
 
+            // Retry a couple fo times if it fails.
+            for(attemptCounter = 0; attemptCounter < MAX_ATTEMPTS; attemptCounter++) {
 
-            // TODO: send XML message(s) to the JMS Topic.
-            // Retry a couple of times if they fail.
+                // send XML message(s) to the JMS Topic.
+                if (publishXMLFilesToJMSTopic()){
+
+                    // if it was successful we can delete the files we had saved
+                    deletePublishedMessages();
+                    break;
+                }
+            }
 
             // Statistics for Geeks
             printStatistics();
@@ -96,12 +110,35 @@ public class WebCrawler {
             System.exit(0);
         }
         else {
-            System.err.println("Invalid number of arguments.\nSyntax: WebCrawler <url> [<search_keywords.json>]");
+            System.err.println("Invalid number of arguments.\nSyntax: WebCrawler &lt;url&gt; [&lt;file:search_regexes.json&gt;] [&lt;boolean:backupFiles&gt;]");
             System.exit(1);
         }
     }
 
-    private static void createXMLFiles() {
+    /**
+     * Delete Published XML Messages
+     */
+    private static void deletePublishedMessages() {
+
+        // TODO: Delete Published XML Messages
+
+    }
+
+    /**
+     * Tries to publish the list of XML Files to the JMS Topic
+     * @return isSuccessful whether or not the XML File transfers were successful
+     */
+    private static boolean publishXMLFilesToJMSTopic() {
+
+        // TODO: send XML message(s) to the JMS Topic.
+
+        return false;
+    }
+
+    /**
+     * Creates XML files and saves them just in case
+     */
+    private static void createAndSaveXMLFiles() {
 
         JAXBContext jaxbContext;
         Marshaller marshaller;
@@ -111,17 +148,17 @@ public class WebCrawler {
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
             for(Smartphone smartphone : collectedSmartphones) {
-                marshaller.marshal(smartphone, System.out);
+                marshaller.marshal(smartphone, System.out); // TODO: trocar este system.out e guardar o output
             }
         } catch (JAXBException e) {
-            e.printStackTrace();
+            // could not create Marshalled XML
         }
     }
 
     /**
      * Simple function that checks if the url is worth our while
      * @param url evaluated url
-     * @return boolean value stating if the url is relevant
+     * @return isRelevant boolean value stating if the url is relevant
      */
     private static boolean isRelevantURL(String url){
 
@@ -155,7 +192,7 @@ public class WebCrawler {
 
         visitedURLs.put(url, 1);
 
-        if(DEBUG){
+        if(DEBUG_URLS){
             System.out.println("url: "+ url);
         }
 
@@ -212,13 +249,13 @@ public class WebCrawler {
             smartphone.setPrice( new BigDecimal(nf.parse(priceAndCurrency[0]).toString()));
             smartphone.setCurrency(priceAndCurrency[1]);
         } catch (ParseException e) {
-            e.printStackTrace();
+            // invalid number format/unparsable number
         }
 
         // Summary Data
         smartphone.setSummaryData(doc.select("ul[class=customList],ul[itemprop=description]").html());
 
-        if(DEBUG) {
+        if(DEBUG_SMARTPHONE) {
             System.out.println("\n\nSmartphone");
             System.out.println("Name: " + smartphone.getName());
             System.out.println("Brand: " + smartphone.getBrand());
@@ -234,7 +271,7 @@ public class WebCrawler {
             Smartphone.TechnicalData.Table table = new Smartphone.TechnicalData.Table();
             table.setTableTitle(tableFromDoc.select("caption").text());
 
-            if(DEBUG) {
+            if(DEBUG_SMARTPHONE) {
                 System.out.println("\nTable");
                 System.out.println("TableTitle: " + table.getTableTitle());
             }
@@ -246,7 +283,7 @@ public class WebCrawler {
                 tableData.setDataName(rowfromTable.select("th").text());
                 tableData.setDataValue(rowfromTable.select("td").text());
 
-                if(DEBUG) {
+                if(DEBUG_SMARTPHONE) {
                     System.out.println("TableData name: " + tableData.getDataName());
                     System.out.println("TableData value: " + tableData.getDataValue());
                 }
@@ -276,6 +313,7 @@ public class WebCrawler {
             System.out.println("Num. URLs Visited: " + visitedURLs.size());
             System.out.println("Num. URLs Visited Only Once: " + Collections.frequency(visitedURLs.values(), 1));
             System.out.println("Num. Smartphones collected: " + collectedSmartphones.size());
+            System.out.println("Num. Attempts to publish to JMS Topic: " + attemptCounter);
         }
     }
 
@@ -311,30 +349,39 @@ public class WebCrawler {
      */
     private static void saveHTMLPage(Document doc, String url){
 
+
+        String path = rootDir + File.separator + htmlDir;
+
+        String[] parts = url.split("/");
+        for(int i = 0; i < parts.length-1; i++){
+            path += File.separator + parts[i];
+        }
+
+        // save the HTML page to a file
+        saveFile(path, path + File.separator + parts[parts.length-1], doc.toString());
+        
+    }
+
+    /**
+     * Saves a fileContent to filePath whilst making sure that dirPath and all its necessary parent folders exist.
+     * @param dirPath target directory path
+     * @param filePath target file path
+     * @param fileContent file content
+     */
+    private static void saveFile(String dirPath, String filePath, String fileContent) {
+
         try{
-
-            // remove the startingURL part from the name
-            //String name = url.replace(startingURL, "");
-            //String[] parts = name.split("(.*)/(.*\\.html)");
-
-            String[] parts = url.split("/");
-            String path = rootDir;
-
-            for(int i = 0; i < parts.length-1; i++){
-                path += File.separator + parts[i];
-            }
-
-            File dirs = new File(path);
+            File dirs = new File(dirPath);
 
             if (dirs.mkdirs()){
 
-                File file = new File(path + File.separator + parts[parts.length-1]);
+                File file = new File(filePath);
 
                 FileOutputStream fileOutputStream = new FileOutputStream(file);
                 OutputStreamWriter outputStreamWriter = new OutputStreamWriter(fileOutputStream);
                 Writer writer = new BufferedWriter(outputStreamWriter);
 
-                writer.write(doc.toString());
+                writer.write(fileContent);
 
                 writer.close();
             }
@@ -342,6 +389,7 @@ public class WebCrawler {
         } catch (IOException e) {
             // invalid url, file or something else
         }
+        
     }
 
 }
