@@ -1,29 +1,56 @@
 package inc.bugs;
 
+import sun.security.krb5.internal.crypto.Des;
+
 import javax.jms.*;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
-/**
- * Created by pedro on 10-10-2015.
- */
 public class HTMLSummaryCreator {
-    TopicConnection topicConnection;
-    TopicConnectionFactory topicConnectionFactory;
-    TopicSession topicSession;
-    Topic topic;
+    private TopicConnectionFactory topicConnectionFactory = null;
+    private TopicConnection topicConnection = null;
+    private TopicSession topicSession = null;
+    private Topic topic = null;
+
+    /**
+     * HTML Summary Creator
+     *
+     * Get xml from JMS Topic
+     * Generate html based on xml and xslt
+     *
+     * @throws JMSException
+     * @throws NamingException
+     */
+    public static void main(String[] args) throws JMSException, NamingException {
+        HTMLSummaryCreator htmlSummaryCreator = new HTMLSummaryCreator();
+        try {
+            while (true) {
+                htmlSummaryCreator.generateHTML();
+            }
+        } catch (JMSRuntimeException e) {
+            System.out.println("No files for 5 seconds");
+            htmlSummaryCreator.stop();
+        }
+    }
 
     public HTMLSummaryCreator() throws JMSException, NamingException {
-        this.topicConnectionFactory = InitialContext.doLookup("ConnectionFactory");
-        this.topicConnection = this.topicConnectionFactory.createTopicConnection();
+        System.setProperty("java.naming.factory.initial","org.jboss.naming.remote.client.InitialContextFactory");
+        System.setProperty("java.naming.provider.url","http-remoting://localhost:8080");
+        this.initialize();
+    }
+
+    public void initialize() throws JMSException, NamingException {
+        this.topicConnectionFactory = InitialContext.doLookup("jms/RemoteConnectionFactory");
+        this.topicConnection = this.topicConnectionFactory.createTopicConnection("pjaneiro", "|Sisc00l");
+        this.topic = InitialContext.doLookup("jms/topic/pixmania");
         this.topicSession = this.topicConnection.createTopicSession(false, TopicSession.AUTO_ACKNOWLEDGE);
-        this.topic = InitialContext.doLookup("topic/pixmania");
+        this.topicConnection.start();
     }
 
     public String receive() throws JMSException, NamingException {
         System.out.println("Begin receive");
         this.topicConnection.start();
-        TopicSubscriber topicSubscriber = this.topicSession.createDurableSubscriber(this.topic, "HTML Summary Creator");
+        TopicSubscriber topicSubscriber = this.topicSession.createDurableSubscriber(this.topic, "HTMLGenerator");
         Message msg = topicSubscriber.receive(5000);
         topicSubscriber.close();
         if(msg == null) {
@@ -50,17 +77,5 @@ public class HTMLSummaryCreator {
         this.topicConnection.stop();
         this.topicSession.close();
         this.topicConnection.close();
-    }
-
-    public static void main(String[] args) throws JMSException, NamingException {
-        HTMLSummaryCreator htmlSummaryCreator = new HTMLSummaryCreator();
-        try {
-            while (true) {
-                htmlSummaryCreator.generateHTML();
-            }
-        } catch (JMSRuntimeException e) {
-            System.out.println("No files for 5 seconds");
-            htmlSummaryCreator.stop();
-        }
     }
 }

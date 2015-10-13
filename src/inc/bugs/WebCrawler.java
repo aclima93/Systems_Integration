@@ -8,6 +8,9 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import javax.jms.*;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -41,6 +44,7 @@ public class WebCrawler {
     private static String htmlDir = "html";
     private static String unpublishedDir = "unpublished";
     private static ArrayList<Smartphone> collectedSmartphones = new ArrayList<Smartphone>();
+    private static ArrayList<String> createdXMLFiles = new ArrayList<String>();
 
     /**
      * Web Crawler
@@ -129,6 +133,32 @@ public class WebCrawler {
      * @return isSuccessful whether or not the XML File transfers were successful
      */
     private static boolean publishXMLFilesToJMSTopic() {
+        TopicConnectionFactory topicConnectionFactory = null;
+        TopicConnection topicConnection = null;
+        TopicSession topicSession = null;
+        Topic topic = null;
+        TopicPublisher topicPublisher = null;
+        try {
+            topicConnectionFactory = InitialContext.doLookup("ConnectionFactory");
+            topicConnection = topicConnectionFactory.createTopicConnection();
+            topicSession = topicConnection.createTopicSession(false, TopicSession.AUTO_ACKNOWLEDGE);
+            topic = InitialContext.doLookup("topic/pixmania");
+            topicConnection.start();
+            topicPublisher = topicSession.createPublisher(topic);
+            for (String string : createdXMLFiles) {
+                TextMessage textMessage = topicSession.createTextMessage(string);
+                topicPublisher.publish(textMessage);
+                createdXMLFiles.remove(string);
+            }
+            topicPublisher.close();
+            topicConnection.stop();
+            topicSession.close();
+            topicConnection.close();
+        } catch (JMSException | NamingException e) {
+            return false;
+        }
+        System.out.println("Begin send");
+
 
         // TODO: send XML message(s) to the JMS Topic.
 
@@ -142,14 +172,19 @@ public class WebCrawler {
 
         JAXBContext jaxbContext;
         Marshaller marshaller;
+        StringWriter stringWriter = new StringWriter();
+        String generatedXML = new String();
         try {
             jaxbContext = JAXBContext.newInstance(Smartphone.class);
             marshaller = jaxbContext.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
             for(Smartphone smartphone : collectedSmartphones) {
-                marshaller.marshal(smartphone, System.out); // TODO: trocar este system.out e guardar o output
+                //marshaller.marshal(smartphone, System.out); // TODO: trocar este system.out e guardar o output
+                marshaller.marshal(smartphone, stringWriter);
+                generatedXML = generatedXML.concat(stringWriter.toString());
             }
+            createdXMLFiles.add(generatedXML);
         } catch (JAXBException e) {
             // could not create Marshalled XML
         }
