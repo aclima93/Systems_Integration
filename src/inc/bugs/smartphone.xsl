@@ -22,7 +22,7 @@
                     <b>Preço</b>
                 </td>
                 <td>
-                    <xsl:value-of select="@price"/>&nbsp;<xsl:value-of select="@currency"/>
+                    <xsl:value-of select="@price"/> <xsl:value-of select="@currency"/>
                 </td>
             </tr>
             <tr>

@@ -14,6 +14,7 @@ import javax.naming.NamingException;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
+import javax.xml.soap.Text;
 import java.io.*;
 import java.math.BigDecimal;
 import java.nio.file.Files;
@@ -33,7 +34,7 @@ public class WebCrawler {
     private static final boolean SIMPLE_TEST = false;
 
 
-    private static final int MAX_ATTEMPTS = 5;
+    private static final int MAX_ATTEMPTS = 6;
     private static int attemptCounter;
 
     private static boolean backupFiles;
@@ -45,6 +46,11 @@ public class WebCrawler {
     private static String unpublishedDir = "unpublished";
     private static ArrayList<Smartphone> collectedSmartphones = new ArrayList<Smartphone>();
     private static ArrayList<String> createdXMLFiles = new ArrayList<String>();
+
+    private static TopicConnectionFactory topicConnectionFactory = null;
+    private static TopicConnection topicConnection = null;
+    private static TopicSession topicSession = null;
+    private static Topic topic = null;
 
     /**
      * Web Crawler
@@ -59,7 +65,7 @@ public class WebCrawler {
      *
      * @param args &lt;url&gt; [&lt;file:search_regexes.json&gt;] [&lt;boolean:backupFiles&gt;]
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws JMSException, NamingException {
 
         if(SIMPLE_TEST){
             Document doc = null;
@@ -96,8 +102,10 @@ public class WebCrawler {
             // create XML file(s)
             createAndSaveXMLFiles();
 
+            initialize();
+
             // Retry a couple fo times if it fails.
-            for(attemptCounter = 0; attemptCounter < MAX_ATTEMPTS; attemptCounter++) {
+            for(attemptCounter = 1; attemptCounter < MAX_ATTEMPTS; attemptCounter++) {
 
                 // send XML message(s) to the JMS Topic.
                 if (publishXMLFilesToJMSTopic()){
@@ -107,6 +115,8 @@ public class WebCrawler {
                     break;
                 }
             }
+
+            stop();
 
             // Statistics for Geeks
             printStatistics();
@@ -132,37 +142,17 @@ public class WebCrawler {
      * Tries to publish the list of XML Files to the JMS Topic
      * @return isSuccessful whether or not the XML File transfers were successful
      */
-    private static boolean publishXMLFilesToJMSTopic() {
-        TopicConnectionFactory topicConnectionFactory = null;
-        TopicConnection topicConnection = null;
-        TopicSession topicSession = null;
-        Topic topic = null;
-        TopicPublisher topicPublisher = null;
-        try {
-            topicConnectionFactory = InitialContext.doLookup("ConnectionFactory");
-            topicConnection = topicConnectionFactory.createTopicConnection();
-            topicSession = topicConnection.createTopicSession(false, TopicSession.AUTO_ACKNOWLEDGE);
-            topic = InitialContext.doLookup("topic/pixmania");
-            topicConnection.start();
-            topicPublisher = topicSession.createPublisher(topic);
-            for (String string : createdXMLFiles) {
-                TextMessage textMessage = topicSession.createTextMessage(string);
-                topicPublisher.publish(textMessage);
-                createdXMLFiles.remove(string);
-            }
-            topicPublisher.close();
-            topicConnection.stop();
-            topicSession.close();
-            topicConnection.close();
-        } catch (JMSException | NamingException e) {
-            return false;
-        }
+    private static boolean publishXMLFilesToJMSTopic() throws JMSException, NamingException{
         System.out.println("Begin send");
-
-
+        TopicPublisher topicPublisher = topicSession.createPublisher(topic);
+        for (String string : createdXMLFiles) {
+            TextMessage textMessage = topicSession.createTextMessage(string);
+            topicPublisher.publish(textMessage);
+        }
+        createdXMLFiles.clear();
         // TODO: send XML message(s) to the JMS Topic.
-
-        return false;
+        System.out.println("All messages sent");
+        return true;
     }
 
     /**
@@ -173,7 +163,7 @@ public class WebCrawler {
         JAXBContext jaxbContext;
         Marshaller marshaller;
         StringWriter stringWriter = new StringWriter();
-        String generatedXML = new String();
+        String generatedXML = "";
         try {
             jaxbContext = JAXBContext.newInstance(Smartphone.class);
             marshaller = jaxbContext.createMarshaller();
@@ -182,8 +172,9 @@ public class WebCrawler {
             for(Smartphone smartphone : collectedSmartphones) {
                 //marshaller.marshal(smartphone, System.out); // TODO: trocar este system.out e guardar o output
                 marshaller.marshal(smartphone, stringWriter);
-                generatedXML = generatedXML.concat(stringWriter.toString());
+                //generatedXML += stringWriter.toString();
             }
+            generatedXML = stringWriter.toString();
             createdXMLFiles.add(generatedXML);
         } catch (JAXBException e) {
             // could not create Marshalled XML
@@ -425,6 +416,22 @@ public class WebCrawler {
             // invalid url, file or something else
         }
         
+    }
+
+    public static void initialize() throws JMSException, NamingException {
+        System.setProperty("java.naming.factory.initial","org.jboss.naming.remote.client.InitialContextFactory");
+        System.setProperty("java.naming.provider.url","http-remoting://localhost:8080");
+        topicConnectionFactory = InitialContext.doLookup("jms/RemoteConnectionFactory");
+        topicConnection = topicConnectionFactory.createTopicConnection("pjaneiro", "|Sisc00l");
+        topic = InitialContext.doLookup("jms/topic/pixmania");
+        topicSession = topicConnection.createTopicSession(false, TopicSession.AUTO_ACKNOWLEDGE);
+        topicConnection.start();
+    }
+
+    public static void stop() throws JMSException {
+        topicConnection.stop();
+        topicSession.close();
+        topicConnection.close();
     }
 
 }

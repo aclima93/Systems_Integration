@@ -34,12 +34,12 @@ public class HTMLSummaryCreator {
     }
 
     public HTMLSummaryCreator() throws JMSException, NamingException {
-        System.setProperty("java.naming.factory.initial","org.jboss.naming.remote.client.InitialContextFactory");
-        System.setProperty("java.naming.provider.url","http-remoting://localhost:8080");
         this.initialize();
     }
 
     public void initialize() throws JMSException, NamingException {
+        System.setProperty("java.naming.factory.initial","org.jboss.naming.remote.client.InitialContextFactory");
+        System.setProperty("java.naming.provider.url","http-remoting://localhost:8080");
         this.topicConnectionFactory = InitialContext.doLookup("jms/RemoteConnectionFactory");
         this.topicConnection = this.topicConnectionFactory.createTopicConnection("pjaneiro", "|Sisc00l");
         this.topic = InitialContext.doLookup("jms/topic/pixmania");
@@ -47,15 +47,21 @@ public class HTMLSummaryCreator {
         this.topicConnection.start();
     }
 
+    public void stop() throws JMSException {
+        this.topicConnection.stop();
+        this.topicSession.close();
+        this.topicConnection.close();
+    }
+
     public String receive() throws JMSException, NamingException {
         System.out.println("Begin receive");
         this.topicConnection.start();
         TopicSubscriber topicSubscriber = this.topicSession.createDurableSubscriber(this.topic, "HTMLGenerator");
-        Message msg = topicSubscriber.receive(5000);
+        Message msg = topicSubscriber.receive();
         topicSubscriber.close();
         if(msg == null) {
             System.out.println("Timed out");
-            throw new JMSRuntimeException("No input");
+            return null;
         }
         else {
             System.out.println("Received");
@@ -69,13 +75,8 @@ public class HTMLSummaryCreator {
             System.out.println("Can't generate HTML file");
             return;
         }
+        System.out.println(xmlFile);
         //TODO Generate HTML
         System.out.println("Gotta do this one");
-    }
-
-    public void stop() throws JMSException {
-        this.topicConnection.stop();
-        this.topicSession.close();
-        this.topicConnection.close();
     }
 }
