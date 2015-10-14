@@ -97,7 +97,7 @@
                         </header>
                         <div class="w3-container">
                             <p>
-                                <b><xsl:value-of select="@price"/></b>&#160;<xsl:value-of select="@currency"/>
+                                <xsl:value-of select="@price"/>&#160;<xsl:value-of select="@currency"/>
                             </p>
                         </div>
                     </div>
