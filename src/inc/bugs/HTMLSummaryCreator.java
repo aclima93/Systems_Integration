@@ -59,6 +59,17 @@ public class HTMLSummaryCreator {
 
     public HTMLSummaryCreator() throws JMSException, NamingException {
         this.initialize();
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            public void run() {
+                try {
+                    topicConnection.stop();
+                    topicSession.close();
+                    topicConnection.close();
+                } catch (JMSException e) {
+                    System.err.println("Error closing connections.");
+                }
+            }
+        });
     }
 
     public void initialize() throws JMSException, NamingException {
