@@ -41,17 +41,18 @@
             </xs:sequence>
 
             <!-- Informação Principal -->
-            <xs:attribute name="price">
+            <xs:attribute name="price" use="required">
                 <xs:simpleType>
                     <xs:restriction base="xs:decimal">
                         <xs:minInclusive value="0"/>
                     </xs:restriction>
                 </xs:simpleType>
             </xs:attribute>
-            <xs:attribute type="xs:string" name="name"/>
-            <xs:attribute type="xs:string" name="brand"/>
-            <xs:attribute type="xs:string" name="currency"/>
-            <xs:attribute type="xs:string" name="summary_data"/>
+            <xs:attribute name="url" type="xs:string" use="required"/>
+            <xs:attribute name="name" type="xs:string" use="required"/>
+            <xs:attribute name="brand" type="xs:string" use="required"/>
+            <xs:attribute name="currency" type="xs:string" use="required"/>
+            <xs:attribute name="summary_data" type="xs:string" use="required"/>
 
         </xs:complexType>
     </xs:element>

@@ -290,6 +290,7 @@ public class WebCrawler {
 
         if(DEBUG_SMARTPHONE) {
             System.out.println("\n\nSmartphone");
+            System.out.println("Url: " + smartphone.getUrl());
             System.out.println("Name: " + smartphone.getName());
             System.out.println("Brand: " + smartphone.getBrand());
             System.out.println("Price: " + smartphone.getPrice());

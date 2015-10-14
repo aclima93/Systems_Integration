@@ -1,15 +1,10 @@
 
 package generated;
 
+import javax.xml.bind.annotation.*;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 
 
 /**
@@ -56,16 +51,17 @@ import javax.xml.bind.annotation.XmlType;
  *           &lt;/complexType>
  *         &lt;/element>
  *       &lt;/sequence>
- *       &lt;attribute name="price">
+ *       &lt;attribute name="price" use="required">
  *         &lt;simpleType>
  *           &lt;restriction base="{http://www.w3.org/2001/XMLSchema}decimal">
  *             &lt;minInclusive value="0"/>
  *           &lt;/restriction>
  *         &lt;/simpleType>
  *       &lt;/attribute>
- *       &lt;attribute name="name" type="{http://www.w3.org/2001/XMLSchema}string" />
+ *       &lt;attribute name="url" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
+ *       &lt;attribute name="name" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
  *       &lt;attribute name="brand" type="{http://www.w3.org/2001/XMLSchema}string" />
- *       &lt;attribute name="currency" type="{http://www.w3.org/2001/XMLSchema}string" />
+ *       &lt;attribute name="currency" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
  *       &lt;attribute name="summary_data" type="{http://www.w3.org/2001/XMLSchema}string" />
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -83,13 +79,15 @@ public class Smartphone {
 
     @XmlElement(name = "technical_data")
     protected Smartphone.TechnicalData technicalData;
-    @XmlAttribute(name = "price")
+    @XmlAttribute(name = "price", required = true)
     protected BigDecimal price;
-    @XmlAttribute(name = "name")
+    @XmlAttribute(name = "url", required = true)
+    protected String url;
+    @XmlAttribute(name = "name", required = true)
     protected String name;
     @XmlAttribute(name = "brand")
     protected String brand;
-    @XmlAttribute(name = "currency")
+    @XmlAttribute(name = "currency", required = true)
     protected String currency;
     @XmlAttribute(name = "summary_data")
     protected String summaryData;
@@ -140,6 +138,30 @@ public class Smartphone {
      */
     public void setPrice(BigDecimal value) {
         this.price = value;
+    }
+
+    /**
+     * Gets the value of the url property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getUrl() {
+        return url;
+    }
+
+    /**
+     * Sets the value of the url property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setUrl(String value) {
+        this.url = value;
     }
 
     /**
