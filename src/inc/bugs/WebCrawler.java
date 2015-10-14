@@ -45,7 +45,7 @@ public class WebCrawler {
     private static String htmlDir = "html";
     private static String unpublishedDir = "unpublished";
     private static ArrayList<Smartphone> collectedSmartphones = new ArrayList<Smartphone>();
-    private static ArrayList<String> createdXMLFiles = new ArrayList<String>();
+    private static ArrayList<ArrayList<String>> createdXMLFiles = new ArrayList<ArrayList<String>>();
 
     private static TopicConnectionFactory topicConnectionFactory = null;
     private static TopicConnection topicConnection = null;
@@ -145,9 +145,9 @@ public class WebCrawler {
     private static boolean publishXMLFilesToJMSTopic() throws JMSException, NamingException{
         System.out.println("Begin send");
         TopicPublisher topicPublisher = topicSession.createPublisher(topic);
-        for (String string : createdXMLFiles) {
-            TextMessage textMessage = topicSession.createTextMessage(string);
-            topicPublisher.publish(textMessage);
+        for (ArrayList<String> crawlSession : createdXMLFiles) {
+            ObjectMessage message = topicSession.createObjectMessage(crawlSession);
+            topicPublisher.publish(message);
         }
         createdXMLFiles.clear();
         // TODO: send XML message(s) to the JMS Topic.
@@ -162,20 +162,23 @@ public class WebCrawler {
 
         JAXBContext jaxbContext;
         Marshaller marshaller;
-        StringWriter stringWriter = new StringWriter();
-        String generatedXML = "";
         try {
             jaxbContext = JAXBContext.newInstance(Smartphone.class);
             marshaller = jaxbContext.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            ArrayList<String> currentCrawlSession = new ArrayList<String>();
 
             for(Smartphone smartphone : collectedSmartphones) {
+                StringWriter stringWriter = new StringWriter();
                 //marshaller.marshal(smartphone, System.out); // TODO: trocar este system.out e guardar o output
                 marshaller.marshal(smartphone, stringWriter);
                 //generatedXML += stringWriter.toString();
+                currentCrawlSession.add(stringWriter.toString());
+                stringWriter.flush();
             }
-            generatedXML = stringWriter.toString();
-            createdXMLFiles.add(generatedXML);
+
+
+            createdXMLFiles.add(currentCrawlSession);
         } catch (JAXBException e) {
             // could not create Marshalled XML
         }
@@ -186,11 +189,15 @@ public class WebCrawler {
      * @param url evaluated url
      * @return isRelevant boolean value stating if the url is relevant
      */
-    private static boolean isRelevantURL(String url){
+    private static boolean isRelevantURL(String url) {
 
         // everything goes
         if( searchRegexes.length == 0)
             return true;
+
+        if( url.equals(searchRegexes[0])) {
+            return false;
+        }
 
         for(String regex: searchRegexes){
             // super regex

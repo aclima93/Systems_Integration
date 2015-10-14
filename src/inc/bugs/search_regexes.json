@@ -4,9 +4,6 @@
   "http://www\\.pixmania\\.pt/smartphone/([a-z]|[A-Z]|-|_|\\d)+/(\\d+)-a\\.html",
   "http://www\\.pixmania\\.pt/iphone/([a-z]|[A-Z]|-|_|\\d)+/(\\d+)-a\\.html",
 
-  "http://www\\.pixmania\\.pt/telefones/telemovel/smartphone([a-z]|[A-Z]|-|_|\\d)+.html",
-  "http://www\\.pixmania\\.pt/telefones/telemovel/iphone([a-z]|[A-Z]|-|_|\\d)+.html",
-
   "http://www\\.pixmania\\.pt/telefones/telemovel/smartphone/([a-z]|[A-Z]|-|_|\\d)+\\.html",
   "http://www\\.pixmania\\.pt/telefones/telemovel/iphone/([a-z]|[A-Z]|-|_|\\d)+\\.html",
 
