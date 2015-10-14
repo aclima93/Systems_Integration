@@ -15,6 +15,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -135,6 +136,8 @@ public class HTMLSummaryCreator {
             return input;
         }
         byte[] digest = messageDigest.digest(bytes);
-        return new String(digest);
+        BigInteger bigInteger = new BigInteger(1,digest);
+        String result = bigInteger.toString(16);
+        return result;
     }
 }
