@@ -4,13 +4,15 @@
         attributeFormDefault="unqualified"
         elementFormDefault="qualified">
 
+
+
     <!-- smartphones -->
-    <xs:element name="smartphones" >
+    <xs:element name="search_smartphones">
         <xs:complexType>
             <xs:sequence>
 
                 <!-- Smartphone Overview -->
-                <xs:element name="smartphone_overview" maxOccurs="unbounded" minOccurs="0">
+                <xs:element name="smartphone_overview" maxOccurs="unbounded" minOccurs="1">
                     <xs:complexType>
 
                         <xs:attribute name="smartphone_url" type="xs:string" use="required"/>
@@ -27,7 +29,9 @@
 
                     </xs:complexType>
                 </xs:element>
+
             </xs:sequence>
         </xs:complexType>
     </xs:element>
+
 </xs:schema>

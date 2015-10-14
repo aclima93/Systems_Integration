@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <?xml-stylesheet type="text/xsl" href="smartphone_overview.xsl"?>
-<smartphones>
+<search_smartphones>
     <smartphone_overview price="309" name="G3 - Titânio - 32 GB - 4G - Smartphone" brand="LG" currency="€"/>
     <smartphone_overview price="309" name="G3 - Titânio - 32 GB - 4G - Smartphone" brand="LG" currency="€"/>
     <smartphone_overview price="309" name="G3 - Titânio - 32 GB - 4G - Smartphone" brand="LG" currency="€"/>
@@ -8,4 +8,4 @@
     <smartphone_overview price="309" name="G3 - Titânio - 32 GB - 4G - Smartphone" brand="LG" currency="€"/>
     <smartphone_overview price="309" name="G3 - Titânio - 32 GB - 4G - Smartphone" brand="LG" currency="€"/>
     <smartphone_overview price="309" name="G3 - Titânio - 32 GB - 4G - Smartphone" brand="LG" currency="€"/>
-</smartphones>
+</search_smartphones>
