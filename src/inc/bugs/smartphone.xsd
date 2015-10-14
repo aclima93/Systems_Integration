@@ -4,9 +4,16 @@
         attributeFormDefault="unqualified"
         elementFormDefault="qualified">
 
+    <!-- Smartphone -->
     <xs:element name="smartphone">
         <xs:complexType>
             <xs:sequence>
+
+                <!--
+                NOTA:
+                * Precisamos deste nó intermédio porque apesar de podermos NÃO ter technical data,
+                * caso tenhamos então temos de ter pelo menos uma tabela associada.
+                -->
 
                 <!-- Ficha Técnica -->
                 <xs:element name="technical_data" maxOccurs="1" minOccurs="0">

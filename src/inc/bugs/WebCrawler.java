@@ -14,7 +14,6 @@ import javax.naming.NamingException;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
-import javax.xml.soap.Text;
 import java.io.*;
 import java.math.BigDecimal;
 import java.nio.file.Files;
@@ -69,9 +68,10 @@ public class WebCrawler {
 
         if(SIMPLE_TEST){
             Document doc = null;
+            String url = "http://www.pixmania.pt/smartphone/lg-g4-32-gb-4g-titanio-smartphone/22623277-a.html";
             try {
-                doc = Jsoup.connect("http://www.pixmania.pt/smartphone/lg-g4-32-gb-4g-titanio-smartphone/22623277-a.html").get();
-                createSmartphone(doc);
+                doc = Jsoup.connect(url).get();
+                createSmartphone(url, doc);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -239,7 +239,7 @@ public class WebCrawler {
             }
 
             // create Smartphone object and save it
-            collectedSmartphones.add(createSmartphone(doc));
+            collectedSmartphones.add(createSmartphone(url, doc));
 
             // craw to other links on this page
             Elements links = doc.select("a[href]");
@@ -263,9 +263,12 @@ public class WebCrawler {
      * Creates a Smartphone object from the data in doc
      * @param doc HTML page of smartphone
      */
-    private static Smartphone createSmartphone(Document doc) {
+    private static Smartphone createSmartphone(String url, Document doc) {
 
         Smartphone smartphone = new Smartphone();
+
+        // URL
+        smartphone.setUrl(url);
 
         Smartphone.TechnicalData technicalData = new Smartphone.TechnicalData();
 
@@ -286,7 +289,7 @@ public class WebCrawler {
         }
 
         // Summary Data
-        smartphone.setSummaryData(doc.select("ul[class=customList],ul[itemprop=description]").html());
+        smartphone.setSummaryData(doc.select("ul[class=customList],ul[itemprop=description]").text());
 
         if(DEBUG_SMARTPHONE) {
             System.out.println("\n\nSmartphone");
