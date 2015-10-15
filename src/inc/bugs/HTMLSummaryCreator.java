@@ -95,7 +95,7 @@ public class HTMLSummaryCreator {
         Message objectMessage = topicSubscriber.receive();
         topicSubscriber.close();
         if(objectMessage == null) {
-            System.out.println("Timed out");
+            System.out.println("Error checking prices");
             return null;
         }
         else {
