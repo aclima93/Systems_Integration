@@ -85,6 +85,12 @@ public class HTMLSummaryCreator {
         });
     }
 
+    /**
+     * Establishes connection to JMS Topic running in localhost and starts a new Topic session
+     *
+     * @throws JMSException
+     * @throws NamingException
+     */
     public void initialize() throws JMSException, NamingException {
 
         System.setProperty("java.naming.factory.initial","org.jboss.naming.remote.client.InitialContextFactory");
@@ -97,6 +103,11 @@ public class HTMLSummaryCreator {
         this.topicConnection.start();
     }
 
+    /**
+     * Stops and closes the running Topic session
+     *
+     * @throws JMSException
+     */
     public void stop() throws JMSException {
 
         this.topicConnection.stop();
@@ -177,6 +188,7 @@ public class HTMLSummaryCreator {
             }
         }
     }
+
 
     public String getMD5hash(String input) {
 

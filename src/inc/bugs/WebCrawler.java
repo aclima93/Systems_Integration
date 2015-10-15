@@ -505,6 +505,12 @@ public class WebCrawler {
         
     }
 
+    /**
+     * Establishes connection to JMS Topic running in localhost and starts a new Topic session
+     *
+     * @throws JMSException
+     * @throws NamingException
+     */
     public static void initializeJMSTopic() throws JMSException, NamingException {
 
         System.setProperty("java.naming.factory.initial","org.jboss.naming.remote.client.InitialContextFactory");
@@ -517,11 +523,16 @@ public class WebCrawler {
         topicConnection.start();
 
         if(VERBOSE){
-            System.out.println("Initialized JMS Topic.");
+            System.out.println("Initialized JMS Topic session.");
         }
 
     }
 
+    /**
+     * Stops and closes the running Topic session
+     *
+     * @throws JMSException
+     */
     public static void stopJMSTopic() throws JMSException {
 
         topicConnection.stop();
@@ -529,7 +540,7 @@ public class WebCrawler {
         topicConnection.close();
 
         if(VERBOSE){
-            System.out.println("Stopped JMS Topic.");
+            System.out.println("Stopped JMS Topic session.");
         }
     }
 

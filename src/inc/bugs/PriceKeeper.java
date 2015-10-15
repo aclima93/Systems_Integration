@@ -11,8 +11,6 @@ import javax.xml.bind.Unmarshaller;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 /**
@@ -114,15 +112,25 @@ public class PriceKeeper {
         public void run(){
             try {
                 this.initialize();
-            } catch (JMSException|NamingException e) {
+            } catch (JMSException e){
+                System.err.println("Error creating connection to topic.");
+                System.exit(1);
+            } catch (NamingException e) {
                 System.err.println("Error creating connection to topic.");
                 System.exit(1);
             }
+
             System.out.println("Begin listening to topic");
             while (true) {
                 try {
                     getPrices();
-                } catch (JMSException|NamingException|JAXBException e) {
+                } catch (JMSException e){
+                    System.err.println("Error getting prices from topic.");
+                    break;
+                } catch (NamingException e){
+                    System.err.println("Error getting prices from topic.");
+                    break;
+                } catch (JAXBException e) {
                     System.err.println("Error getting prices from topic.");
                     break;
                 }
@@ -199,15 +207,20 @@ public class PriceKeeper {
         public void run() {
             try {
                 this.initialize();
-            } catch (JMSException|NamingException e) {
+            } catch (JMSException e){
+                System.err.println("Error creating connection to queue.");
+                System.exit(1);
+            } catch (NamingException e) {
                 System.err.println("Error creating connection to queue.");
                 System.exit(1);
             }
+
             System.out.println("Begin listening to queue");
             while (true) {
                 HashMap<SEARCH_MODES,String> hashMap = new HashMap<SEARCH_MODES,String>();
                 Destination replyTo = null;
-                try(JMSContext jmsContext = connectionFactory.createContext("pjaneiro","|Sisc00l")){
+                try{
+                    JMSContext jmsContext = connectionFactory.createContext("pjaneiro","|Sisc00l");
                     JMSConsumer consumer = jmsContext.createConsumer(destination);
                     Message message = consumer.receive();
                     replyTo = message.getJMSReplyTo();
@@ -219,7 +232,8 @@ public class PriceKeeper {
                 }
                 ArrayList<Smartphone> searchResult = this.priceKeeper.search(hashMap);
                 System.out.println(searchResult);
-                try (JMSContext jmsContext = connectionFactory.createContext("pjaneiro","|Sisc00l")){
+                try{
+                    JMSContext jmsContext = connectionFactory.createContext("pjaneiro","|Sisc00l");
                     ObjectMessage objectMessage = jmsContext.createObjectMessage(searchResult);
                     JMSProducer jmsProducer = jmsContext.createProducer();
                     jmsProducer.send(replyTo, objectMessage);

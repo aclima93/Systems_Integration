@@ -19,7 +19,14 @@ public class XMLValidator {
 
     private static Schema schema;
 
-    public boolean isValidXML(String xmlFile, String xsdPath){
+    /**
+     * Checks if the contents of an XML file conforms to a XSD
+     *
+     * @param xmlFileContent Contents of the XML file to be evaluated
+     * @param xsdPath Path to the XSD used for validation
+     * @return boolean value for validity of XML file
+     */
+    public boolean isValidXML(String xmlFileContent, String xsdPath){
 
         try {
 
@@ -31,7 +38,7 @@ public class XMLValidator {
 
             // creates a Validator object and checks the XML file against the schema
             Validator validator = schema.newValidator();
-            validator.validate(new StreamSource(new StringReader(xmlFile)));
+            validator.validate(new StreamSource(new StringReader(xmlFileContent)));
 
         } catch (IOException e) {
             // if the files don't exist we assume it to be incorrect
