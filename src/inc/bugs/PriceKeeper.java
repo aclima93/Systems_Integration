@@ -11,13 +11,8 @@ import javax.xml.bind.Unmarshaller;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 
-/**
- * Created by pedro on 14-10-2015.
- */
 public class PriceKeeper {
     private ConcurrentSkipListSet<Smartphone> smartphones = null;
     private TopicListener topicListener = null;
@@ -42,17 +37,20 @@ public class PriceKeeper {
             System.err.println("Invalid number of arguments.\nSyntax: PriceKeeper &lt;xsd&gt;");
         }
         PriceKeeper priceKeeper = new PriceKeeper();
+        priceKeeper.mainLoop();
     }
 
     public PriceKeeper() throws JMSException, NamingException, JAXBException, InterruptedException {
-        this.smartphones = new ConcurrentSkipListSet<Smartphone>();
+        this.smartphones = new ConcurrentSkipListSet<>();
         this.topicListener = new TopicListener(this);
         this.queueListener = new QueueListener(this);
+    }
+
+    private void mainLoop() throws JMSException, NamingException, JAXBException, InterruptedException {
         this.topicListener.start();
         this.queueListener.start();
         this.topicListener.join();
         this.queueListener.join();
-
     }
 
     public void updatePrices(ArrayList<String> arrayList) throws JAXBException {
@@ -65,7 +63,7 @@ public class PriceKeeper {
     }
 
     public ArrayList<Smartphone> search(HashMap<SEARCH_MODES, String> searchTerms) {
-        ArrayList<Smartphone> result = new ArrayList<Smartphone>();
+        ArrayList<Smartphone> result = new ArrayList<>();
         if(searchTerms.containsKey(SEARCH_MODES.MARCA)) {
             for(Smartphone current : smartphones) {
                 if(current.getBrand().compareToIgnoreCase(searchTerms.get(SEARCH_MODES.MARCA)) == 0) {
@@ -104,6 +102,7 @@ public class PriceKeeper {
         private TopicConnection topicConnection = null;
         private TopicSession topicSession = null;
         private Topic topic = null;
+        private TopicListener topicListener = this;
 
         public TopicListener(PriceKeeper priceKeeper) throws JMSException, NamingException, JAXBException {
             super();
@@ -139,6 +138,7 @@ public class PriceKeeper {
                     } catch (JMSException e) {
                         System.err.println("Error closing connections.");
                     }
+                    topicListener.interrupt();
                 }
             });
             System.setProperty("java.naming.factory.initial","org.jboss.naming.remote.client.InitialContextFactory");
@@ -151,37 +151,30 @@ public class PriceKeeper {
         }
 
         public void getPrices() throws JMSException, NamingException, JAXBException{
-            System.out.println("Checking for prices");
             Message objectMessage;
-            while (true) {
-                try {
-                    this.topicConnection.start();
-                    TopicSubscriber topicSubscriber = this.topicSession.createDurableSubscriber(this.topic, "PriceKeeper");
-                    objectMessage = topicSubscriber.receive();
-                    topicSubscriber.close();
-                    break;
-                } catch (JMSException e) {
-                    System.err.println("Error connecting, trying again.");
-                }
-            }
-            if(objectMessage == null) {
-                System.out.println("Error checking prices");
-            } else {
-                ArrayList<String> result = new ArrayList<String>();
+            this.topicConnection.start();
+            TopicSubscriber topicSubscriber = this.topicSession.createDurableSubscriber(this.topic, "PriceKeeper");
+            System.out.println("Checking for prices");
+            objectMessage = topicSubscriber.receive();
+            topicSubscriber.close();
+            ArrayList<String> result = new ArrayList<>();
+            if(objectMessage != null) {
                 result = objectMessage.getBody(result.getClass());
-                System.out.println("Evaluating data validity");
-                XMLValidator xmlValidator = new XMLValidator();
-                for(String xml : result) {
-                    if(!xmlValidator.isValidXML(xml, xsdURL)) {
-                        System.err.println("Invalid XML. Ignorig received values.");
-                        System.out.println(xsdURL);
-                        System.out.println(xml);
-                        return;
-                    }
-                }
-                System.out.println("Prices received");
-                this.priceKeeper.updatePrices(result);
+            } else {
+                return;
             }
+            System.out.println("Evaluating data validity");
+            XMLValidator xmlValidator = new XMLValidator();
+            for(String xml : result) {
+                if(!xmlValidator.isValidXML(xml, xsdURL)) {
+                    System.err.println("Invalid XML. Ignorig received values.");
+                    System.out.println(xsdURL);
+                    System.out.println(xml);
+                    return;
+                }
+            }
+            System.out.println("Prices received");
+            this.priceKeeper.updatePrices(result);
         }
     }
 
@@ -205,8 +198,8 @@ public class PriceKeeper {
             }
             System.out.println("Begin listening to queue");
             while (true) {
-                HashMap<SEARCH_MODES,String> hashMap = new HashMap<SEARCH_MODES,String>();
-                Destination replyTo = null;
+                HashMap<SEARCH_MODES,String> hashMap = new HashMap<>();
+                Destination replyTo;
                 try(JMSContext jmsContext = connectionFactory.createContext("pjaneiro","|Sisc00l")){
                     JMSConsumer consumer = jmsContext.createConsumer(destination);
                     Message message = consumer.receive();
