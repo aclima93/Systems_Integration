@@ -1,7 +1,5 @@
 package inc.bugs;
 
-import sun.security.krb5.internal.crypto.Des;
-
 import javax.jms.*;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -21,49 +19,65 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 
 public class HTMLSummaryCreator {
+
     private TopicConnectionFactory topicConnectionFactory = null;
     private TopicConnection topicConnection = null;
     private TopicSession topicSession = null;
     private Topic topic = null;
+
+    private static String xsdURL;
     private static String xslURL;
     private static String outputDirectory;
 
     /**
      * HTML Summary Creator
      *
-     * Get xml from JMS Topic
-     * Generate html based on xml and xslt
+     * Get XML from JMS Topic
+     * Generate HTML based on XML, XSD and XSLT
      *
      * @throws JMSException
      * @throws NamingException
      */
     public static void main(String[] args) throws JMSException, NamingException {
-        if(args.length == 2) {
-            xslURL = args[0];
-            outputDirectory = args[1];
+
+        if(args.length == 3) {
+
+            xsdURL = args[0];
+            xslURL = args[1];
+            outputDirectory = args[2];
         }
         else {
-            System.err.println("Invalid number of arguments.\nSyntax: HTMLSummaryCreator &lt;xsl&gt;");
+
+            System.err.println("Invalid number of arguments.\nSyntax: HTMLSummaryCreator &lt;xsd&gt; &lt;xsl&gt;");
         }
-        xslURL = args[0];
+
+        xsdURL = args[0];
+        xslURL = args[1];
         HTMLSummaryCreator htmlSummaryCreator = new HTMLSummaryCreator();
+
         try {
+
             while (true) {
+
                 htmlSummaryCreator.generateHTML();
             }
         } catch (JMSRuntimeException e) {
+
             System.out.println("No files for 5 seconds");
             htmlSummaryCreator.stop();
         }
     }
 
     public HTMLSummaryCreator() throws JMSException, NamingException {
+
         this.initialize();
     }
 
     public void initialize() throws JMSException, NamingException {
+
         System.setProperty("java.naming.factory.initial","org.jboss.naming.remote.client.InitialContextFactory");
         System.setProperty("java.naming.provider.url","http-remoting://localhost:8080");
+
         this.topicConnectionFactory = InitialContext.doLookup("jms/RemoteConnectionFactory");
         this.topicConnection = this.topicConnectionFactory.createTopicConnection("pjaneiro", "|Sisc00l");
         this.topic = InitialContext.doLookup("jms/topic/pixmania");
@@ -72,72 +86,110 @@ public class HTMLSummaryCreator {
     }
 
     public void stop() throws JMSException {
+
         this.topicConnection.stop();
         this.topicSession.close();
         this.topicConnection.close();
     }
 
     public ArrayList<String> receive() throws JMSException, NamingException {
+
         System.out.println("Begin receive");
+
         this.topicConnection.start();
         TopicSubscriber topicSubscriber = this.topicSession.createDurableSubscriber(this.topic, "HTMLGenerator");
         Message objectMessage = topicSubscriber.receive();
         topicSubscriber.close();
+
         if(objectMessage == null) {
+
             System.out.println("Timed out");
+
             return null;
         }
         else {
+
             ArrayList<String> result = new ArrayList<String>();
             result = objectMessage.getBody(result.getClass());
+
             System.out.println("Received");
+
             return result;
         }
     }
 
     public void generateHTML() throws JMSException, NamingException {
+
         String url;
         TransformerFactory transformerFactory = null;
         Transformer transformer = null;
-        ArrayList<String> xmlFile = this.receive();
-        if(xmlFile == null) {
+        ArrayList<String> xmlFiles = this.receive();
+
+        if(xmlFiles == null) {
             System.out.println("Can't generate HTML file");
             return;
         }
-        for (String xml : xmlFile) {
-            try {
-                url = outputDirectory+getMD5hash(xml);
-                transformerFactory = TransformerFactory.newInstance();
-                transformer = transformerFactory.newTransformer(new StreamSource(xslURL));
-                transformer.transform(new StreamSource(new StringReader(xml)), new StreamResult(new FileOutputStream(url+".html")));
-            } catch (TransformerConfigurationException e) {
-                System.err.println("The given xsl file address is not valid.");
-                System.exit(1);
-            } catch (TransformerException e) {
-                System.err.println("Error reading xml file.");
-            } catch (FileNotFoundException e) {
-                System.err.println("Error opening file for output.");
+
+        XMLValidator xmlValidator = new XMLValidator();
+
+        for (String xml : xmlFiles) {
+
+            // Checks if the XML conforms to the XSD
+            if(xmlValidator.isValidXML(xml, xsdURL)) {
+
+                try {
+
+                    url = outputDirectory + getMD5hash(xml);
+                    transformerFactory = TransformerFactory.newInstance();
+                    transformer = transformerFactory.newTransformer(new StreamSource(xslURL));
+                    transformer.transform(new StreamSource(new StringReader(xml)), new StreamResult(new FileOutputStream(url + ".html")));
+
+                } catch (TransformerConfigurationException e) {
+
+                    System.err.println("The given xsl file address is not valid.");
+                    System.exit(1);
+
+                } catch (TransformerException e) {
+
+                    System.err.println("Error reading xml file.");
+
+                } catch (FileNotFoundException e) {
+
+                    System.err.println("Error opening file for output.");
+
+                }
             }
         }
     }
 
     public String getMD5hash(String input) {
+
         byte[] bytes = null;
+
         try {
+
             bytes = input.getBytes("UTF-8");
+
         } catch (UnsupportedEncodingException e) {
+
             bytes = input.getBytes();
         }
+
         MessageDigest messageDigest = null;
+
         try {
+
             messageDigest = MessageDigest.getInstance("MD5");
         }
         catch (NoSuchAlgorithmException e) {
+
             return input;
         }
+
         byte[] digest = messageDigest.digest(bytes);
         BigInteger bigInteger = new BigInteger(1,digest);
         String result = bigInteger.toString(16);
+
         return result;
     }
 }

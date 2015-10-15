@@ -16,16 +16,21 @@ import java.io.IOException;
 
 public class XMLValidator {
 
-    public static boolean isValidXML(String xmlPath, String xsdPath){
+    private static Schema schema;
+
+    public boolean isValidXML(String xmlFile, String xsdPath){
 
         try {
-            // loads the schema from the XSD file
-            SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-            Schema schema = factory.newSchema(new File(xsdPath));
+
+            if(schema == null) {
+                // loads the schema from the XSD file
+                SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+                schema = factory.newSchema(new File(xsdPath));
+            }
 
             // creates a Validator object and checks the XML file against the schema
             Validator validator = schema.newValidator();
-            validator.validate(new StreamSource(new File(xmlPath)));
+            validator.validate(new StreamSource(xmlFile));
 
         } catch (IOException e) {
             // if the files don't exist we assume it to be incorrect
