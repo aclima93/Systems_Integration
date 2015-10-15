@@ -13,6 +13,7 @@ import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 import java.io.File;
 import java.io.IOException;
+import java.io.StringReader;
 
 public class XMLValidator {
 
@@ -30,13 +31,15 @@ public class XMLValidator {
 
             // creates a Validator object and checks the XML file against the schema
             Validator validator = schema.newValidator();
-            validator.validate(new StreamSource(xmlFile));
+            validator.validate(new StreamSource(new StringReader(xmlFile)));
 
         } catch (IOException e) {
             // if the files don't exist we assume it to be incorrect
+            e.printStackTrace();
             return false;
         } catch (SAXException e){
             // if it is not "well formed" according to the XML specification we assume it to be incorrect
+            e.printStackTrace();
             return false;
         }
 

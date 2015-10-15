@@ -2,6 +2,7 @@
 package generated;
 
 import javax.xml.bind.annotation.*;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -75,7 +76,7 @@ import java.util.List;
     "technicalData"
 })
 @XmlRootElement(name = "smartphone")
-public class Smartphone {
+public class Smartphone implements Serializable, Comparable<Smartphone> {
 
     @XmlElement(name = "technical_data")
     protected Smartphone.TechnicalData technicalData;
@@ -91,6 +92,10 @@ public class Smartphone {
     protected String summaryData;
     @XmlAttribute(name = "price", required = true)
     protected BigDecimal price;
+
+    public int compareTo(Smartphone o) {
+        return this.hashCode() - o.hashCode();
+    }
 
     /**
      * Gets the value of the technicalData property.
@@ -306,7 +311,7 @@ public class Smartphone {
     @XmlType(name = "", propOrder = {
         "table"
     })
-    public static class TechnicalData {
+    public static class TechnicalData implements Serializable{
 
         @XmlElement(required = true)
         protected List<Smartphone.TechnicalData.Table> table;
@@ -377,7 +382,7 @@ public class Smartphone {
             "tableTitle",
             "tableData"
         })
-        public static class Table {
+        public static class Table implements Serializable{
 
             @XmlElement(name = "table_title", required = true)
             protected String tableTitle;
@@ -463,7 +468,7 @@ public class Smartphone {
                 "dataName",
                 "dataValue"
             })
-            public static class TableData {
+            public static class TableData implements Serializable{
 
                 @XmlElement(name = "data_name", required = true)
                 protected String dataName;

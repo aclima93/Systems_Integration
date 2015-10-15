@@ -56,6 +56,7 @@ public class PriceRequester {
             MessageConsumer messageConsumer = session.createConsumer(temporaryQueue);
             Message message = messageConsumer.receive();
             result = message.getBody(result.getClass());
+            messageConsumer.close();
             temporaryQueue.delete();
             connection.stop();
             session.close();

@@ -124,6 +124,7 @@ public class PriceKeeper {
                     getPrices();
                 } catch (JMSException|NamingException|JAXBException e) {
                     System.err.println("Error getting prices from topic.");
+                    break;
                 }
             }
         }
@@ -151,10 +152,18 @@ public class PriceKeeper {
 
         public void getPrices() throws JMSException, NamingException, JAXBException{
             System.out.println("Checking for prices");
-            this.topicConnection.start();
-            TopicSubscriber topicSubscriber = this.topicSession.createDurableSubscriber(this.topic, "PriceKeeper");
-            Message objectMessage = topicSubscriber.receive();
-            topicSubscriber.close();
+            Message objectMessage;
+            while (true) {
+                try {
+                    this.topicConnection.start();
+                    TopicSubscriber topicSubscriber = this.topicSession.createDurableSubscriber(this.topic, "PriceKeeper");
+                    objectMessage = topicSubscriber.receive();
+                    topicSubscriber.close();
+                    break;
+                } catch (JMSException e) {
+                    System.err.println("Error connecting, trying again.");
+                }
+            }
             if(objectMessage == null) {
                 System.out.println("Error checking prices");
             } else {
@@ -165,6 +174,8 @@ public class PriceKeeper {
                 for(String xml : result) {
                     if(!xmlValidator.isValidXML(xml, xsdURL)) {
                         System.err.println("Invalid XML. Ignorig received values.");
+                        System.out.println(xsdURL);
+                        System.out.println(xml);
                         return;
                     }
                 }
@@ -207,12 +218,14 @@ public class PriceKeeper {
                     continue;
                 }
                 ArrayList<Smartphone> searchResult = this.priceKeeper.search(hashMap);
+                System.out.println(searchResult);
                 try (JMSContext jmsContext = connectionFactory.createContext("pjaneiro","|Sisc00l")){
                     ObjectMessage objectMessage = jmsContext.createObjectMessage(searchResult);
                     JMSProducer jmsProducer = jmsContext.createProducer();
                     jmsProducer.send(replyTo, objectMessage);
                 } catch (JMSRuntimeException e) {
                     System.err.println("Error sending answer.");
+                    e.printStackTrace();
                 }
             }
         }

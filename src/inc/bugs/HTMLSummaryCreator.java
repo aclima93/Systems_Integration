@@ -1,6 +1,7 @@
 package inc.bugs;
 
 import javax.jms.*;
+import javax.jms.IllegalStateException;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.xml.transform.Transformer;
@@ -108,7 +109,12 @@ public class HTMLSummaryCreator {
         System.out.println("Begin receive");
 
         this.topicConnection.start();
-        TopicSubscriber topicSubscriber = this.topicSession.createDurableSubscriber(this.topic, "HTMLGenerator");
+        TopicSubscriber topicSubscriber = null;
+        try {
+            topicSubscriber = this.topicSession.createDurableSubscriber(this.topic, "HTMLGenerator");
+        } catch (IllegalStateException e) {
+            return null;
+        }
         Message objectMessage = topicSubscriber.receive();
         topicSubscriber.close();
 

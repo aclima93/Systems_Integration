@@ -27,7 +27,7 @@ import java.util.Locale;
 
 public class WebCrawler {
 
-    private static final boolean DEBUG_URLS = false;
+    private static final boolean DEBUG_URLS = true;
     private static final boolean DEBUG_SMARTPHONE = false;
     private static final boolean VERBOSE = true;
 
@@ -301,7 +301,9 @@ public class WebCrawler {
             }
 
             // create Smartphone object and save it
-            collectedSmartphones.add(createSmartphone(url, doc));
+            if(url.compareTo(startingURL) != 0) {
+                collectedSmartphones.add(createSmartphone(url, doc));
+            }
 
             // craw to other links on this page
             Elements links = doc.select("a[href]");
@@ -396,8 +398,9 @@ public class WebCrawler {
 
             technicalData.getTable().add(table);
         }
-
-        smartphone.setTechnicalData(technicalData);
+        if(!technicalData.getTable().isEmpty()) {
+            smartphone.setTechnicalData(technicalData);
+        }
 
         return smartphone;
     }
