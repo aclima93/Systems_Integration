@@ -30,21 +30,19 @@ public class WebCrawler {
     private static final boolean DEBUG_URLS = false;
     private static final boolean DEBUG_SMARTPHONE = false;
     private static final boolean VERBOSE = true;
-    private static final boolean SIMPLE_TEST = false;
-
 
     private static final int MAX_ATTEMPTS = 6;
     private static int attemptCounter;
 
-    private static boolean backupFiles;
+    private static boolean backupHMTLFiles;
     private static String startingURL;
     private static HashMap<String, Integer> visitedURLs = new HashMap<String, Integer>();
     private static String [] searchRegexes;
     private static String rootDir = "cache";
     private static String htmlDir = "html";
-    private static String unpublishedDir = "unpublished";
+    private static String unpublishedFile = "unpublished.tmp";
     private static ArrayList<Smartphone> collectedSmartphones = new ArrayList<Smartphone>();
-    private static ArrayList<ArrayList<String>> createdXMLFiles = new ArrayList<ArrayList<String>>();
+    private static ArrayList<String> createdXMLFiles = new ArrayList<String>();
 
     private static TopicConnectionFactory topicConnectionFactory = null;
     private static TopicConnection topicConnection = null;
@@ -62,24 +60,9 @@ public class WebCrawler {
      * Example input:
      http://www.pixmania.pt/ /Users/aclima/Documents/Repositories/Systems_Integration/src/inc/bugs/search_regexes.json
      *
-     * @param args &lt;url&gt; [&lt;file:search_regexes.json&gt;] [&lt;boolean:backupFiles&gt;]
+     * @param args &lt;url&gt; [&lt;file:search_regexes.json&gt;] [&lt;boolean:backupHMTLFiles&gt;]
      */
     public static void main(String[] args) throws JMSException, NamingException {
-
-        if(SIMPLE_TEST){
-            Document doc = null;
-            String url = "http://www.pixmania.pt/smartphone/lg-g4-32-gb-4g-titanio-smartphone/22623277-a.html";
-            try {
-                doc = Jsoup.connect(url).get();
-                createSmartphone(url, doc);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            createAndSaveXMLFiles();
-
-            System.exit(0);
-        }
 
         if (args.length > 0) {
 
@@ -90,11 +73,14 @@ public class WebCrawler {
             }
 
             if(args.length == 3) {
-                backupFiles = Boolean.parseBoolean(args[2]);
+                backupHMTLFiles = Boolean.parseBoolean(args[2]);
             }
 
-            // TODO: Check if there are any unplublished messages to the JMS Topic and, if yes, send them
+            // Check if there are any unpublished messages to the JMS Topic and, if yes, send them
+            loadUnpublishedMessages();
 
+            // send XML message(s) to the JMS Topic
+            publishXMLFilesToJMSTopic();
 
             // Fetch the website
             crawl(startingURL);
@@ -102,29 +88,17 @@ public class WebCrawler {
             // create XML file(s)
             createAndSaveXMLFiles();
 
-            initialize();
-
-            // Retry a couple fo times if it fails.
-            for(attemptCounter = 1; attemptCounter < MAX_ATTEMPTS; attemptCounter++) {
-
-                // send XML message(s) to the JMS Topic.
-                if (publishXMLFilesToJMSTopic()){
-
-                    // if it was successful we can delete the files we had saved
-                    deletePublishedMessages();
-                    break;
-                }
-            }
-
-            stop();
+            // send XML message(s) to the JMS Topic
+            publishXMLFilesToJMSTopic();
 
             // Statistics for Geeks
             printStatistics();
 
+            System.out.println("Finished crawling successfully.");
             System.exit(0);
         }
         else {
-            System.err.println("Invalid number of arguments.\nSyntax: WebCrawler &lt;url&gt; [&lt;file:search_regexes.json&gt;] [&lt;boolean:backupFiles&gt;]");
+            System.err.println("Invalid number of arguments.\nSyntax: WebCrawler &lt;url&gt; [&lt;file:search_regexes.json&gt;] [&lt;boolean:backupHMTLFiles&gt;]");
             System.exit(1);
         }
     }
@@ -134,25 +108,110 @@ public class WebCrawler {
      */
     private static void deletePublishedMessages() {
 
-        // TODO: Delete Published XML Messages
+        // delete all files after they have been sent
+        createdXMLFiles.clear();
+
+        if(VERBOSE){
+            System.out.println("Deleted Published Messages.");
+        }
+    }
+
+    /**
+     * Save Unpublished XML Messages
+     */
+    private static void saveUnpublishedMessages() {
+
+        try {
+
+            FileOutputStream fileOutputStream = new FileOutputStream(unpublishedFile);
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
+            objectOutputStream.writeObject(createdXMLFiles);
+            objectOutputStream.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if(VERBOSE){
+            System.out.println("Saved Unpublished Messages.");
+        }
+    }
+
+    /**
+     * Load Unpublished XML Messages
+     */
+    private static void loadUnpublishedMessages() {
+
+        try {
+
+            File dirs = new File(rootDir);
+
+            if (dirs.mkdirs()) {
+
+                File file = new File(rootDir + File.separator + unpublishedFile);
+
+                FileInputStream fileInputStream = new FileInputStream(file);
+                ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
+                createdXMLFiles = (ArrayList<String>) objectInputStream.readObject();
+                objectInputStream.close();
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        if(VERBOSE){
+            System.out.println("Loaded Unpublished Messages.");
+        }
 
     }
 
     /**
      * Tries to publish the list of XML Files to the JMS Topic
-     * @return isSuccessful whether or not the XML File transfers were successful
      */
-    private static boolean publishXMLFilesToJMSTopic() throws JMSException, NamingException{
-        System.out.println("Begin send");
-        TopicPublisher topicPublisher = topicSession.createPublisher(topic);
-        for (ArrayList<String> crawlSession : createdXMLFiles) {
-            ObjectMessage message = topicSession.createObjectMessage(crawlSession);
-            topicPublisher.publish(message);
+    private static void publishXMLFilesToJMSTopic() throws JMSException, NamingException {
+
+        if(VERBOSE) {
+            System.out.println("Publishing to JMS Topic");
         }
-        createdXMLFiles.clear();
-        // TODO: send XML message(s) to the JMS Topic.
-        System.out.println("All messages sent");
-        return true;
+
+        // initialize the JMS Topic
+        initializeJMSTopic();
+
+        // Retry a couple fo times if it fails.
+        for(attemptCounter = 1; attemptCounter < MAX_ATTEMPTS; attemptCounter++) {
+
+            // send XML message(s) to the JMS Topic
+            try {
+
+                TopicPublisher topicPublisher = topicSession.createPublisher(topic);
+                ObjectMessage message = topicSession.createObjectMessage(createdXMLFiles);
+                topicPublisher.publish(message);
+
+            } catch (JMSException e){
+                // something went wrong while trying to publish
+                e.printStackTrace();
+            }
+        }
+
+        if(attemptCounter == MAX_ATTEMPTS){
+            // if it was unsuccessful we save the files for the next time the crawler runs
+            saveUnpublishedMessages();
+        }
+        else{
+            // if it was successful we can delete the files we had saved
+            deletePublishedMessages();
+        }
+
+        // stop the JMS Topic
+        stopJMSTopic();
+
+        if(VERBOSE) {
+            System.out.println("All messages sent to JMS Topic");
+        }
+
     }
 
     /**
@@ -162,26 +221,30 @@ public class WebCrawler {
 
         JAXBContext jaxbContext;
         Marshaller marshaller;
+
         try {
+
             jaxbContext = JAXBContext.newInstance(Smartphone.class);
             marshaller = jaxbContext.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            ArrayList<String> currentCrawlSession = new ArrayList<String>();
 
             for(Smartphone smartphone : collectedSmartphones) {
+
                 StringWriter stringWriter = new StringWriter();
-                //marshaller.marshal(smartphone, System.out); // TODO: trocar este system.out e guardar o output
                 marshaller.marshal(smartphone, stringWriter);
-                //generatedXML += stringWriter.toString();
-                currentCrawlSession.add(stringWriter.toString());
+                createdXMLFiles.add(stringWriter.toString());
                 stringWriter.flush();
             }
 
-
-            createdXMLFiles.add(currentCrawlSession);
         } catch (JAXBException e) {
             // could not create Marshalled XML
+            e.printStackTrace();
         }
+
+        if(VERBOSE){
+            System.out.println("Created and saved XML files from crawling.");
+        }
+
     }
 
     /**
@@ -195,13 +258,12 @@ public class WebCrawler {
         if( searchRegexes.length == 0)
             return true;
 
+        // the first regex is the main/starting website
         if( url.equals(searchRegexes[0])) {
             return false;
         }
 
         for(String regex: searchRegexes){
-            // super regex
-            //if( url.matches("(http://www\\.pixmania\\.pt/)((telefones/telemovel/)?(smartphone|iphone)/([a-z]|[A-Z]|-|_|\\d)+/(\\d+)-a\\.html)?") ) {
             if( url.matches(regex) ) {
                 return true;
             }
@@ -233,7 +295,7 @@ public class WebCrawler {
 
             Document doc = Jsoup.connect(url).get();
 
-            if(backupFiles) {
+            if(backupHMTLFiles) {
                 // save HTML page
                 saveHTMLPage(doc, url);
             }
@@ -255,6 +317,7 @@ public class WebCrawler {
 
         } catch (IOException e) {
             // invalid url, file or something else
+            e.printStackTrace();
         }
 
     }
@@ -280,12 +343,15 @@ public class WebCrawler {
 
         // Price and Currency
         try {
+
             String[] priceAndCurrency = doc.select("div[class=currentPrice]").select("ins[itemprop=price]").text().replace("\u00a0", " ").split("\\s+"); // pesky &no-break space
             NumberFormat nf = NumberFormat.getInstance(Locale.GERMAN); // German locale has the same decimal and grouping separators as PT
             smartphone.setPrice( new BigDecimal(nf.parse(priceAndCurrency[0]).toString()));
             smartphone.setCurrency(priceAndCurrency[1]);
+
         } catch (ParseException e) {
             // invalid number format/unparsable number
+            e.printStackTrace();
         }
 
         // Summary Data
@@ -345,7 +411,7 @@ public class WebCrawler {
             System.out.println(
                 "\n*----------------------*" +
                 "\n| Statistics for Geeks |" +
-                "\n*----------------------* "
+                "\n*----------------------*"
             );
             System.out.println("Num. URLs Visited: " + visitedURLs.size());
             System.out.println("Num. URLs Visited Only Once: " + Collections.frequency(visitedURLs.values(), 1));
@@ -373,8 +439,14 @@ public class WebCrawler {
             // convert JSON Array of Strings to Java Array fo Strings
             Gson gson = new Gson();
             searchRegexes = gson.fromJson(fileContent, String[].class);
+
         } catch (IOException e) {
             // invalid file
+            e.printStackTrace();
+        }
+
+        if(VERBOSE){
+            System.out.println("Loaded Search Regexes.");
         }
 
     }
@@ -425,24 +497,37 @@ public class WebCrawler {
 
         } catch (IOException e) {
             // invalid url, file or something else
+            e.printStackTrace();
         }
         
     }
 
-    public static void initialize() throws JMSException, NamingException {
+    public static void initializeJMSTopic() throws JMSException, NamingException {
+
         System.setProperty("java.naming.factory.initial","org.jboss.naming.remote.client.InitialContextFactory");
         System.setProperty("java.naming.provider.url","http-remoting://localhost:8080");
+
         topicConnectionFactory = InitialContext.doLookup("jms/RemoteConnectionFactory");
         topicConnection = topicConnectionFactory.createTopicConnection("pjaneiro", "|Sisc00l");
         topic = InitialContext.doLookup("jms/topic/pixmania");
         topicSession = topicConnection.createTopicSession(false, TopicSession.AUTO_ACKNOWLEDGE);
         topicConnection.start();
+
+        if(VERBOSE){
+            System.out.println("Initialized JMS Topic.");
+        }
+
     }
 
-    public static void stop() throws JMSException {
+    public static void stopJMSTopic() throws JMSException {
+
         topicConnection.stop();
         topicSession.close();
         topicConnection.close();
+
+        if(VERBOSE){
+            System.out.println("Stopped JMS Topic.");
+        }
     }
 
 }
