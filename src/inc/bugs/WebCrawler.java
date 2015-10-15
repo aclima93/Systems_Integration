@@ -16,6 +16,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import java.io.*;
 import java.math.BigDecimal;
+import java.net.SocketTimeoutException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.NumberFormat;
@@ -154,12 +155,13 @@ public class WebCrawler {
                 ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
                 createdXMLFiles = (ArrayList<String>) objectInputStream.readObject();
                 objectInputStream.close();
+                if(file.delete()) {
+                    System.out.println("Deleted backup file.");
+                }
             }
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+        } catch (IOException|ClassNotFoundException e) {
+            System.out.println("There are no unpublished messages.");
         }
 
         if(VERBOSE){
@@ -189,10 +191,10 @@ public class WebCrawler {
                 TopicPublisher topicPublisher = topicSession.createPublisher(topic);
                 ObjectMessage message = topicSession.createObjectMessage(createdXMLFiles);
                 topicPublisher.publish(message);
-
+                break;
             } catch (JMSException e){
                 // something went wrong while trying to publish
-                e.printStackTrace();
+                System.out.println("Error trying to publish messages.");
             }
         }
 
@@ -292,8 +294,13 @@ public class WebCrawler {
         }
 
         try {
-
-            Document doc = Jsoup.connect(url).get();
+            Document doc = null;
+            try {
+                doc = Jsoup.connect(url).get();
+            } catch (SocketTimeoutException e) {
+                System.out.println("Couldn't load page: "+url);
+                return;
+            }
 
             if(backupHMTLFiles) {
                 // save HTML page

@@ -94,7 +94,7 @@ public class Smartphone implements Serializable, Comparable<Smartphone> {
     protected BigDecimal price;
 
     public int compareTo(Smartphone o) {
-        return this.hashCode() - o.hashCode();
+        return this.getName().compareToIgnoreCase(o.getName());
     }
 
     /**
