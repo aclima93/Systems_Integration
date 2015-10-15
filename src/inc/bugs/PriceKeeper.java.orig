@@ -1,5 +1,9 @@
 package inc.bugs;
 
+<<<<<<< HEAD
+import javax.jms.*;
+import javax.naming.NamingException;
+=======
 import generated.Smartphone;
 
 import javax.jms.*;
@@ -14,13 +18,22 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
+>>>>>>> price_keeper
 
 /**
  * Created by pedro on 14-10-2015.
  */
 public class PriceKeeper {
+<<<<<<< HEAD
+    private TopicConnectionFactory topicConnectionFactory = null;
+    private TopicConnection topicConnection = null;
+    private TopicSession topicSession = null;
+    private Topic topic = null;
+
+=======
     private ConcurrentSkipListSet<Smartphone> smartphones = null;
     private TopicListener topicListener = null;
+>>>>>>> price_keeper
     /**
      * Price Keeper
      *
@@ -32,6 +45,13 @@ public class PriceKeeper {
      * @throws JMSException
      * @throws NamingException
      */
+<<<<<<< HEAD
+    public static void main(String[] args) throws JMSException, NamingException{
+        PriceKeeper priceKeeper = new PriceKeeper();
+    }
+
+    
+=======
     public static void main(String[] args) throws JMSException, NamingException, JAXBException {
         PriceKeeper priceKeeper = new PriceKeeper();
     }
@@ -195,4 +215,5 @@ public class PriceKeeper {
             this.destination = InitialContext.doLookup("jms/queue/queue");
         }
     }
+>>>>>>> price_keeper
 }

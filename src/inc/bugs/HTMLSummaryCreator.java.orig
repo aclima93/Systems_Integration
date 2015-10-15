@@ -113,8 +113,13 @@ public class HTMLSummaryCreator {
         topicSubscriber.close();
 
         if(objectMessage == null) {
-            System.err.println("Error checking prices");
+<<<<<<< HEAD
 
+            System.out.println("Timed out");
+
+=======
+            System.out.println("Error checking prices");
+>>>>>>> price_keeper
             return null;
         }
         else {
