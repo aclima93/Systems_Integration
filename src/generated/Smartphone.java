@@ -51,6 +51,11 @@ import java.util.List;
  *           &lt;/complexType>
  *         &lt;/element>
  *       &lt;/sequence>
+ *       &lt;attribute name="url" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
+ *       &lt;attribute name="name" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
+ *       &lt;attribute name="brand" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
+ *       &lt;attribute name="currency" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
+ *       &lt;attribute name="summary_data" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
  *       &lt;attribute name="price" use="required">
  *         &lt;simpleType>
  *           &lt;restriction base="{http://www.w3.org/2001/XMLSchema}decimal">
@@ -58,11 +63,6 @@ import java.util.List;
  *           &lt;/restriction>
  *         &lt;/simpleType>
  *       &lt;/attribute>
- *       &lt;attribute name="url" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
- *       &lt;attribute name="name" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
- *       &lt;attribute name="brand" type="{http://www.w3.org/2001/XMLSchema}string" />
- *       &lt;attribute name="currency" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
- *       &lt;attribute name="summary_data" type="{http://www.w3.org/2001/XMLSchema}string" />
  *     &lt;/restriction>
  *   &lt;/complexContent>
  * &lt;/complexType>
@@ -79,18 +79,18 @@ public class Smartphone {
 
     @XmlElement(name = "technical_data")
     protected Smartphone.TechnicalData technicalData;
-    @XmlAttribute(name = "price", required = true)
-    protected BigDecimal price;
     @XmlAttribute(name = "url", required = true)
     protected String url;
     @XmlAttribute(name = "name", required = true)
     protected String name;
-    @XmlAttribute(name = "brand")
+    @XmlAttribute(name = "brand", required = true)
     protected String brand;
     @XmlAttribute(name = "currency", required = true)
     protected String currency;
-    @XmlAttribute(name = "summary_data")
+    @XmlAttribute(name = "summary_data", required = true)
     protected String summaryData;
+    @XmlAttribute(name = "price", required = true)
+    protected BigDecimal price;
 
     /**
      * Gets the value of the technicalData property.
@@ -114,30 +114,6 @@ public class Smartphone {
      */
     public void setTechnicalData(Smartphone.TechnicalData value) {
         this.technicalData = value;
-    }
-
-    /**
-     * Gets the value of the price property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link BigDecimal }
-     *     
-     */
-    public BigDecimal getPrice() {
-        return price;
-    }
-
-    /**
-     * Sets the value of the price property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link BigDecimal }
-     *     
-     */
-    public void setPrice(BigDecimal value) {
-        this.price = value;
     }
 
     /**
@@ -258,6 +234,30 @@ public class Smartphone {
      */
     public void setSummaryData(String value) {
         this.summaryData = value;
+    }
+
+    /**
+     * Gets the value of the price property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link BigDecimal }
+     *     
+     */
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    /**
+     * Sets the value of the price property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link BigDecimal }
+     *     
+     */
+    public void setPrice(BigDecimal value) {
+        this.price = value;
     }
 
 
