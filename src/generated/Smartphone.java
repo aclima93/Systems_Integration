@@ -97,6 +97,11 @@ public class Smartphone implements Serializable, Comparable<Smartphone> {
         return this.getName().compareToIgnoreCase(o.getName());
     }
 
+    @Override
+    public String toString() {
+        return "Name: " + this.getName() + "\nBrand: " + this.getBrand() + "\nPrice: " + this.getPrice() + this.getCurrency() + "\n\n";
+    }
+
     /**
      * Gets the value of the technicalData property.
      * 

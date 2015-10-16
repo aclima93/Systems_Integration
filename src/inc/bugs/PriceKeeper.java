@@ -37,6 +37,7 @@ public class PriceKeeper {
         } else {
             System.err.println("Invalid number of arguments.\nSyntax: PriceKeeper &lt;xsd&gt;");
         }
+        new InitialContext();
         PriceKeeper priceKeeper = new PriceKeeper();
         priceKeeper.mainLoop();
     }
@@ -67,37 +68,37 @@ public class PriceKeeper {
         }
     }
 
-    public ArrayList<Smartphone> search(HashMap<SEARCH_MODES, String> searchTerms) {
-        ArrayList<Smartphone> result = new ArrayList<>();
+    public String search(HashMap<SEARCH_MODES, String> searchTerms) {
+        String result = "";
         if(searchTerms.containsKey(SEARCH_MODES.BRAND)) {
             for(Smartphone current : smartphones) {
                 if(current.getBrand().compareToIgnoreCase(searchTerms.get(SEARCH_MODES.BRAND)) == 0) {
-                    result.add(current);
+                    result += current;
                 }
             }
         } else if(searchTerms.containsKey(SEARCH_MODES.BRAND_NAME)) {
             String[] brandName = searchTerms.get(SEARCH_MODES.BRAND_NAME).trim().split("-|\\s+");
             for(Smartphone current : smartphones) {
                 if(current.getBrand().toUpperCase().compareTo(brandName[0].toUpperCase()) == 0 && current.getName().toUpperCase().contains(brandName[1].toUpperCase())) {
-                    result.add(current);
+                    result += current;
                 }
             }
         } else if(searchTerms.containsKey(SEARCH_MODES.NAME)) {
             String nome = searchTerms.get(SEARCH_MODES.NAME);
             for(Smartphone current : smartphones) {
                 if(current.getName().toUpperCase().contains(nome.toUpperCase())) {
-                    result.add(current);
+                    result += current;
                 }
             }
         } else if(searchTerms.containsKey(SEARCH_MODES.PRICE_RANGE)) {
             String[] preco = searchTerms.get(SEARCH_MODES.PRICE_RANGE).trim().split("-|\\s+");
             for(Smartphone current : smartphones) {
                 if(current.getPrice().doubleValue()>=Double.parseDouble(preco[0]) && current.getPrice().doubleValue()<=Double.parseDouble(preco[1])) {
-                    result.add(current);
+                    result += current;
                 }
             }
         }
-        return  result;
+        return result;
     }
 
 
@@ -125,8 +126,8 @@ public class PriceKeeper {
 
         public boolean initialize() {
             try {
-                /*System.setProperty("java.naming.factory.initial", "org.jboss.naming.remote.client.InitialContextFactory");
-                System.setProperty("java.naming.provider.url", "http-remoting://localhost:8080");*/
+                System.setProperty("java.naming.factory.initial", "org.jboss.naming.remote.client.InitialContextFactory");
+                System.setProperty("java.naming.provider.url", "http-remoting://localhost:8080");
                 this.topicConnectionFactory = InitialContext.doLookup("jms/RemoteConnectionFactory");
                 return true;
             } catch (NamingException e) {
@@ -156,11 +157,9 @@ public class PriceKeeper {
                     System.err.println("Error receiving data from topic.");
                     return;
                 }
-            } catch (JMSException|NamingException|JMSRuntimeException e) {
+            } catch (JMSException|NamingException|JMSRuntimeException|NullPointerException e) {
                 System.err.println("Error receiving data from topic.");
                 return;
-            } catch (NullPointerException e) {
-                System.err.println("Error receiving data from topic.");
             }
             System.out.println("Evaluating data validity");
             XMLValidator xmlValidator = new XMLValidator();
@@ -205,12 +204,12 @@ public class PriceKeeper {
                             System.err.println("Error receiving request.");
                             continue;
                         }
-                        ArrayList<Smartphone> searchResult = this.priceKeeper.search(hashMap);
+                        String searchResult = this.priceKeeper.search(hashMap);
                         System.out.println(searchResult);
                         try (JMSContext jmsContext = connectionFactory.createContext("pjaneiro","|Sisc00l")){
-                            ObjectMessage objectMessage = jmsContext.createObjectMessage(searchResult);
+                            TextMessage textMessage = jmsContext.createTextMessage(searchResult);
                             JMSProducer jmsProducer = jmsContext.createProducer();
-                            jmsProducer.send(replyTo, objectMessage);
+                            jmsProducer.send(replyTo, textMessage);
                         } catch (JMSRuntimeException e) {
                             System.err.println("Error sending answer.");
                             e.printStackTrace();
@@ -222,8 +221,8 @@ public class PriceKeeper {
 
         public boolean initialize() {
             try {
-                /*System.setProperty("java.naming.factory.initial", "org.jboss.naming.remote.client.InitialContextFactory");
-                System.setProperty("java.naming.provider.url", "http-remoting://localhost:8080");*/
+                System.setProperty("java.naming.factory.initial", "org.jboss.naming.remote.client.InitialContextFactory");
+                System.setProperty("java.naming.provider.url", "http-remoting://localhost:8080");
                 this.connectionFactory = InitialContext.doLookup("jms/RemoteConnectionFactory");
                 this.destination = InitialContext.doLookup("jms/queue/queue");
                 return true;

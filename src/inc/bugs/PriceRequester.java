@@ -1,23 +1,15 @@
 package inc.bugs;
 
-import generated.Smartphone;
-
 import javax.jms.*;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
 
-/**
- * Created by pedro on 15-10-2015.
- */
 public class PriceRequester {
     private static int MAX_TRIES = 5;
     private ConnectionFactory connectionFactory = null;
-    private Session session = null;
-    private Connection connection = null;
     private Destination destination = null;
     private TemporaryQueue temporaryQueue = null;
 
@@ -44,8 +36,8 @@ public class PriceRequester {
         }
     }
 
-    private ArrayList<Smartphone> requestInfo(HashMap<SEARCH_MODES, String> searchTerms) {
-        ArrayList<Smartphone> result = new ArrayList<Smartphone>();
+    private String requestInfo(HashMap<SEARCH_MODES, String> searchTerms) {
+        String result;
         try(JMSContext jmsContext = connectionFactory.createContext("pjaneiro","|Sisc00l")){
             System.out.println("Sending request.");
             temporaryQueue = jmsContext.createTemporaryQueue();
@@ -53,23 +45,24 @@ public class PriceRequester {
             ObjectMessage objectMessage = jmsContext.createObjectMessage(searchTerms);
             objectMessage.setJMSReplyTo(temporaryQueue);
             jmsProducer.send(destination, objectMessage);
+
             System.out.println("Waiting for response.");
             JMSConsumer jmsConsumer = jmsContext.createConsumer(temporaryQueue);
             Message message = jmsConsumer.receive();
-            result = message.getBody(result.getClass());
+            result = message.getBody(String.class);
             jmsConsumer.close();
             temporaryQueue.delete();
         } catch (JMSException e) {
             e.printStackTrace();
             System.err.println("Error sending/receiving request.");
-            return null;
+            result = "";
         }
-        return  result;
+        return result;
     }
 
     private void mainLoop() throws IOException {
-        HashMap<SEARCH_MODES, String> searchTerm = new HashMap<SEARCH_MODES, String>();
-        ArrayList<Smartphone> result = null;
+        HashMap<SEARCH_MODES, String> searchTerm = new HashMap<>();
+        String result;
         while (true) {
             System.out.println("Insert desired search term:");
             System.out.println("1 - Search by brand");
@@ -89,14 +82,11 @@ public class PriceRequester {
                     String brand = scanner.nextLine();
                     searchTerm.put(SEARCH_MODES.BRAND, brand);
                     result = this.requestInfo(searchTerm);
-                    if(result != null) {
+                    if(result != null && result.length()!=0) {
                         System.out.println("The following smartphones have been found:");
-                        for(Smartphone smartphone : result) {
-                            System.out.println("Name: "+smartphone.getName());
-                            System.out.println("Brand: "+smartphone.getBrand());
-                            System.out.println("Price: "+smartphone.getPrice());
-                            System.out.println();
-                        }
+                        System.out.print(result);
+                    } else {
+                        System.out.println("No smartphones have been found.");
                     }
                     searchTerm.clear();
                     break;
@@ -105,14 +95,11 @@ public class PriceRequester {
                     String brand_model = scanner.nextLine();
                     searchTerm.put(SEARCH_MODES.BRAND_NAME, brand_model);
                     result = this.requestInfo(searchTerm);
-                    if(result != null) {
+                    if(result != null && result.length()!=0) {
                         System.out.println("The following smartphones have been found:");
-                        for(Smartphone smartphone : result) {
-                            System.out.println("Name: "+smartphone.getName());
-                            System.out.println("Brand: "+smartphone.getBrand());
-                            System.out.println("Price: "+smartphone.getPrice());
-                            System.out.println();
-                        }
+                        System.out.print(result);
+                    } else {
+                        System.out.println("No smartphones have been found.");
                     }
                     searchTerm.clear();
                     break;
@@ -121,14 +108,11 @@ public class PriceRequester {
                     String name = scanner.nextLine();
                     searchTerm.put(SEARCH_MODES.NAME, name);
                     result = this.requestInfo(searchTerm);
-                    if(result != null) {
+                    if(result != null && result.length()!=0) {
                         System.out.println("The following smartphones have been found:");
-                        for(Smartphone smartphone : result) {
-                            System.out.println("Name: "+smartphone.getName());
-                            System.out.println("Brand: "+smartphone.getBrand());
-                            System.out.println("Price: "+smartphone.getPrice());
-                            System.out.println();
-                        }
+                        System.out.print(result);
+                    } else {
+                        System.out.println("No smartphones have been found.");
                     }
                     searchTerm.clear();
                     break;
@@ -137,14 +121,11 @@ public class PriceRequester {
                     String prices = scanner.nextLine();
                     searchTerm.put(SEARCH_MODES.PRICE_RANGE, prices);
                     result = this.requestInfo(searchTerm);
-                    if(result != null) {
+                    if(result != null && result.length()!=0) {
                         System.out.println("The following smartphones have been found:");
-                        for(Smartphone smartphone : result) {
-                            System.out.println("Name: "+smartphone.getName());
-                            System.out.println("Brand: "+smartphone.getBrand());
-                            System.out.println("Price: "+smartphone.getPrice());
-                            System.out.println();
-                        }
+                        System.out.print(result);
+                    } else {
+                        System.out.println("No smartphones have been found.");
                     }
                     searchTerm.clear();
                     break;
