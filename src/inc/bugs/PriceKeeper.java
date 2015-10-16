@@ -125,8 +125,8 @@ public class PriceKeeper {
 
         public boolean initialize() {
             try {
-                System.setProperty("java.naming.factory.initial", "org.jboss.naming.remote.client.InitialContextFactory");
-                System.setProperty("java.naming.provider.url", "http-remoting://localhost:8080");
+                /*System.setProperty("java.naming.factory.initial", "org.jboss.naming.remote.client.InitialContextFactory");
+                System.setProperty("java.naming.provider.url", "http-remoting://localhost:8080");*/
                 this.topicConnectionFactory = InitialContext.doLookup("jms/RemoteConnectionFactory");
                 return true;
             } catch (NamingException e) {
@@ -222,12 +222,13 @@ public class PriceKeeper {
 
         public boolean initialize() {
             try {
-                System.setProperty("java.naming.factory.initial", "org.jboss.naming.remote.client.InitialContextFactory");
-                System.setProperty("java.naming.provider.url", "http-remoting://localhost:8080");
+                /*System.setProperty("java.naming.factory.initial", "org.jboss.naming.remote.client.InitialContextFactory");
+                System.setProperty("java.naming.provider.url", "http-remoting://localhost:8080");*/
                 this.connectionFactory = InitialContext.doLookup("jms/RemoteConnectionFactory");
                 this.destination = InitialContext.doLookup("jms/queue/queue");
                 return true;
             } catch (NamingException e) {
+                e.printStackTrace();
                 System.err.println("Error setting JMS connection.");
                 return false;
             }
