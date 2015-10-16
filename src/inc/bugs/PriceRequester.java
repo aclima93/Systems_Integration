@@ -30,39 +30,30 @@ public class PriceRequester {
     }
 
     private void initialize() throws JMSException, NamingException {
-        System.setProperty("java.naming.factory.initial","org.jboss.naming.remote.client.InitialContextFactory");
-        System.setProperty("java.naming.provider.url","http-remoting://localhost:8080");
+        System.setProperty("java.naming.factory.initial", "org.jboss.naming.remote.client.InitialContextFactory");
+        System.setProperty("java.naming.provider.url", "http-remoting://localhost:8080");
         this.connectionFactory = InitialContext.doLookup("jms/RemoteConnectionFactory");
         this.destination = InitialContext.doLookup("jms/queue/queue");
     }
 
     private ArrayList<Smartphone> requestInfo(HashMap<SEARCH_MODES, String> searchTerms) {
         ArrayList<Smartphone> result = new ArrayList<Smartphone>();
-        System.out.println("Sending request.");
-        try {
-            connection = connectionFactory.createConnection("pjaneiro", "|Sisc00l");
-            connection.start();
-            session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            temporaryQueue = session.createTemporaryQueue();
-            ObjectMessage objectMessage = session.createObjectMessage(searchTerms);
+        try(JMSContext jmsContext = connectionFactory.createContext("pjaneiro","|Sisc00l")){
+            System.out.println("Sending request.");
+            temporaryQueue = jmsContext.createTemporaryQueue();
+            JMSProducer jmsProducer = jmsContext.createProducer();
+            ObjectMessage objectMessage = jmsContext.createObjectMessage(searchTerms);
             objectMessage.setJMSReplyTo(temporaryQueue);
-            session.createProducer(destination).send(objectMessage);
-        } catch (JMSException e) {
-            System.err.println("Error sending request.");
-            return null;
-        }
-        System.out.println("Waiting for response.");
-        try {
-            MessageConsumer messageConsumer = session.createConsumer(temporaryQueue);
-            Message message = messageConsumer.receive();
+            jmsProducer.send(destination, objectMessage);
+            System.out.println("Waiting for response.");
+            JMSConsumer jmsConsumer = jmsContext.createConsumer(temporaryQueue);
+            Message message = jmsConsumer.receive();
             result = message.getBody(result.getClass());
-            messageConsumer.close();
+            jmsConsumer.close();
             temporaryQueue.delete();
-            connection.stop();
-            session.close();
-            connection.close();
         } catch (JMSException e) {
-            System.err.println("Error receiving answer.");
+            e.printStackTrace();
+            System.err.println("Error sending/receiving request.");
             return null;
         }
         return  result;
