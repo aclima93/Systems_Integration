@@ -69,27 +69,28 @@ public class PriceKeeper {
 
     public ArrayList<Smartphone> search(HashMap<SEARCH_MODES, String> searchTerms) {
         ArrayList<Smartphone> result = new ArrayList<>();
-        if(searchTerms.containsKey(SEARCH_MODES.MARCA)) {
+        if(searchTerms.containsKey(SEARCH_MODES.BRAND)) {
             for(Smartphone current : smartphones) {
-                if(current.getBrand().compareToIgnoreCase(searchTerms.get(SEARCH_MODES.MARCA)) == 0) {
+                if(current.getBrand().compareToIgnoreCase(searchTerms.get(SEARCH_MODES.BRAND)) == 0) {
                     result.add(current);
                 }
             }
-        } else if(searchTerms.containsKey(SEARCH_MODES.MARCA_MODELO)) {
-            String[] marcaModelo = searchTerms.get(SEARCH_MODES.MARCA_MODELO).trim().split("-|\\s+");
+        } else if(searchTerms.containsKey(SEARCH_MODES.BRAND_NAME)) {
+            String[] brandName = searchTerms.get(SEARCH_MODES.BRAND_NAME).trim().split("-|\\s+");
             for(Smartphone current : smartphones) {
-                if(current.getBrand().toUpperCase().compareTo(marcaModelo[0].toUpperCase()) == 0 && current.getName().toUpperCase().contains(marcaModelo[1].toUpperCase())) {
+                if(current.getBrand().toUpperCase().compareTo(brandName[0].toUpperCase()) == 0 && current.getName().toUpperCase().contains(brandName[1].toUpperCase())) {
                     result.add(current);
                 }
             }
-        } else if(searchTerms.containsKey(SEARCH_MODES.NOME)) {
+        } else if(searchTerms.containsKey(SEARCH_MODES.NAME)) {
+            String nome = searchTerms.get(SEARCH_MODES.NAME);
             for(Smartphone current : smartphones) {
-                if(current.getName().compareToIgnoreCase(searchTerms.get(SEARCH_MODES.NOME)) == 0) {
+                if(current.getName().toUpperCase().contains(nome.toUpperCase())) {
                     result.add(current);
                 }
             }
-        } else if(searchTerms.containsKey(SEARCH_MODES.INTERVALO_PRECOS)) {
-            String[] preco = searchTerms.get(SEARCH_MODES.INTERVALO_PRECOS).trim().split("-|\\s+");
+        } else if(searchTerms.containsKey(SEARCH_MODES.PRICE_RANGE)) {
+            String[] preco = searchTerms.get(SEARCH_MODES.PRICE_RANGE).trim().split("-|\\s+");
             for(Smartphone current : smartphones) {
                 if(current.getPrice().doubleValue()>=Double.parseDouble(preco[0]) && current.getPrice().doubleValue()<=Double.parseDouble(preco[1])) {
                     result.add(current);

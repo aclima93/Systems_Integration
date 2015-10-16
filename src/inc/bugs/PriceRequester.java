@@ -73,7 +73,7 @@ public class PriceRequester {
         while (true) {
             System.out.println("Insert desired search term:");
             System.out.println("1 - Search by brand");
-            System.out.println("2 - Search by brand and model");
+            System.out.println("2 - Search by brand and name");
             System.out.println("3 - Search by name");
             System.out.println("4 - Search by price range");
             System.out.println("0 - Exit");
@@ -87,7 +87,7 @@ public class PriceRequester {
                 case 1:
                     System.out.println("Insert brand:");
                     String brand = scanner.nextLine();
-                    searchTerm.put(SEARCH_MODES.MARCA, brand);
+                    searchTerm.put(SEARCH_MODES.BRAND, brand);
                     result = this.requestInfo(searchTerm);
                     if(result != null) {
                         System.out.println("The following smartphones have been found:");
@@ -101,9 +101,9 @@ public class PriceRequester {
                     searchTerm.clear();
                     break;
                 case 2:
-                    System.out.println("Insert brand and model as \"<brand> <model>\":");
+                    System.out.println("Insert brand and model as \"<brand> <name>\" (for example, \"Nokia verde\"):");
                     String brand_model = scanner.nextLine();
-                    searchTerm.put(SEARCH_MODES.MARCA_MODELO, brand_model);
+                    searchTerm.put(SEARCH_MODES.BRAND_NAME, brand_model);
                     result = this.requestInfo(searchTerm);
                     if(result != null) {
                         System.out.println("The following smartphones have been found:");
@@ -119,7 +119,7 @@ public class PriceRequester {
                 case 3:
                     System.out.println("Insert name:");
                     String name = scanner.nextLine();
-                    searchTerm.put(SEARCH_MODES.NOME, name);
+                    searchTerm.put(SEARCH_MODES.NAME, name);
                     result = this.requestInfo(searchTerm);
                     if(result != null) {
                         System.out.println("The following smartphones have been found:");
@@ -135,7 +135,7 @@ public class PriceRequester {
                 case 4:
                     System.out.println("Insert minimum and maximum price as \"<min_price>[-]<max_price>\":");
                     String prices = scanner.nextLine();
-                    searchTerm.put(SEARCH_MODES.INTERVALO_PRECOS, prices);
+                    searchTerm.put(SEARCH_MODES.PRICE_RANGE, prices);
                     result = this.requestInfo(searchTerm);
                     if(result != null) {
                         System.out.println("The following smartphones have been found:");
