@@ -14,6 +14,7 @@ import java.util.Scanner;
  * Created by pedro on 15-10-2015.
  */
 public class PriceRequester {
+    private static int MAX_TRIES = 5;
     private ConnectionFactory connectionFactory = null;
     private Session session = null;
     private Connection connection = null;
@@ -22,18 +23,25 @@ public class PriceRequester {
 
     public static void main(String[] args) throws JMSException, NamingException, IOException {
         PriceRequester priceRequester = new PriceRequester();
-        priceRequester.mainLoop();
+        for (int i = 0; i < MAX_TRIES; i++) {
+            if(priceRequester.initialize()) {
+                priceRequester.mainLoop();
+                return;
+            }
+        }
     }
 
-    public PriceRequester() throws JMSException, NamingException {
-        this.initialize();
-    }
-
-    private void initialize() throws JMSException, NamingException {
-        System.setProperty("java.naming.factory.initial", "org.jboss.naming.remote.client.InitialContextFactory");
-        System.setProperty("java.naming.provider.url", "http-remoting://localhost:8080");
-        this.connectionFactory = InitialContext.doLookup("jms/RemoteConnectionFactory");
-        this.destination = InitialContext.doLookup("jms/queue/queue");
+    private boolean initialize() {
+        try {
+            System.setProperty("java.naming.factory.initial", "org.jboss.naming.remote.client.InitialContextFactory");
+            System.setProperty("java.naming.provider.url", "http-remoting://localhost:8080");
+            this.connectionFactory = InitialContext.doLookup("jms/RemoteConnectionFactory");
+            this.destination = InitialContext.doLookup("jms/queue/queue");
+            return true;
+        } catch (NamingException e) {
+            System.err.println("Error setting JMS connection.");
+            return false;
+        }
     }
 
     private ArrayList<Smartphone> requestInfo(HashMap<SEARCH_MODES, String> searchTerms) {

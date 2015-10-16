@@ -34,6 +34,7 @@ public class WebCrawler {
 
     private static final int MAX_ATTEMPTS = 6;
     private static int attemptCounter;
+    private static boolean isConnected;
 
     private static boolean backupHMTLFiles;
     private static String startingURL;
@@ -74,11 +75,22 @@ public class WebCrawler {
                 backupHMTLFiles = Boolean.parseBoolean(args[2]);
             }
 
+            // Initialize the JMS Topic
+            isConnected = false;
+            for (int i = 0; i < MAX_ATTEMPTS; i++) {
+                if(initializeJMSTopic()) {
+                    isConnected = true;
+                    break;
+                }
+            }
+
             // Check if there are any unpublished messages to the JMS Topic and, if yes, send them
             loadUnpublishedMessages();
 
             // send XML message(s) to the JMS Topic
-            publishXMLFilesToJMSTopic();
+            if(!createdXMLFiles.isEmpty() && isConnected) {
+                publishXMLFilesToJMSTopic();
+            }
 
             // Fetch the website
             crawl(startingURL);
@@ -176,30 +188,31 @@ public class WebCrawler {
             System.out.println("Publishing to JMS Topic");
         }
 
-        // initialize the JMS Topic
-        initializeJMSTopic();
+        if(isConnected) {
+            // Retry a couple of times if it fails.
+            for (attemptCounter = 1; attemptCounter < MAX_ATTEMPTS; attemptCounter++) {
 
-        // Retry a couple of times if it fails.
-        for(attemptCounter = 1; attemptCounter < MAX_ATTEMPTS; attemptCounter++) {
-
-            // send XML message(s) to the JMS Topic
-            try(JMSContext jmsContext = topicConnectionFactory.createContext("pjaneiro","|Sisc00l")) {
-                Topic topic = InitialContext.doLookup("jms/topic/pixmania");
-                JMSProducer jmsProducer = jmsContext.createProducer();
-                ObjectMessage message = jmsContext.createObjectMessage(createdXMLFiles);
-                jmsProducer.send(topic, message);
-            } catch (NamingException|JMSRuntimeException e) {
-                System.err.println("Error publishing data to topic.");
+                // send XML message(s) to the JMS Topic
+                try (JMSContext jmsContext = topicConnectionFactory.createContext("pjaneiro", "|Sisc00l")) {
+                    Topic topic = InitialContext.doLookup("jms/topic/pixmania");
+                    JMSProducer jmsProducer = jmsContext.createProducer();
+                    ObjectMessage message = jmsContext.createObjectMessage(createdXMLFiles);
+                    jmsProducer.send(topic, message);
+                } catch (NamingException | JMSRuntimeException e) {
+                    System.err.println("Error publishing data to topic.");
+                }
             }
-        }
 
-        if(attemptCounter == MAX_ATTEMPTS){
-            // if it was unsuccessful we save the files for the next time the crawler runs
+            if (attemptCounter == MAX_ATTEMPTS) {
+                // if it was unsuccessful we save the files for the next time the crawler runs
+                saveUnpublishedMessages();
+            } else {
+                // if it was successful we can delete the files we had saved
+                deletePublishedMessages();
+            }
+        } else {
             saveUnpublishedMessages();
-        }
-        else{
-            // if it was successful we can delete the files we had saved
-            deletePublishedMessages();
+            return;
         }
 
         if(VERBOSE) {
@@ -504,13 +517,15 @@ public class WebCrawler {
         
     }
 
-    public static void initializeJMSTopic() {
+    public static boolean initializeJMSTopic() {
         try {
             System.setProperty("java.naming.factory.initial", "org.jboss.naming.remote.client.InitialContextFactory");
             System.setProperty("java.naming.provider.url", "http-remoting://localhost:8080");
             topicConnectionFactory = InitialContext.doLookup("jms/RemoteConnectionFactory");
+            return true;
         } catch (NamingException e) {
-            System.err.println("Error setting JMS connection");
+            System.err.println("Error setting JMS connection.");
+            return false;
         }
     }
 

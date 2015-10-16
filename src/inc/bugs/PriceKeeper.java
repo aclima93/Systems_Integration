@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 public class PriceKeeper {
+    private static int MAX_TRIES = 5;
     private ConcurrentSkipListSet<Smartphone> smartphones = null;
     private TopicListener topicListener = null;
     private QueueListener queueListener = null;
@@ -111,20 +112,25 @@ public class PriceKeeper {
 
         @Override
         public void run(){
-            this.initialize();
-            System.out.println("Begin listening to topic");
-            while (true) {
-                getPrices();
+            for (int i = 0; i < MAX_TRIES ; i++) {
+                if(this.initialize()) {
+                    System.out.println("Begin listening to topic");
+                    while (true) {
+                        getPrices();
+                    }
+                }
             }
         }
 
-        public void initialize() {
+        public boolean initialize() {
             try {
                 System.setProperty("java.naming.factory.initial", "org.jboss.naming.remote.client.InitialContextFactory");
                 System.setProperty("java.naming.provider.url", "http-remoting://localhost:8080");
                 this.topicConnectionFactory = InitialContext.doLookup("jms/RemoteConnectionFactory");
+                return true;
             } catch (NamingException e) {
                 System.err.println("Error setting JMS connection.");
+                return false;
             }
         }
 
@@ -152,6 +158,8 @@ public class PriceKeeper {
             } catch (JMSException|NamingException|JMSRuntimeException e) {
                 System.err.println("Error receiving data from topic.");
                 return;
+            } catch (NullPointerException e) {
+                System.err.println("Error receiving data from topic.");
             }
             System.out.println("Evaluating data validity");
             XMLValidator xmlValidator = new XMLValidator();
@@ -180,44 +188,48 @@ public class PriceKeeper {
 
         @Override
         public void run() {
-            try {
-                this.initialize();
-            } catch (JMSException|NamingException e) {
-                System.err.println("Error creating connection to queue.");
-                System.exit(1);
-            }
-            System.out.println("Begin listening to queue");
-            while (true) {
-                HashMap<SEARCH_MODES,String> hashMap = new HashMap<>();
-                Destination replyTo;
-                try(JMSContext jmsContext = connectionFactory.createContext("pjaneiro","|Sisc00l")){
-                    JMSConsumer consumer = jmsContext.createConsumer(destination);
-                    Message message = consumer.receive();
-                    replyTo = message.getJMSReplyTo();
-                    hashMap = message.getBody(hashMap.getClass());
-                }
-                catch (JMSException e) {
-                    System.err.println("Error receiving request.");
-                    continue;
-                }
-                ArrayList<Smartphone> searchResult = this.priceKeeper.search(hashMap);
-                System.out.println(searchResult);
-                try (JMSContext jmsContext = connectionFactory.createContext("pjaneiro","|Sisc00l")){
-                    ObjectMessage objectMessage = jmsContext.createObjectMessage(searchResult);
-                    JMSProducer jmsProducer = jmsContext.createProducer();
-                    jmsProducer.send(replyTo, objectMessage);
-                } catch (JMSRuntimeException e) {
-                    System.err.println("Error sending answer.");
-                    e.printStackTrace();
+            for (int i = 0; i < MAX_TRIES; i++) {
+                if(this.initialize()) {
+                    System.out.println("Begin listening to queue");
+                    while (true) {
+                        HashMap<SEARCH_MODES,String> hashMap = new HashMap<>();
+                        Destination replyTo;
+                        try(JMSContext jmsContext = connectionFactory.createContext("pjaneiro","|Sisc00l")){
+                            JMSConsumer consumer = jmsContext.createConsumer(destination);
+                            Message message = consumer.receive();
+                            replyTo = message.getJMSReplyTo();
+                            hashMap = message.getBody(hashMap.getClass());
+                        }
+                        catch (JMSException e) {
+                            System.err.println("Error receiving request.");
+                            continue;
+                        }
+                        ArrayList<Smartphone> searchResult = this.priceKeeper.search(hashMap);
+                        System.out.println(searchResult);
+                        try (JMSContext jmsContext = connectionFactory.createContext("pjaneiro","|Sisc00l")){
+                            ObjectMessage objectMessage = jmsContext.createObjectMessage(searchResult);
+                            JMSProducer jmsProducer = jmsContext.createProducer();
+                            jmsProducer.send(replyTo, objectMessage);
+                        } catch (JMSRuntimeException e) {
+                            System.err.println("Error sending answer.");
+                            e.printStackTrace();
+                        }
+                    }
                 }
             }
         }
 
-        public void initialize() throws JMSException, NamingException {
-            System.setProperty("java.naming.factory.initial","org.jboss.naming.remote.client.InitialContextFactory");
-            System.setProperty("java.naming.provider.url","http-remoting://localhost:8080");
-            this.connectionFactory = InitialContext.doLookup("jms/RemoteConnectionFactory");
-            this.destination = InitialContext.doLookup("jms/queue/queue");
+        public boolean initialize() {
+            try {
+                System.setProperty("java.naming.factory.initial", "org.jboss.naming.remote.client.InitialContextFactory");
+                System.setProperty("java.naming.provider.url", "http-remoting://localhost:8080");
+                this.connectionFactory = InitialContext.doLookup("jms/RemoteConnectionFactory");
+                this.destination = InitialContext.doLookup("jms/queue/queue");
+                return true;
+            } catch (NamingException e) {
+                System.err.println("Error setting JMS connection.");
+                return false;
+            }
         }
     }
 }

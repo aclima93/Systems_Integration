@@ -20,7 +20,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 
 public class HTMLSummaryCreator {
-
+    private static int MAX_TRIES = 5;
     private TopicConnectionFactory topicConnectionFactory = null;
 
     private static String xsdURL;
@@ -53,25 +53,29 @@ public class HTMLSummaryCreator {
         xslURL = args[1];
 
         HTMLSummaryCreator htmlSummaryCreator = new HTMLSummaryCreator();
+        htmlSummaryCreator.run();
+    }
 
-        while (true) {
-
-            htmlSummaryCreator.generateHTML();
+    public void run() {
+        for (int i = 0; i < MAX_TRIES; i++) {
+            if(this.initialize()) {
+                while (true) {
+                    this.generateHTML();
+                    return;
+                }
+            }
         }
     }
 
-    public HTMLSummaryCreator() throws JMSException, NamingException {
-
-        this.initialize();
-    }
-
-    public void initialize() {
+    public boolean initialize() {
         try {
             System.setProperty("java.naming.factory.initial", "org.jboss.naming.remote.client.InitialContextFactory");
             System.setProperty("java.naming.provider.url", "http-remoting://localhost:8080");
             this.topicConnectionFactory = InitialContext.doLookup("jms/RemoteConnectionFactory");
+            return true;
         } catch (NamingException e) {
             System.err.println("Error setting JMS connection.");
+            return false;
         }
     }
 
@@ -99,7 +103,7 @@ public class HTMLSummaryCreator {
         return result;
     }
 
-    public void generateHTML() throws JMSException, NamingException {
+    public void generateHTML() {
 
         String url;
         TransformerFactory transformerFactory = null;
