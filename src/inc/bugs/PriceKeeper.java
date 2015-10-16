@@ -142,7 +142,7 @@ public class PriceKeeper {
 
             try(JMSContext jmsContext = topicConnectionFactory.createContext("pjaneiro","|Sisc00l")) {
                 Topic topic = InitialContext.doLookup("jms/topic/pixmania");
-                JMSConsumer jmsConsumer = jmsContext.createDurableConsumer(topic, "PriceKeeper");
+                final JMSConsumer jmsConsumer = jmsContext.createDurableConsumer(topic, "PriceKeeper");
                 Runtime.getRuntime().addShutdownHook(new Thread() {
                     public void run() {
                         jmsConsumer.close();

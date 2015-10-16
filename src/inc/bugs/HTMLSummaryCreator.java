@@ -1,7 +1,6 @@
 package inc.bugs;
 
 import javax.jms.*;
-import javax.jms.IllegalStateException;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.xml.transform.Transformer;
@@ -85,7 +84,7 @@ public class HTMLSummaryCreator {
 
         try(JMSContext jmsContext = topicConnectionFactory.createContext("pjaneiro","|Sisc00l")) {
             Topic topic = InitialContext.doLookup("jms/topic/pixmania");
-            JMSConsumer jmsConsumer = jmsContext.createDurableConsumer(topic, "HTMLGenerator");
+            final JMSConsumer jmsConsumer = jmsContext.createDurableConsumer(topic, "HTMLGenerator");
             Runtime.getRuntime().addShutdownHook(new Thread() {
                 public void run() {
                     jmsConsumer.close();

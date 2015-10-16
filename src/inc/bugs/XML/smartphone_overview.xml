@@ -1,11 +1,836 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<?xml-stylesheet type="text/xsl" href="smartphone_overview.xsl"?>
-<search_smartphones>
-    <smartphone_overview price="309" name="G3 - Titânio - 32 GB - 4G - Smartphone" brand="LG" currency="€"/>
-    <smartphone_overview price="309" name="G3 - Titânio - 32 GB - 4G - Smartphone" brand="LG" currency="€"/>
-    <smartphone_overview price="309" name="G3 - Titânio - 32 GB - 4G - Smartphone" brand="LG" currency="€"/>
-    <smartphone_overview price="309" name="G3 - Titânio - 32 GB - 4G - Smartphone" brand="LG" currency="€"/>
-    <smartphone_overview price="309" name="G3 - Titânio - 32 GB - 4G - Smartphone" brand="LG" currency="€"/>
-    <smartphone_overview price="309" name="G3 - Titânio - 32 GB - 4G - Smartphone" brand="LG" currency="€"/>
-    <smartphone_overview price="309" name="G3 - Titânio - 32 GB - 4G - Smartphone" brand="LG" currency="€"/>
-</search_smartphones>
+<?xml-stylesheet type="text/xsl" href="smartphone.xsl"?>
+<smartphones>
+    <smartphone price="309" name="G3 - Titânio - 32 GB - 4G - Smartphone" brand="LG" currency="€" summary_data="processador: Snapdragon 801 AC Quad Core 2,5 GHz
+Tecnologia do ecrã: Tátil capacitivo
+Tamanho do ecrã: 5,5&quot; (2560 x 1440 pixeis)
+Resolução máxima (em pixeis): 13 MP
+Autonomia em conversação: Até 8 h
+DHL express"
+                url="http://www.pixmania.pt/smartphone/nokia-x-vermelho-smartphone-dual-sim/22104208-a.html">
+        <technical_data>
+            <table>
+                <table_title>Informações gerais</table_title>
+                <table_data>
+                    <data_name>sistema operativo</data_name>
+                    <data_value>Android 4.4.2 KitKat</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>processador</data_name>
+                    <data_value>Snapdragon 801 AC Quad Core 2,5 GHz</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>teclado</data_name>
+                    <data_value>Virtual</data_value>
+                </table_data>
+            </table>
+            <table>
+                <table_title>Ecrã</table_title>
+                <table_data>
+                    <data_name>Tecnologia do ecrã</data_name>
+                    <data_value>Tátil capacitivo</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Tamanho do ecrã</data_name>
+                    <data_value>5,5" (2560 x 1440 pixeis)</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Número de cores</data_name>
+                    <data_value>16,7 milhões</data_value>
+                </table_data>
+            </table>
+            <table>
+                <table_title>Comunicações</table_title>
+                <table_data>
+                    <data_name>Frequências</data_name>
+                    <data_value>GSM (2G) : 850 / 900 / 1800 / 1900 MHz UMTS (3G) : 850 / 900 / 1900 / 2100 MHz LTE (4G) : 700 / 800 / 900 / 1800 / 2100/ 2300/ 2600 MHz</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Redes</data_name>
+                    <data_value>4G</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Mensagens</data_name>
+                    <data_value>SMS/MMS/MMS Vídeo/Mensagens instantâneas</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Bluetooth</data_name>
+                    <data_value>4.0 LE</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Wi-Fi</data_name>
+                    <data_value>802.11 a/b/g/n/ac WiFi Direct</data_value>
+                </table_data>
+            </table>
+            <table>
+                <table_title>Personalização/entretenimento</table_title>
+                <table_data>
+                    <data_name>Plataforma de download</data_name>
+                    <data_value>Android Market</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Aplicações integradas</data_name>
+                    <data_value>Widgets Aplicação de navegação GPS Função QuickRemote (Telecomando Universal) Função Knock Code Modo Convidado</data_value>
+                </table_data>
+            </table>
+            <table>
+                <table_title>Máquina fotográfica</table_title>
+                <table_data>
+                    <data_name>Sensor</data_name>
+                    <data_value>Com estabilizador ótico OIS+ e Autofocus</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Resolução máxima (em pixeis)</data_name>
+                    <data_value>13 MP</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Zoom</data_name>
+                    <data_value>Digital</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Flash</data_name>
+                    <data_value>Dual LED</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Funções de fotografia</data_name>
+                    <data_value>Live Zooming Geotagging</data_value>
+                </table_data>
+            </table>
+            <table>
+                <table_title>Vídeo</table_title>
+                <table_data>
+                    <data_name>Resolução de vídeo</data_name>
+                    <data_value>4K Ultra HD (3840 x 2160) 30fps</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Formatos de vídeo gravado</data_name>
+                    <data_value>MPEG-4</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Funções de vídeo</data_name>
+                    <data_value>Vídeo streaming Formatos de leitura: H263, MPEG4, H.264, Xvid, VC-1, VP8/9</data_value>
+                </table_data>
+            </table>
+            <table>
+                <table_title>Leitor de som</table_title>
+                <table_data>
+                    <data_name>Formatos de som</data_name>
+                    <data_value>AAC/AAC+/eAAC+/AMR-NB/AMR-WB/ FLAC/MP3/MIDI/Vorbis/PCM/AC3/EC3/WMA</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Rádio FM</data_name>
+                    <data_value>Sim, com RDS</data_value>
+                </table_data>
+            </table>
+            <table>
+                <table_title>Sistema GPS</table_title>
+                <table_data>
+                    <data_name>Navegação GPS</data_name>
+                    <data_value>GPS/AGPS</data_value>
+                </table_data>
+            </table>
+            <table>
+                <table_title>Ligações</table_title>
+                <table_data>
+                    <data_name>USB</data_name>
+                    <data_value>USB 2.0 + USB OTG</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Entradas/saídas de som</data_name>
+                    <data_value>Jack 3,5mm</data_value>
+                </table_data>
+            </table>
+            <table>
+                <table_title>Memória</table_title>
+                <table_data>
+                    <data_name>Agenda</data_name>
+                    <data_value>1000</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Memória interna</data_name>
+                    <data_value>16 GB (memória interna) 10 GB (memória utilizador)</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Slot para cartões de memória externo</data_name>
+                    <data_value>Sim</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Tipos de cartão de memória lidos</data_name>
+                    <data_value>Sim, micro SD (até 128 GB)</data_value>
+                </table_data>
+            </table>
+            <table>
+                <table_title>Funções de voz</table_title>
+                <table_data>
+                    <data_name>Mãos-livres</data_name>
+                    <data_value>Sim</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Gravação de voz</data_name>
+                    <data_value>Sim</data_value>
+                </table_data>
+            </table>
+            <table>
+                <table_title>Autonomia</table_title>
+                <table_data>
+                    <data_name>Autonomia em conversação</data_name>
+                    <data_value>Até 8 h</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Autonomia em stand-by</data_name>
+                    <data_value>Até 310 h</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Bateria</data_name>
+                    <data_value>Lithium- ion 3000 mAh (amovível)</data_value>
+                </table_data>
+            </table>
+            <table>
+                <table_title>Ergonomia</table_title>
+                <table_data>
+                    <data_name>Dimensões</data_name>
+                    <data_value>146,3 x 74,6 x 9,3 mm</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Peso</data_name>
+                    <data_value>153,7g</data_value>
+                </table_data>
+            </table>
+            <table>
+                <table_title>Conteúdo da embalagem</table_title>
+                <table_data>
+                    <data_name>Acessórios fornecidos</data_name>
+                    <data_value>Bateria, Cabo Data Micro-USB/ Carregador, Kit mãos livres</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Índice DAS</data_name>
+                    <data_value>0,291 W/kg (cabeça)</data_value>
+                </table_data>
+            </table>
+        </technical_data>
+    </smartphone>
+    <smartphone price="309" name="G3 - Titânio - 32 GB - 4G - Smartphone" brand="LG" currency="€" summary_data="processador: Snapdragon 801 AC Quad Core 2,5 GHz
+Tecnologia do ecrã: Tátil capacitivo
+Tamanho do ecrã: 5,5&quot; (2560 x 1440 pixeis)
+Resolução máxima (em pixeis): 13 MP
+Autonomia em conversação: Até 8 h
+DHL express"
+                url="http://www.pixmania.pt/smartphone/nokia-x-vermelho-smartphone-dual-sim/22104208-a.html">
+        <technical_data>
+            <table>
+                <table_title>Informações gerais</table_title>
+                <table_data>
+                    <data_name>sistema operativo</data_name>
+                    <data_value>Android 4.4.2 KitKat</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>processador</data_name>
+                    <data_value>Snapdragon 801 AC Quad Core 2,5 GHz</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>teclado</data_name>
+                    <data_value>Virtual</data_value>
+                </table_data>
+            </table>
+            <table>
+                <table_title>Ecrã</table_title>
+                <table_data>
+                    <data_name>Tecnologia do ecrã</data_name>
+                    <data_value>Tátil capacitivo</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Tamanho do ecrã</data_name>
+                    <data_value>5,5" (2560 x 1440 pixeis)</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Número de cores</data_name>
+                    <data_value>16,7 milhões</data_value>
+                </table_data>
+            </table>
+            <table>
+                <table_title>Comunicações</table_title>
+                <table_data>
+                    <data_name>Frequências</data_name>
+                    <data_value>GSM (2G) : 850 / 900 / 1800 / 1900 MHz UMTS (3G) : 850 / 900 / 1900 / 2100 MHz LTE (4G) : 700 / 800 / 900 / 1800 / 2100/ 2300/ 2600 MHz</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Redes</data_name>
+                    <data_value>4G</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Mensagens</data_name>
+                    <data_value>SMS/MMS/MMS Vídeo/Mensagens instantâneas</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Bluetooth</data_name>
+                    <data_value>4.0 LE</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Wi-Fi</data_name>
+                    <data_value>802.11 a/b/g/n/ac WiFi Direct</data_value>
+                </table_data>
+            </table>
+            <table>
+                <table_title>Personalização/entretenimento</table_title>
+                <table_data>
+                    <data_name>Plataforma de download</data_name>
+                    <data_value>Android Market</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Aplicações integradas</data_name>
+                    <data_value>Widgets Aplicação de navegação GPS Função QuickRemote (Telecomando Universal) Função Knock Code Modo Convidado</data_value>
+                </table_data>
+            </table>
+            <table>
+                <table_title>Máquina fotográfica</table_title>
+                <table_data>
+                    <data_name>Sensor</data_name>
+                    <data_value>Com estabilizador ótico OIS+ e Autofocus</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Resolução máxima (em pixeis)</data_name>
+                    <data_value>13 MP</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Zoom</data_name>
+                    <data_value>Digital</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Flash</data_name>
+                    <data_value>Dual LED</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Funções de fotografia</data_name>
+                    <data_value>Live Zooming Geotagging</data_value>
+                </table_data>
+            </table>
+            <table>
+                <table_title>Vídeo</table_title>
+                <table_data>
+                    <data_name>Resolução de vídeo</data_name>
+                    <data_value>4K Ultra HD (3840 x 2160) 30fps</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Formatos de vídeo gravado</data_name>
+                    <data_value>MPEG-4</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Funções de vídeo</data_name>
+                    <data_value>Vídeo streaming Formatos de leitura: H263, MPEG4, H.264, Xvid, VC-1, VP8/9</data_value>
+                </table_data>
+            </table>
+            <table>
+                <table_title>Leitor de som</table_title>
+                <table_data>
+                    <data_name>Formatos de som</data_name>
+                    <data_value>AAC/AAC+/eAAC+/AMR-NB/AMR-WB/ FLAC/MP3/MIDI/Vorbis/PCM/AC3/EC3/WMA</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Rádio FM</data_name>
+                    <data_value>Sim, com RDS</data_value>
+                </table_data>
+            </table>
+            <table>
+                <table_title>Sistema GPS</table_title>
+                <table_data>
+                    <data_name>Navegação GPS</data_name>
+                    <data_value>GPS/AGPS</data_value>
+                </table_data>
+            </table>
+            <table>
+                <table_title>Ligações</table_title>
+                <table_data>
+                    <data_name>USB</data_name>
+                    <data_value>USB 2.0 + USB OTG</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Entradas/saídas de som</data_name>
+                    <data_value>Jack 3,5mm</data_value>
+                </table_data>
+            </table>
+            <table>
+                <table_title>Memória</table_title>
+                <table_data>
+                    <data_name>Agenda</data_name>
+                    <data_value>1000</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Memória interna</data_name>
+                    <data_value>16 GB (memória interna) 10 GB (memória utilizador)</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Slot para cartões de memória externo</data_name>
+                    <data_value>Sim</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Tipos de cartão de memória lidos</data_name>
+                    <data_value>Sim, micro SD (até 128 GB)</data_value>
+                </table_data>
+            </table>
+            <table>
+                <table_title>Funções de voz</table_title>
+                <table_data>
+                    <data_name>Mãos-livres</data_name>
+                    <data_value>Sim</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Gravação de voz</data_name>
+                    <data_value>Sim</data_value>
+                </table_data>
+            </table>
+            <table>
+                <table_title>Autonomia</table_title>
+                <table_data>
+                    <data_name>Autonomia em conversação</data_name>
+                    <data_value>Até 8 h</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Autonomia em stand-by</data_name>
+                    <data_value>Até 310 h</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Bateria</data_name>
+                    <data_value>Lithium- ion 3000 mAh (amovível)</data_value>
+                </table_data>
+            </table>
+            <table>
+                <table_title>Ergonomia</table_title>
+                <table_data>
+                    <data_name>Dimensões</data_name>
+                    <data_value>146,3 x 74,6 x 9,3 mm</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Peso</data_name>
+                    <data_value>153,7g</data_value>
+                </table_data>
+            </table>
+            <table>
+                <table_title>Conteúdo da embalagem</table_title>
+                <table_data>
+                    <data_name>Acessórios fornecidos</data_name>
+                    <data_value>Bateria, Cabo Data Micro-USB/ Carregador, Kit mãos livres</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Índice DAS</data_name>
+                    <data_value>0,291 W/kg (cabeça)</data_value>
+                </table_data>
+            </table>
+        </technical_data>
+    </smartphone>
+    <smartphone price="309" name="G3 - Titânio - 32 GB - 4G - Smartphone" brand="LG" currency="€" summary_data="processador: Snapdragon 801 AC Quad Core 2,5 GHz
+Tecnologia do ecrã: Tátil capacitivo
+Tamanho do ecrã: 5,5&quot; (2560 x 1440 pixeis)
+Resolução máxima (em pixeis): 13 MP
+Autonomia em conversação: Até 8 h
+DHL express"
+                url="http://www.pixmania.pt/smartphone/nokia-x-vermelho-smartphone-dual-sim/22104208-a.html">
+        <technical_data>
+            <table>
+                <table_title>Informações gerais</table_title>
+                <table_data>
+                    <data_name>sistema operativo</data_name>
+                    <data_value>Android 4.4.2 KitKat</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>processador</data_name>
+                    <data_value>Snapdragon 801 AC Quad Core 2,5 GHz</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>teclado</data_name>
+                    <data_value>Virtual</data_value>
+                </table_data>
+            </table>
+            <table>
+                <table_title>Ecrã</table_title>
+                <table_data>
+                    <data_name>Tecnologia do ecrã</data_name>
+                    <data_value>Tátil capacitivo</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Tamanho do ecrã</data_name>
+                    <data_value>5,5" (2560 x 1440 pixeis)</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Número de cores</data_name>
+                    <data_value>16,7 milhões</data_value>
+                </table_data>
+            </table>
+            <table>
+                <table_title>Comunicações</table_title>
+                <table_data>
+                    <data_name>Frequências</data_name>
+                    <data_value>GSM (2G) : 850 / 900 / 1800 / 1900 MHz UMTS (3G) : 850 / 900 / 1900 / 2100 MHz LTE (4G) : 700 / 800 / 900 / 1800 / 2100/ 2300/ 2600 MHz</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Redes</data_name>
+                    <data_value>4G</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Mensagens</data_name>
+                    <data_value>SMS/MMS/MMS Vídeo/Mensagens instantâneas</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Bluetooth</data_name>
+                    <data_value>4.0 LE</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Wi-Fi</data_name>
+                    <data_value>802.11 a/b/g/n/ac WiFi Direct</data_value>
+                </table_data>
+            </table>
+            <table>
+                <table_title>Personalização/entretenimento</table_title>
+                <table_data>
+                    <data_name>Plataforma de download</data_name>
+                    <data_value>Android Market</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Aplicações integradas</data_name>
+                    <data_value>Widgets Aplicação de navegação GPS Função QuickRemote (Telecomando Universal) Função Knock Code Modo Convidado</data_value>
+                </table_data>
+            </table>
+            <table>
+                <table_title>Máquina fotográfica</table_title>
+                <table_data>
+                    <data_name>Sensor</data_name>
+                    <data_value>Com estabilizador ótico OIS+ e Autofocus</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Resolução máxima (em pixeis)</data_name>
+                    <data_value>13 MP</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Zoom</data_name>
+                    <data_value>Digital</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Flash</data_name>
+                    <data_value>Dual LED</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Funções de fotografia</data_name>
+                    <data_value>Live Zooming Geotagging</data_value>
+                </table_data>
+            </table>
+            <table>
+                <table_title>Vídeo</table_title>
+                <table_data>
+                    <data_name>Resolução de vídeo</data_name>
+                    <data_value>4K Ultra HD (3840 x 2160) 30fps</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Formatos de vídeo gravado</data_name>
+                    <data_value>MPEG-4</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Funções de vídeo</data_name>
+                    <data_value>Vídeo streaming Formatos de leitura: H263, MPEG4, H.264, Xvid, VC-1, VP8/9</data_value>
+                </table_data>
+            </table>
+            <table>
+                <table_title>Leitor de som</table_title>
+                <table_data>
+                    <data_name>Formatos de som</data_name>
+                    <data_value>AAC/AAC+/eAAC+/AMR-NB/AMR-WB/ FLAC/MP3/MIDI/Vorbis/PCM/AC3/EC3/WMA</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Rádio FM</data_name>
+                    <data_value>Sim, com RDS</data_value>
+                </table_data>
+            </table>
+            <table>
+                <table_title>Sistema GPS</table_title>
+                <table_data>
+                    <data_name>Navegação GPS</data_name>
+                    <data_value>GPS/AGPS</data_value>
+                </table_data>
+            </table>
+            <table>
+                <table_title>Ligações</table_title>
+                <table_data>
+                    <data_name>USB</data_name>
+                    <data_value>USB 2.0 + USB OTG</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Entradas/saídas de som</data_name>
+                    <data_value>Jack 3,5mm</data_value>
+                </table_data>
+            </table>
+            <table>
+                <table_title>Memória</table_title>
+                <table_data>
+                    <data_name>Agenda</data_name>
+                    <data_value>1000</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Memória interna</data_name>
+                    <data_value>16 GB (memória interna) 10 GB (memória utilizador)</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Slot para cartões de memória externo</data_name>
+                    <data_value>Sim</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Tipos de cartão de memória lidos</data_name>
+                    <data_value>Sim, micro SD (até 128 GB)</data_value>
+                </table_data>
+            </table>
+            <table>
+                <table_title>Funções de voz</table_title>
+                <table_data>
+                    <data_name>Mãos-livres</data_name>
+                    <data_value>Sim</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Gravação de voz</data_name>
+                    <data_value>Sim</data_value>
+                </table_data>
+            </table>
+            <table>
+                <table_title>Autonomia</table_title>
+                <table_data>
+                    <data_name>Autonomia em conversação</data_name>
+                    <data_value>Até 8 h</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Autonomia em stand-by</data_name>
+                    <data_value>Até 310 h</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Bateria</data_name>
+                    <data_value>Lithium- ion 3000 mAh (amovível)</data_value>
+                </table_data>
+            </table>
+            <table>
+                <table_title>Ergonomia</table_title>
+                <table_data>
+                    <data_name>Dimensões</data_name>
+                    <data_value>146,3 x 74,6 x 9,3 mm</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Peso</data_name>
+                    <data_value>153,7g</data_value>
+                </table_data>
+            </table>
+            <table>
+                <table_title>Conteúdo da embalagem</table_title>
+                <table_data>
+                    <data_name>Acessórios fornecidos</data_name>
+                    <data_value>Bateria, Cabo Data Micro-USB/ Carregador, Kit mãos livres</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Índice DAS</data_name>
+                    <data_value>0,291 W/kg (cabeça)</data_value>
+                </table_data>
+            </table>
+        </technical_data>
+    </smartphone>
+    <smartphone price="309" name="G3 - Titânio - 32 GB - 4G - Smartphone" brand="LG" currency="€" summary_data="processador: Snapdragon 801 AC Quad Core 2,5 GHz
+Tecnologia do ecrã: Tátil capacitivo
+Tamanho do ecrã: 5,5&quot; (2560 x 1440 pixeis)
+Resolução máxima (em pixeis): 13 MP
+Autonomia em conversação: Até 8 h
+DHL express"
+                url="http://www.pixmania.pt/smartphone/nokia-x-vermelho-smartphone-dual-sim/22104208-a.html">
+        <technical_data>
+            <table>
+                <table_title>Informações gerais</table_title>
+                <table_data>
+                    <data_name>sistema operativo</data_name>
+                    <data_value>Android 4.4.2 KitKat</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>processador</data_name>
+                    <data_value>Snapdragon 801 AC Quad Core 2,5 GHz</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>teclado</data_name>
+                    <data_value>Virtual</data_value>
+                </table_data>
+            </table>
+            <table>
+                <table_title>Ecrã</table_title>
+                <table_data>
+                    <data_name>Tecnologia do ecrã</data_name>
+                    <data_value>Tátil capacitivo</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Tamanho do ecrã</data_name>
+                    <data_value>5,5" (2560 x 1440 pixeis)</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Número de cores</data_name>
+                    <data_value>16,7 milhões</data_value>
+                </table_data>
+            </table>
+            <table>
+                <table_title>Comunicações</table_title>
+                <table_data>
+                    <data_name>Frequências</data_name>
+                    <data_value>GSM (2G) : 850 / 900 / 1800 / 1900 MHz UMTS (3G) : 850 / 900 / 1900 / 2100 MHz LTE (4G) : 700 / 800 / 900 / 1800 / 2100/ 2300/ 2600 MHz</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Redes</data_name>
+                    <data_value>4G</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Mensagens</data_name>
+                    <data_value>SMS/MMS/MMS Vídeo/Mensagens instantâneas</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Bluetooth</data_name>
+                    <data_value>4.0 LE</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Wi-Fi</data_name>
+                    <data_value>802.11 a/b/g/n/ac WiFi Direct</data_value>
+                </table_data>
+            </table>
+            <table>
+                <table_title>Personalização/entretenimento</table_title>
+                <table_data>
+                    <data_name>Plataforma de download</data_name>
+                    <data_value>Android Market</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Aplicações integradas</data_name>
+                    <data_value>Widgets Aplicação de navegação GPS Função QuickRemote (Telecomando Universal) Função Knock Code Modo Convidado</data_value>
+                </table_data>
+            </table>
+            <table>
+                <table_title>Máquina fotográfica</table_title>
+                <table_data>
+                    <data_name>Sensor</data_name>
+                    <data_value>Com estabilizador ótico OIS+ e Autofocus</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Resolução máxima (em pixeis)</data_name>
+                    <data_value>13 MP</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Zoom</data_name>
+                    <data_value>Digital</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Flash</data_name>
+                    <data_value>Dual LED</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Funções de fotografia</data_name>
+                    <data_value>Live Zooming Geotagging</data_value>
+                </table_data>
+            </table>
+            <table>
+                <table_title>Vídeo</table_title>
+                <table_data>
+                    <data_name>Resolução de vídeo</data_name>
+                    <data_value>4K Ultra HD (3840 x 2160) 30fps</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Formatos de vídeo gravado</data_name>
+                    <data_value>MPEG-4</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Funções de vídeo</data_name>
+                    <data_value>Vídeo streaming Formatos de leitura: H263, MPEG4, H.264, Xvid, VC-1, VP8/9</data_value>
+                </table_data>
+            </table>
+            <table>
+                <table_title>Leitor de som</table_title>
+                <table_data>
+                    <data_name>Formatos de som</data_name>
+                    <data_value>AAC/AAC+/eAAC+/AMR-NB/AMR-WB/ FLAC/MP3/MIDI/Vorbis/PCM/AC3/EC3/WMA</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Rádio FM</data_name>
+                    <data_value>Sim, com RDS</data_value>
+                </table_data>
+            </table>
+            <table>
+                <table_title>Sistema GPS</table_title>
+                <table_data>
+                    <data_name>Navegação GPS</data_name>
+                    <data_value>GPS/AGPS</data_value>
+                </table_data>
+            </table>
+            <table>
+                <table_title>Ligações</table_title>
+                <table_data>
+                    <data_name>USB</data_name>
+                    <data_value>USB 2.0 + USB OTG</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Entradas/saídas de som</data_name>
+                    <data_value>Jack 3,5mm</data_value>
+                </table_data>
+            </table>
+            <table>
+                <table_title>Memória</table_title>
+                <table_data>
+                    <data_name>Agenda</data_name>
+                    <data_value>1000</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Memória interna</data_name>
+                    <data_value>16 GB (memória interna) 10 GB (memória utilizador)</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Slot para cartões de memória externo</data_name>
+                    <data_value>Sim</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Tipos de cartão de memória lidos</data_name>
+                    <data_value>Sim, micro SD (até 128 GB)</data_value>
+                </table_data>
+            </table>
+            <table>
+                <table_title>Funções de voz</table_title>
+                <table_data>
+                    <data_name>Mãos-livres</data_name>
+                    <data_value>Sim</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Gravação de voz</data_name>
+                    <data_value>Sim</data_value>
+                </table_data>
+            </table>
+            <table>
+                <table_title>Autonomia</table_title>
+                <table_data>
+                    <data_name>Autonomia em conversação</data_name>
+                    <data_value>Até 8 h</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Autonomia em stand-by</data_name>
+                    <data_value>Até 310 h</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Bateria</data_name>
+                    <data_value>Lithium- ion 3000 mAh (amovível)</data_value>
+                </table_data>
+            </table>
+            <table>
+                <table_title>Ergonomia</table_title>
+                <table_data>
+                    <data_name>Dimensões</data_name>
+                    <data_value>146,3 x 74,6 x 9,3 mm</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Peso</data_name>
+                    <data_value>153,7g</data_value>
+                </table_data>
+            </table>
+            <table>
+                <table_title>Conteúdo da embalagem</table_title>
+                <table_data>
+                    <data_name>Acessórios fornecidos</data_name>
+                    <data_value>Bateria, Cabo Data Micro-USB/ Carregador, Kit mãos livres</data_value>
+                </table_data>
+                <table_data>
+                    <data_name>Índice DAS</data_name>
+                    <data_value>0,291 W/kg (cabeça)</data_value>
+                </table_data>
+            </table>
+        </technical_data>
+    </smartphone>
+</smartphones>

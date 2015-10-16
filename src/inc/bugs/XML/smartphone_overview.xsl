@@ -35,10 +35,10 @@
     <xsl:template name="iformation">
 
         <!-- Search Options -->
-        <xsl:call-template name="search_options"/>
+        <!-- <xsl:call-template name="search_options"/> -->
 
         <!-- Smarthphones -->
-        <xsl:apply-templates select="search_smartphones"/>
+        <xsl:apply-templates select="smartphones"/>
 
     </xsl:template>
 
@@ -82,7 +82,7 @@
         </div>
     </xsl:template>
 
-    <xsl:template match="search_smartphones">
+    <xsl:template match="smartphones">
 
         <div class="w3-margin-top">
             <header class="w3-container w3-blue">
@@ -102,8 +102,8 @@
                             </tr>
                         </thead>
 
-                        <!-- Smartphone Overviews -->
-                        <xsl:apply-templates select="smartphone_overview"/>
+                        <!-- Smartphone -->
+                        <xsl:apply-templates select="smartphone"/>
 
                     </table>
                 </div>
@@ -111,7 +111,7 @@
         </div>
     </xsl:template>
 
-    <xsl:template match="smartphone_overview">
+    <xsl:template match="smartphone">
 
         <tr>
             <td>
@@ -125,8 +125,8 @@
             </td>
             <td>
                 <!-- link for the page with extensive contents fo this smartphone -->
-                <xsl:variable name="hyperlink"><xsl:value-of select="@smartphone_url"/></xsl:variable>
-                <a class="w3-btn-floating w3-teal" href="{$hyperlink}" target="_blank">
+                <xsl:variable name="hyperlink"><xsl:value-of select="@url"/></xsl:variable>
+                <a class="w3-btn-floating w3-teal" href="{$hyperlink}" target="_self">
                     <i class="fa fa-plus"/>
                 </a>
             </td>
