@@ -61,7 +61,6 @@ public class HTMLSummaryCreator {
             if(this.initialize()) {
                 while (true) {
                     this.generateHTML();
-                    return;
                 }
             }
         }
