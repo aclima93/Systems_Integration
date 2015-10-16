@@ -59,7 +59,7 @@ public class WebCrawler {
      * Example input:
      http://www.pixmania.pt/ /Users/aclima/Documents/Repositories/Systems_Integration/src/inc/bugs/search_regexes.json
      *
-     * @param args &lt;url&gt; [&lt;file:search_regexes.json&gt;] [&lt;boolean:backupHMTLFiles&gt;]
+     * @param args input arguments: &lt;url&gt; [&lt;file:search_regexes.json&gt;] [&lt;boolean:backupHMTLFiles&gt;]
      */
     public static void main(String[] args) throws JMSException, NamingException {
 
@@ -102,9 +102,11 @@ public class WebCrawler {
             publishXMLFilesToJMSTopic();
 
             // Statistics for Geeks
-            printStatistics();
+            if(VERBOSE) {
+                printStatistics();
+                System.out.println("Finished crawling successfully.");
+            }
 
-            System.out.println("Finished crawling successfully.");
             System.exit(0);
         }
         else {
@@ -313,7 +315,9 @@ public class WebCrawler {
             try {
                 doc = Jsoup.connect(url).get();
             } catch (SocketTimeoutException e) {
-                System.out.println("Couldn't load page: "+url);
+                if (VERBOSE) {
+                    System.out.println("Couldn't load page: " + url);
+                }
                 return;
             }
 
@@ -341,7 +345,9 @@ public class WebCrawler {
 
         } catch (IOException e) {
             // invalid url, file or something else
-            e.printStackTrace();
+            if(VERBOSE) {
+                e.printStackTrace();
+            }
         }
 
     }
@@ -375,7 +381,9 @@ public class WebCrawler {
 
         } catch (ParseException e) {
             // invalid number format/unparsable number
-            e.printStackTrace();
+            if(VERBOSE) {
+                e.printStackTrace();
+            }
         }
 
         // Summary Data
@@ -432,17 +440,15 @@ public class WebCrawler {
      */
     private static void printStatistics(){
 
-        if(VERBOSE){
-            System.out.println(
-                "\n*----------------------*" +
-                "\n| Statistics for Geeks |" +
-                "\n*----------------------*"
-            );
-            System.out.println("Num. URLs Visited: " + visitedURLs.size());
-            System.out.println("Num. URLs Visited Only Once: " + Collections.frequency(visitedURLs.values(), 1));
-            System.out.println("Num. Smartphones collected: " + collectedSmartphones.size());
-            System.out.println("Num. Attempts to publish to JMS Topic: " + attemptCounter);
-        }
+        System.out.println(
+            "\n*----------------------*" +
+            "\n| Statistics for Geeks |" +
+            "\n*----------------------*"
+        );
+        System.out.println("Num. URLs Visited: " + visitedURLs.size());
+        System.out.println("Num. URLs Visited Only Once: " + Collections.frequency(visitedURLs.values(), 1));
+        System.out.println("Num. Smartphones collected: " + collectedSmartphones.size());
+        System.out.println("Num. Attempts to publish to JMS Topic: " + attemptCounter);
     }
 
     /**
@@ -493,7 +499,7 @@ public class WebCrawler {
 
         // save the HTML page to a file
         saveFile(path, path + File.separator + parts[parts.length-1], doc.toString());
-        
+
     }
 
     /**
@@ -524,19 +530,31 @@ public class WebCrawler {
             // invalid url, file or something else
             e.printStackTrace();
         }
-        
+
     }
 
+    /**
+     * Sets the necessary Java Naming and Directory Interface (JNDI) properties.
+     * Initializes the communication with the JMS Topic.
+     *
+     * @return success state
+     */
     public static boolean initializeJMSTopic() {
+
         try {
+
             System.setProperty("java.naming.factory.initial", "org.jboss.naming.remote.client.InitialContextFactory");
             System.setProperty("java.naming.provider.url", "http-remoting://localhost:8080");
             topicConnectionFactory = InitialContext.doLookup("jms/RemoteConnectionFactory");
-            return true;
+
         } catch (NamingException e) {
-            System.err.println("Error setting JMS connection.");
+            if(VERBOSE) {
+                System.out.println("Error setting JMS connection.");
+            }
             return false;
         }
+
+        return true;
     }
 
 }

@@ -20,7 +20,7 @@ public class PriceRequester {
      * The Price Requester is a standalone application that communicates with the Price Keeper through a JMS Queue,
      * querying for smartphones with a given name, brand or price in a price range.
      *
-     * @param args [&lt;boolean:verbose&gt;]
+     * @param args input arguments: [&lt;boolean:verbose&gt;]
      * @throws JMSException
      * @throws NamingException
      * @throws IOException
@@ -49,6 +49,7 @@ public class PriceRequester {
      * @return success state
      */
     private boolean initialize() {
+
         try {
             // set necessary Java Naming and Directory Interface (JNDI) properties
             System.setProperty("java.naming.factory.initial", "org.jboss.naming.remote.client.InitialContextFactory");
@@ -73,7 +74,7 @@ public class PriceRequester {
      * Create and send ObjectMessage containing the search terms of the query through the temporary queue.
      * Retrieve response from temporary queue.
      *
-     * @param searchTerms HashMap of Search_Mode and input Key-Value pairs.
+     * @param searchTerms HashMap of Search_Mode and inputted Key-Value pairs.
      * @return Formatted String with Smartphones that satisfy the search criteria.
      */
     private String requestInfo(HashMap<SEARCH_MODES, String> searchTerms) {

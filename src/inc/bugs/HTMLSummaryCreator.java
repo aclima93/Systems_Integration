@@ -1,7 +1,6 @@
 package inc.bugs;
 
 import javax.jms.*;
-import javax.jms.IllegalStateException;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.xml.transform.Transformer;
@@ -26,6 +25,7 @@ public class HTMLSummaryCreator {
     private static String xsdURL;
     private static String xslURL;
     private static String outputDirectory;
+    private static boolean VERBOSE = false;
 
     /**
      * HTML Summary Creator
@@ -33,20 +33,25 @@ public class HTMLSummaryCreator {
      * Get XML from JMS Topic
      * Generate HTML based on XML, XSD and XSLT
      *
+     * @param args input arguments: &lt;xsd&gt; &lt;xsl&gt; [&lt;boolean:verbose&gt;]
      * @throws JMSException
      * @throws NamingException
      */
     public static void main(String[] args) throws JMSException, NamingException {
 
-        if(args.length == 3) {
+        if(args.length > 2) {
 
             xsdURL = args[0];
             xslURL = args[1];
             outputDirectory = args[2];
+
+            if(args.length == 4) {
+                VERBOSE = Boolean.parseBoolean(args[3]);
+            }
         }
         else {
 
-            System.err.println("Invalid number of arguments.\nSyntax: HTMLSummaryCreator &lt;xsd&gt; &lt;xsl&gt;");
+            System.err.println("Invalid number of arguments.\nSyntax: HTMLSummaryCreator &lt;xsd&gt; &lt;xsl&gt; [&lt;boolean:verbose&gt;]");
         }
 
         xsdURL = args[0];
@@ -66,16 +71,30 @@ public class HTMLSummaryCreator {
         }
     }
 
+    /**
+     * Sets the necessary Java Naming and Directory Interface (JNDI) properties.
+     * Initializes the communication with the JMS Topic.
+     *
+     * @return success state
+     */
     public boolean initialize() {
+
         try {
+            // set necessary Java Naming and Directory Interface (JNDI) properties
             System.setProperty("java.naming.factory.initial", "org.jboss.naming.remote.client.InitialContextFactory");
             System.setProperty("java.naming.provider.url", "http-remoting://localhost:8080");
+
+            // initialize connection
             this.topicConnectionFactory = InitialContext.doLookup("jms/RemoteConnectionFactory");
-            return true;
         } catch (NamingException e) {
-            System.err.println("Error setting JMS connection.");
+
+            if(VERBOSE) {
+                System.err.println("Error setting JMS connection.");
+            }
             return false;
         }
+
+        return true;
     }
 
     public ArrayList receive() {
@@ -85,7 +104,7 @@ public class HTMLSummaryCreator {
 
         try(JMSContext jmsContext = topicConnectionFactory.createContext("pjaneiro","|Sisc00l")) {
             Topic topic = InitialContext.doLookup("jms/topic/pixmania");
-            JMSConsumer jmsConsumer = jmsContext.createDurableConsumer(topic, "HTMLGenerator");
+            final JMSConsumer jmsConsumer = jmsContext.createDurableConsumer(topic, "HTMLGenerator");
             Runtime.getRuntime().addShutdownHook(new Thread() {
                 public void run() {
                     jmsConsumer.close();
