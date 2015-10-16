@@ -60,7 +60,7 @@ public class PriceRequester {
         return result;
     }
 
-    private void mainLoop() throws IOException {
+    private void mainLoop() {
         HashMap<SEARCH_MODES, String> searchTerm = new HashMap<>();
         String result;
         while (true) {
@@ -71,7 +71,13 @@ public class PriceRequester {
             System.out.println("4 - Search by price range");
             System.out.println("0 - Exit");
             Scanner scanner = new Scanner(System.in);
-            int option = Integer.parseInt(scanner.nextLine());
+            int option;
+            try {
+                option = Integer.parseInt(scanner.nextLine());
+            } catch (NumberFormatException e) {
+                System.out.println("Insert a valid option.");
+                continue;
+            }
             switch (option) {
                 case 0:
                     System.out.println("Exiting.");
