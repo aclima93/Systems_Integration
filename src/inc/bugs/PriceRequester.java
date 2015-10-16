@@ -56,6 +56,16 @@ public class PriceRequester {
             e.printStackTrace();
             System.err.println("Error sending/receiving request.");
             result = "";
+        } catch (JMSRuntimeException e) {
+            System.out.println("Connection to server lost. Attempting to reconnect.");
+            for (int i = 0; i < MAX_TRIES; i++) {
+                if(this.initialize()) {
+                    return this.requestInfo(searchTerms);
+                }
+            }
+            System.out.println("Couldn't reconnect to server. Shutting down.");
+            System.exit(0);
+            result = "";
         }
         return result;
     }

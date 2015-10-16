@@ -96,8 +96,16 @@ public class HTMLSummaryCreator {
             if(message != null) {
                 result = message.getBody(ArrayList.class);
             }
-        } catch (JMSException|NamingException|JMSRuntimeException e) {
+        } catch (JMSException|NamingException e) {
             System.err.println("Error receiving data from topic");
+        } catch (JMSRuntimeException e) {
+            for (int i = 0; i < MAX_TRIES; i++) {
+                if(this.initialize()) {
+                    return this.receive();
+                }
+            }
+            System.out.println("Couldn't reconnect to server. Shutting down.");
+            System.exit(0);
         }
         return result;
     }

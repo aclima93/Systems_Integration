@@ -154,20 +154,29 @@ public class PriceKeeper {
                 if(message != null) {
                     result = message.getBody(ArrayList.class);
                 } else {
-                    System.err.println("Error receiving data from topic.");
+                    System.out.println("Error receiving data from topic.");
                     return;
                 }
-            } catch (JMSException|NamingException|JMSRuntimeException|NullPointerException e) {
-                System.err.println("Error receiving data from topic.");
+            } catch (JMSException|NamingException|NullPointerException e) {
+                System.out.println("Error receiving data from topic.");
+                return;
+            } catch (JMSRuntimeException e) {
+                System.out.println("Error connecting to topic. Trying to re-connect");
+                for (int i = 0; i < MAX_TRIES; i++) {
+                    if(this.initialize()) {
+                        getPrices();
+                        return;
+                    }
+                }
+                System.out.println("Couldn't reconnect to server. Shutting down.");
+                System.exit(0);
                 return;
             }
             System.out.println("Evaluating data validity");
             XMLValidator xmlValidator = new XMLValidator();
             for(String xml : result) {
                 if(!xmlValidator.isValidXML(xml, xsdURL)) {
-                    System.err.println("Invalid XML. Ignorig received values.");
-                    System.out.println(xsdURL);
-                    System.out.println(xml);
+                    System.out.println("Invalid XML. Ignorig received values.");
                     return;
                 }
             }
@@ -193,16 +202,37 @@ public class PriceKeeper {
                     System.out.println("Begin listening to queue");
                     while (true) {
                         HashMap<SEARCH_MODES,String> hashMap = new HashMap<>();
-                        Destination replyTo;
+                        Destination replyTo = null;
                         try(JMSContext jmsContext = connectionFactory.createContext("pjaneiro","|Sisc00l")){
                             JMSConsumer consumer = jmsContext.createConsumer(destination);
                             Message message = consumer.receive();
                             replyTo = message.getJMSReplyTo();
                             hashMap = message.getBody(hashMap.getClass());
                         }
-                        catch (JMSException e) {
-                            System.err.println("Error receiving request.");
+                        catch (JMSException|NullPointerException e) {
+                            System.out.println("Error receiving request.");
                             continue;
+                        } catch (JMSRuntimeException e) {
+                            System.out.println("Error connecting to topic. Trying to re-connect");
+                            int j;
+                            for (j = 0; j < MAX_TRIES; j++) {
+                                if(this.initialize()) {
+                                    try(JMSContext jmsContext = connectionFactory.createContext("pjaneiro","|Sisc00l")){
+                                        JMSConsumer consumer = jmsContext.createConsumer(destination);
+                                        Message message = consumer.receive();
+                                        replyTo = message.getJMSReplyTo();
+                                        hashMap = message.getBody(hashMap.getClass());
+                                        break;
+                                    }
+                                    catch (JMSException e1) {
+                                        System.out.println("Error receiving request.");
+                                    }
+                                }
+                            }
+                            if(j == MAX_TRIES) {
+                                System.out.println("Couldn't reconnect to server. Shutting down.");
+                                System.exit(0);
+                            }
                         }
                         String searchResult = this.priceKeeper.search(hashMap);
                         System.out.println(searchResult);
@@ -211,8 +241,24 @@ public class PriceKeeper {
                             JMSProducer jmsProducer = jmsContext.createProducer();
                             jmsProducer.send(replyTo, textMessage);
                         } catch (JMSRuntimeException e) {
-                            System.err.println("Error sending answer.");
-                            e.printStackTrace();
+                            System.out.println("Error connecting to topic. Trying to re-connect");
+                            int j;
+                            for ( j = 0; j < MAX_TRIES; j++) {
+                                if(this.initialize()) {
+                                    try (JMSContext jmsContext = connectionFactory.createContext("pjaneiro","|Sisc00l")) {
+                                        TextMessage textMessage = jmsContext.createTextMessage(searchResult);
+                                        JMSProducer jmsProducer = jmsContext.createProducer();
+                                        jmsProducer.send(replyTo, textMessage);
+                                        break;
+                                    } catch (JMSRuntimeException e1) {
+                                        System.out.println("Error sending reply.");
+                                    }
+                                }
+                            }
+                            if(j == MAX_TRIES) {
+                                System.out.println("Couldn't reconnect to server. Shutting down.");
+                                System.exit(0);
+                            }
                         }
                     }
                 }
@@ -227,7 +273,6 @@ public class PriceKeeper {
                 this.destination = InitialContext.doLookup("jms/queue/queue");
                 return true;
             } catch (NamingException e) {
-                e.printStackTrace();
                 System.err.println("Error setting JMS connection.");
                 return false;
             }

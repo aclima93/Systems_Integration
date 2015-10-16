@@ -198,8 +198,18 @@ public class WebCrawler {
                     JMSProducer jmsProducer = jmsContext.createProducer();
                     ObjectMessage message = jmsContext.createObjectMessage(createdXMLFiles);
                     jmsProducer.send(topic, message);
-                } catch (NamingException | JMSRuntimeException e) {
+                    break;
+                } catch (NamingException  e) {
                     System.err.println("Error publishing data to topic.");
+                } catch (JMSRuntimeException e) {
+                    System.out.println("Connection to server lost. Attempting to reconnect.");
+                    for (int i = 0; i < MAX_ATTEMPTS; i++) {
+                        if(initializeJMSTopic()) {
+                            publishXMLFilesToJMSTopic();
+                            return;
+                        }
+                    }
+                    System.out.println("Couldn't reconnect to server.");
                 }
             }
 
