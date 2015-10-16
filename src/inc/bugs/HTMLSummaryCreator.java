@@ -31,11 +31,16 @@ public class HTMLSummaryCreator {
      * HTML Summary Creator
      *
      * The HTML Summary Creator is a class that is constantly fetching XML files from a JMS Topic.
-     * When it reads an XML file, the HTML Summary Creator validates it against an XSD file (path given as the first program argument).
-     * Then, it generates an HTML file per XML file, using an XSL file (path given as the second program argument).
-     * To create an HTML file per XML file, the MD5 hash of the XML file is computed, and used as the name for the file.
-     * This way, if an XML file is sent multiple times, the MD5 hash will be the same, and the HTML file will be overwritten, avoiding copies.
-     * The HTML files are stored in a path given as the third program argument.
+     *
+     * <p>When it reads an XML file, the HTML Summary Creator validates it against an XSD file (path given as the first program argument).
+     *
+     * <p>Then, it generates an HTML file per XML file, using an XSL file (path given as the second program argument).
+     *
+     * <p>To create an HTML file per XML file, the MD5 hash of the XML file is computed, and used as the name for the file.
+     *
+     * <p>This way, if an XML file is sent multiple times, the MD5 hash will be the same, and the HTML file will be overwritten, avoiding copies.
+     *
+     * <p>The HTML files are stored in a path given as the third program argument.
      *
      * Example input:
      /home/pedro/Documents/Programming/Systems_Integration/src/inc/bugs/XML/smartphone.xsd /home/pedro/Documents/Programming/Systems_Integration/src/inc/bugs/XML/smartphone.xsl /home/pedro/Documents/Programming/Systems_Integration/html/
@@ -63,6 +68,10 @@ public class HTMLSummaryCreator {
         htmlSummaryCreator.run();
     }
 
+    /**
+     * After attempting to connect to the JBOSS Server (MAX_TRIES attempts), keeps the process reading from the topic and generating HTML files,
+     * through a while(true) loop
+     */
     public void run() {
         for (int i = 0; i < MAX_TRIES; i++) {
             if(this.initialize()) {
@@ -73,6 +82,11 @@ public class HTMLSummaryCreator {
         }
     }
 
+    /**
+     * Tries to connect to the JBOSS Server, by creating a TopicConnectionFactory
+     *
+     * @return true if successful, false otherwise
+     */
     public boolean initialize() {
         try {
             System.setProperty("java.naming.factory.initial", "org.jboss.naming.remote.client.InitialContextFactory");
@@ -85,6 +99,11 @@ public class HTMLSummaryCreator {
         }
     }
 
+    /**
+     * Connects to the JMS Topic, waits for any message to be available, reads it, and returns it.
+     *
+     * @return ArrayList&lt;String&gt; containing all the received XML files
+     */
     public ArrayList receive() {
 
         System.out.println("Begin receive");
@@ -117,11 +136,18 @@ public class HTMLSummaryCreator {
         return result;
     }
 
+    /**
+     * Main function, calls the receive() function, and for each XML file:
+     *
+     * <p> - Generates the MD5 hash, using it as file name
+     *
+     * <p> - Generates the HTML file, using a Transformer and the XSL file given as the second program argument
+     *
+     * @see this.receive()
+     * @see this.getMD5hash()
+     */
     public void generateHTML() {
 
-        String url;
-        TransformerFactory transformerFactory = null;
-        Transformer transformer = null;
         ArrayList<String> xmlFiles = this.receive();
 
         if(xmlFiles == null) {
@@ -138,9 +164,9 @@ public class HTMLSummaryCreator {
 
                 try {
 
-                    url = outputDirectory + getMD5hash(xml);
-                    transformerFactory = TransformerFactory.newInstance();
-                    transformer = transformerFactory.newTransformer(new StreamSource(xslURL));
+                    String url = outputDirectory + getMD5hash(xml);
+                    TransformerFactory transformerFactory = TransformerFactory.newInstance();
+                    Transformer transformer = transformerFactory.newTransformer(new StreamSource(xslURL));
                     transformer.transform(new StreamSource(new StringReader(xml)), new StreamResult(new FileOutputStream(url + ".html")));
 
                 } catch (TransformerConfigurationException e) {
@@ -161,6 +187,13 @@ public class HTMLSummaryCreator {
         }
     }
 
+    /**
+     * Given a string, returns the corresponding hexadecimal hash as a string
+     *
+     * @param input String to hash
+     *
+     * @return Hexadecimal hash of the given string
+     */
     public String getMD5hash(String input) {
 
         byte[] bytes = null;
