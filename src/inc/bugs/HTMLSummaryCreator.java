@@ -22,9 +22,6 @@ import java.util.ArrayList;
 public class HTMLSummaryCreator {
 
     private TopicConnectionFactory topicConnectionFactory = null;
-    private TopicConnection topicConnection = null;
-    private TopicSession topicSession = null;
-    private Topic topic = null;
 
     private static String xsdURL;
     private static String xslURL;
@@ -54,84 +51,52 @@ public class HTMLSummaryCreator {
 
         xsdURL = args[0];
         xslURL = args[1];
+
         HTMLSummaryCreator htmlSummaryCreator = new HTMLSummaryCreator();
 
-        try {
+        while (true) {
 
-            while (true) {
-
-                htmlSummaryCreator.generateHTML();
-            }
-        } catch (JMSRuntimeException e) {
-
-            System.out.println("No files for 5 seconds");
-            htmlSummaryCreator.stop();
+            htmlSummaryCreator.generateHTML();
         }
     }
 
     public HTMLSummaryCreator() throws JMSException, NamingException {
 
         this.initialize();
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            public void run() {
-                try {
-                    topicConnection.stop();
-                    topicSession.close();
-                    topicConnection.close();
-                } catch (JMSException e) {
-                    System.err.println("Error closing connections.");
-                }
-            }
-        });
     }
 
-    public void initialize() throws JMSException, NamingException {
-
-        System.setProperty("java.naming.factory.initial","org.jboss.naming.remote.client.InitialContextFactory");
-        System.setProperty("java.naming.provider.url","http-remoting://localhost:8080");
-
-        this.topicConnectionFactory = InitialContext.doLookup("jms/RemoteConnectionFactory");
-        this.topicConnection = this.topicConnectionFactory.createTopicConnection("pjaneiro", "|Sisc00l");
-        this.topic = InitialContext.doLookup("jms/topic/pixmania");
-        this.topicSession = this.topicConnection.createTopicSession(false, TopicSession.AUTO_ACKNOWLEDGE);
-        this.topicConnection.start();
+    public void initialize() {
+        try {
+            System.setProperty("java.naming.factory.initial", "org.jboss.naming.remote.client.InitialContextFactory");
+            System.setProperty("java.naming.provider.url", "http-remoting://localhost:8080");
+            this.topicConnectionFactory = InitialContext.doLookup("jms/RemoteConnectionFactory");
+        } catch (NamingException e) {
+            System.err.println("Error setting JMS connection.");
+        }
     }
 
-    public void stop() throws JMSException {
-
-        this.topicConnection.stop();
-        this.topicSession.close();
-        this.topicConnection.close();
-    }
-
-    public ArrayList<String> receive() throws JMSException, NamingException {
+    public ArrayList receive() {
 
         System.out.println("Begin receive");
+        ArrayList<String> result = null;
 
-        this.topicConnection.start();
-        TopicSubscriber topicSubscriber = null;
-        try {
-            topicSubscriber = this.topicSession.createDurableSubscriber(this.topic, "HTMLGenerator");
-        } catch (IllegalStateException e) {
-            return null;
+        try(JMSContext jmsContext = topicConnectionFactory.createContext("pjaneiro","|Sisc00l")) {
+            Topic topic = InitialContext.doLookup("jms/topic/pixmania");
+            JMSConsumer jmsConsumer = jmsContext.createDurableConsumer(topic, "HTMLGenerator");
+            Runtime.getRuntime().addShutdownHook(new Thread() {
+                public void run() {
+                    jmsConsumer.close();
+                    this.interrupt();
+                }
+            });
+            Message message = jmsConsumer.receive();
+            if(message != null) {
+                result = message.getBody(ArrayList.class);
+            }
+        } catch (JMSException|NamingException|JMSRuntimeException e) {
+            System.err.println("Error receiving data from topic");
         }
-        Message objectMessage = topicSubscriber.receive();
-        topicSubscriber.close();
-
-        if(objectMessage == null) {
-            System.err.println("Error checking prices");
-
-            return null;
-        }
-        else {
-
-            ArrayList<String> result = new ArrayList<String>();
-            result = objectMessage.getBody(result.getClass());
-
-            System.out.println("Received");
-
-            return result;
-        }
+        return result;
     }
 
     public void generateHTML() throws JMSException, NamingException {

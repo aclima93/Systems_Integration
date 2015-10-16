@@ -53,12 +53,16 @@ public class PriceKeeper {
         this.queueListener.join();
     }
 
-    public void updatePrices(ArrayList<String> arrayList) throws JAXBException {
-        JAXBContext jaxbContext = JAXBContext.newInstance(Smartphone.class);
-        Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-        for(String string : arrayList) {
-            Smartphone smartphone = (Smartphone)unmarshaller.unmarshal(new StringReader(string));
-            this.smartphones.add(smartphone);
+    public void updatePrices(ArrayList<String> arrayList) {
+        try {
+            JAXBContext jaxbContext = JAXBContext.newInstance(Smartphone.class);
+            Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+            for (String string : arrayList) {
+                Smartphone smartphone = (Smartphone) unmarshaller.unmarshal(new StringReader(string));
+                this.smartphones.add(smartphone);
+            }
+        } catch (JAXBException e) {
+            System.err.println("Error updating prices database.");
         }
     }
 
@@ -99,10 +103,6 @@ public class PriceKeeper {
     class TopicListener extends Thread {
         private PriceKeeper priceKeeper = null;
         private TopicConnectionFactory topicConnectionFactory = null;
-        private TopicConnection topicConnection = null;
-        private TopicSession topicSession = null;
-        private Topic topic = null;
-        private TopicListener topicListener = this;
 
         public TopicListener(PriceKeeper priceKeeper) throws JMSException, NamingException, JAXBException {
             super();
@@ -111,56 +111,46 @@ public class PriceKeeper {
 
         @Override
         public void run(){
-            try {
-                this.initialize();
-            } catch (JMSException|NamingException e) {
-                System.err.println("Error creating connection to topic.");
-                System.exit(1);
-            }
+            this.initialize();
             System.out.println("Begin listening to topic");
             while (true) {
-                try {
-                    getPrices();
-                } catch (JMSException|NamingException|JAXBException e) {
-                    System.err.println("Error getting prices from topic.");
-                    break;
-                }
+                getPrices();
             }
         }
 
-        public void initialize() throws JMSException, NamingException {
-            Runtime.getRuntime().addShutdownHook(new Thread() {
-                public void run() {
-                    try {
-                        topicConnection.stop();
-                        topicSession.close();
-                        topicConnection.close();
-                    } catch (JMSException e) {
-                        System.err.println("Error closing connections.");
-                    }
-                    topicListener.interrupt();
-                }
-            });
-            System.setProperty("java.naming.factory.initial","org.jboss.naming.remote.client.InitialContextFactory");
-            System.setProperty("java.naming.provider.url","http-remoting://localhost:8080");
-            this.topicConnectionFactory = InitialContext.doLookup("jms/RemoteConnectionFactory");
-            this.topicConnection = this.topicConnectionFactory.createTopicConnection("pjaneiro", "|Sisc00l");
-            this.topic = InitialContext.doLookup("jms/topic/pixmania");
-            this.topicSession = this.topicConnection.createTopicSession(false, TopicSession.AUTO_ACKNOWLEDGE);
-            this.topicConnection.start();
+        public void initialize() {
+            try {
+                System.setProperty("java.naming.factory.initial", "org.jboss.naming.remote.client.InitialContextFactory");
+                System.setProperty("java.naming.provider.url", "http-remoting://localhost:8080");
+                this.topicConnectionFactory = InitialContext.doLookup("jms/RemoteConnectionFactory");
+            } catch (NamingException e) {
+                System.err.println("Error setting JMS connection.");
+            }
         }
 
-        public void getPrices() throws JMSException, NamingException, JAXBException{
-            Message objectMessage;
-            this.topicConnection.start();
-            TopicSubscriber topicSubscriber = this.topicSession.createDurableSubscriber(this.topic, "PriceKeeper");
+        public void getPrices() {
+
             System.out.println("Checking for prices");
-            objectMessage = topicSubscriber.receive();
-            topicSubscriber.close();
-            ArrayList<String> result = new ArrayList<>();
-            if(objectMessage != null) {
-                result = objectMessage.getBody(result.getClass());
-            } else {
+            ArrayList<String> result = null;
+
+            try(JMSContext jmsContext = topicConnectionFactory.createContext("pjaneiro","|Sisc00l")) {
+                Topic topic = InitialContext.doLookup("jms/topic/pixmania");
+                JMSConsumer jmsConsumer = jmsContext.createDurableConsumer(topic, "PriceKeeper");
+                Runtime.getRuntime().addShutdownHook(new Thread() {
+                    public void run() {
+                        jmsConsumer.close();
+                        this.interrupt();
+                    }
+                });
+                Message message = jmsConsumer.receive();
+                if(message != null) {
+                    result = message.getBody(ArrayList.class);
+                } else {
+                    System.err.println("Error receiving data from topic.");
+                    return;
+                }
+            } catch (JMSException|NamingException|JMSRuntimeException e) {
+                System.err.println("Error receiving data from topic.");
                 return;
             }
             System.out.println("Evaluating data validity");

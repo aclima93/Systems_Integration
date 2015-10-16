@@ -46,9 +46,6 @@ public class WebCrawler {
     private static ArrayList<String> createdXMLFiles = new ArrayList<String>();
 
     private static TopicConnectionFactory topicConnectionFactory = null;
-    private static TopicConnection topicConnection = null;
-    private static TopicSession topicSession = null;
-    private static Topic topic = null;
 
     /**
      * Web Crawler
@@ -173,7 +170,7 @@ public class WebCrawler {
     /**
      * Tries to publish the list of XML Files to the JMS Topic
      */
-    private static void publishXMLFilesToJMSTopic() throws JMSException, NamingException {
+    private static void publishXMLFilesToJMSTopic() {
 
         if(VERBOSE) {
             System.out.println("Publishing to JMS Topic");
@@ -182,19 +179,17 @@ public class WebCrawler {
         // initialize the JMS Topic
         initializeJMSTopic();
 
-        // Retry a couple fo times if it fails.
+        // Retry a couple of times if it fails.
         for(attemptCounter = 1; attemptCounter < MAX_ATTEMPTS; attemptCounter++) {
 
             // send XML message(s) to the JMS Topic
-            try {
-
-                TopicPublisher topicPublisher = topicSession.createPublisher(topic);
-                ObjectMessage message = topicSession.createObjectMessage(createdXMLFiles);
-                topicPublisher.publish(message);
-                break;
-            } catch (JMSException e){
-                // something went wrong while trying to publish
-                System.out.println("Error trying to publish messages.");
+            try(JMSContext jmsContext = topicConnectionFactory.createContext("pjaneiro","|Sisc00l")) {
+                Topic topic = InitialContext.doLookup("jms/topic/pixmania");
+                JMSProducer jmsProducer = jmsContext.createProducer();
+                ObjectMessage message = jmsContext.createObjectMessage(createdXMLFiles);
+                jmsProducer.send(topic, message);
+            } catch (NamingException|JMSRuntimeException e) {
+                System.err.println("Error publishing data to topic.");
             }
         }
 
@@ -206,9 +201,6 @@ public class WebCrawler {
             // if it was successful we can delete the files we had saved
             deletePublishedMessages();
         }
-
-        // stop the JMS Topic
-        stopJMSTopic();
 
         if(VERBOSE) {
             System.out.println("All messages sent to JMS Topic");
@@ -512,31 +504,13 @@ public class WebCrawler {
         
     }
 
-    public static void initializeJMSTopic() throws JMSException, NamingException {
-
-        System.setProperty("java.naming.factory.initial","org.jboss.naming.remote.client.InitialContextFactory");
-        System.setProperty("java.naming.provider.url","http-remoting://localhost:8080");
-
-        topicConnectionFactory = InitialContext.doLookup("jms/RemoteConnectionFactory");
-        topicConnection = topicConnectionFactory.createTopicConnection("pjaneiro", "|Sisc00l");
-        topic = InitialContext.doLookup("jms/topic/pixmania");
-        topicSession = topicConnection.createTopicSession(false, TopicSession.AUTO_ACKNOWLEDGE);
-        topicConnection.start();
-
-        if(VERBOSE){
-            System.out.println("Initialized JMS Topic.");
-        }
-
-    }
-
-    public static void stopJMSTopic() throws JMSException {
-
-        topicConnection.stop();
-        topicSession.close();
-        topicConnection.close();
-
-        if(VERBOSE){
-            System.out.println("Stopped JMS Topic.");
+    public static void initializeJMSTopic() {
+        try {
+            System.setProperty("java.naming.factory.initial", "org.jboss.naming.remote.client.InitialContextFactory");
+            System.setProperty("java.naming.provider.url", "http-remoting://localhost:8080");
+            topicConnectionFactory = InitialContext.doLookup("jms/RemoteConnectionFactory");
+        } catch (NamingException e) {
+            System.err.println("Error setting JMS connection");
         }
     }
 
