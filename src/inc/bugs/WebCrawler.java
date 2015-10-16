@@ -62,7 +62,7 @@ public class WebCrawler {
      *
      * @param args &lt;url&gt; [&lt;file:search_regexes.json&gt;] [&lt;boolean:backupHMTLFiles&gt;]
      */
-    public static void main(String[] args) throws JMSException, NamingException {
+    public static void main(String[] args) throws JMSException, NamingException, InterruptedException {
 
         if (args.length > 0) {
 
@@ -171,7 +171,7 @@ public class WebCrawler {
     /**
      * Tries to publish the list of XML Files to the JMS Topic
      */
-    private static void publishXMLFilesToJMSTopic() throws JMSException, NamingException {
+    private static void publishXMLFilesToJMSTopic() throws JMSException, NamingException, InterruptedException {
 
         if(VERBOSE) {
             System.out.println("Publishing to JMS Topic");
@@ -194,6 +194,8 @@ public class WebCrawler {
                 // something went wrong while trying to publish
                 e.printStackTrace();
             }
+
+            Thread.sleep(1000);
         }
 
         if(attemptCounter == MAX_ATTEMPTS){
