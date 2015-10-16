@@ -30,13 +30,20 @@ public class HTMLSummaryCreator {
     /**
      * HTML Summary Creator
      *
-     * Get XML from JMS Topic
-     * Generate HTML based on XML, XSD and XSLT
+     * The HTML Summary Creator is a class that is constantly fetching XML files from a JMS Topic.
+     * When it reads an XML file, the HTML Summary Creator validates it against an XSD file (path given as the first program argument).
+     * Then, it generates an HTML file per XML file, using an XSL file (path given as the second program argument).
+     * To create an HTML file per XML file, the MD5 hash of the XML file is computed, and used as the name for the file.
+     * This way, if an XML file is sent multiple times, the MD5 hash will be the same, and the HTML file will be overwritten, avoiding copies.
+     * The HTML files are stored in a path given as the third program argument.
      *
-     * @throws JMSException
-     * @throws NamingException
+     * Example input:
+     /home/pedro/Documents/Programming/Systems_Integration/src/inc/bugs/XML/smartphone.xsd /home/pedro/Documents/Programming/Systems_Integration/src/inc/bugs/XML/smartphone.xsl /home/pedro/Documents/Programming/Systems_Integration/html/
+     *
+     * @param args &lt;XSD file path&gt; &lt;XSL file path&gt; &lt;Desired output directory&gt;
+     *
      */
-    public static void main(String[] args) throws JMSException, NamingException {
+    public static void main(String[] args) {
 
         if(args.length == 3) {
 
