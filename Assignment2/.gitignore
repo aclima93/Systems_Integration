@@ -1,52 +1,45 @@
-# Created by https://www.gitignore.io/api/intellij,java,linux,osx
+# Created by https://www.gitignore.io/api/eclipse,java,linux,osx
 
-### Intellij ###
-# Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio
+### Eclipse ###
+*.pydevproject
+.metadata
+.gradle
+bin/
+tmp/
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.settings/
+.loadpath
 
-*.iml
+# Eclipse Core
+.project
 
-## Directory-based project format:
-.idea/
-# if you remove the above rule, at least ignore the following:
+# External tool builders
+.externalToolBuilders/
 
-# User-specific stuff:
-# .idea/workspace.xml
-# .idea/tasks.xml
-# .idea/dictionaries
+# Locally stored "Eclipse launch configurations"
+*.launch
 
-# Sensitive or high-churn files:
-# .idea/dataSources.ids
-# .idea/dataSources.xml
-# .idea/sqlDataSources.xml
-# .idea/dynamic.xml
-# .idea/uiDesigner.xml
+# CDT-specific
+.cproject
 
-# Gradle:
-# .idea/gradle.xml
-# .idea/libraries
+# JDT-specific (Eclipse Java Development Tools)
+.classpath
 
-# Mongo Explorer plugin:
-# .idea/mongoSettings.xml
+# Java annotation processor (APT)
+.factorypath
 
-## File-based project format:
-*.ipr
-*.iws
+# PDT-specific
+.buildpath
 
-## Plugin-specific files:
+# sbteclipse plugin
+.target
 
-# IntelliJ
-/out/
-
-# mpeltonen/sbt-idea plugin
-.idea_modules/
-
-# JIRA plugin
-atlassian-ide-plugin.xml
-
-# Crashlytics plugin (for Android Studio and IntelliJ)
-com_crashlytics_export_strings.xml
-crashlytics.properties
-crashlytics-build.properties
+# TeXlipse plugin
+.texlipse
 
 
 ### Java ###
