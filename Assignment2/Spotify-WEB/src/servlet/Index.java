@@ -10,8 +10,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import ejb.UserBeanRemote;
 import jpa.User;
+import userEJB.UserBeanRemote;
 
 /**
  * Servlet implementation class Index

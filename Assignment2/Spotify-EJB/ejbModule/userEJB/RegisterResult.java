@@ -1,9 +1,9 @@
-package ejb;
+package userEJB;
 
 /**
  * @author pedro
  *
  */
-public enum UserEditResult {
+public enum RegisterResult {
 	Success, EmailAlreadyUsed, Error;
 }

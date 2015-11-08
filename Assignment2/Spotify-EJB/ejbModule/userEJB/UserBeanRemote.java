@@ -1,4 +1,4 @@
-package ejb;
+package userEJB;
 
 import javax.ejb.Remote;
 

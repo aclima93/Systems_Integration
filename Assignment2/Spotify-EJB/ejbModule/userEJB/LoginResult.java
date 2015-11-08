@@ -1,4 +1,4 @@
-package ejb;
+package userEJB;
 
 /**
  * @author pedro

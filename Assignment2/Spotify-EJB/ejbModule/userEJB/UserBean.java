@@ -1,4 +1,4 @@
-package ejb;
+package userEJB;
 
 import java.util.List;
 
@@ -38,6 +38,20 @@ public class UserBean implements UserBeanRemote {
 		return loggedIn;
 	}
 	
+	/**
+	 * @return the currentUser
+	 */
+	public User getCurrentUser() {
+		return currentUser;
+	}
+
+	/**
+	 * @param currentUser the currentUser to set
+	 */
+	public void setCurrentUser(User currentUser) {
+		this.currentUser = currentUser;
+	}
+
 	public RegisterResult register(User user) {
 		try {
 			Query query = em.createQuery("from User u where u.email = :email");

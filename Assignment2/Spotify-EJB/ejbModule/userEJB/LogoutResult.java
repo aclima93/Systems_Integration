@@ -1,9 +1,9 @@
-package ejb;
+package userEJB;
 
 /**
  * @author pedro
  *
  */
-public enum UserDeleteResult {
+public enum LogoutResult {
 	Success, Error;
 }
