@@ -61,9 +61,12 @@ public class UserBean implements UserBeanRemote {
 			if(!result.isEmpty()) {
 				return RegisterResult.EmailAlreadyUsed;
 			}
+			em.getTransaction().begin();
 			em.persist(user);
+			em.getTransaction().commit();
 			return RegisterResult.Success;
 		} catch(Exception e) {
+			em.getTransaction().rollback();
 			return RegisterResult.Error;
 		}
 	}
@@ -104,10 +107,13 @@ public class UserBean implements UserBeanRemote {
 	
 	public UserEditResult changeUserName(String name) {
 		try {
+			em.getTransaction().begin();
 			this.currentUser.setName(name);
 			em.persist(this.currentUser);
+			em.getTransaction().commit();
 			return UserEditResult.Success;
 		} catch (Exception e) {
+			em.getTransaction().rollback();
 			return UserEditResult.Error;
 		}
 	}
@@ -121,30 +127,41 @@ public class UserBean implements UserBeanRemote {
 			if(!result.isEmpty()) {
 				return UserEditResult.EmailAlreadyUsed;
 			} else {
+				em.getTransaction().begin();
 				this.currentUser.setEmail(email);
 				em.persist(this.currentUser);
+				em.getTransaction().commit();
 				return UserEditResult.Success;
 			}
 		} catch(Exception e) {
+			em.getTransaction().rollback();
 			return UserEditResult.Error;
 		}
 	}
 	
 	public UserEditResult changeUserPassword(String password) {
 		try {
+			em.getTransaction().begin();
 			this.currentUser.setPassword(password);
 			em.persist(this.currentUser);
+			em.getTransaction().commit();
 			return UserEditResult.Success;
 		} catch(Exception e) {
+			em.getTransaction().rollback();
 			return UserEditResult.Error;
 		}
 	}
 	
 	public UserDeleteResult deleteUser() {
 		try {
-			em.remove(this.currentUser);
+			em.getTransaction().begin();
+			em.remove(em.find(User.class, this.currentUser.getId()));
+			em.getTransaction().commit();
+			this.loggedIn = false;
+			this.currentUser = null;
 			return UserDeleteResult.Success;
 		} catch(Exception e) {
+			em.getTransaction().rollback();
 			return UserDeleteResult.Error;
 		}
 	}

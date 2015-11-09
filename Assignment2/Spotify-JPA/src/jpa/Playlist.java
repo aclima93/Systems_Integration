@@ -39,6 +39,13 @@ public class Playlist implements Serializable {
 	}
 
 	/**
+	 * @return the id
+	 */
+	public int getId() {
+		return id;
+	}
+
+	/**
 	 * @return the name
 	 */
 	public String getName() {
