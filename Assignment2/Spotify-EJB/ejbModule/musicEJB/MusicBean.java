@@ -2,11 +2,10 @@ package musicEJB;
 
 import java.util.List;
 
-import javax.ejb.Stateful;
+import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
-import javax.transaction.Transaction;
 
 import jpa.Music;
 import jpa.User;
@@ -14,9 +13,9 @@ import jpa.User;
 /**
  * Session Bean implementation class MusicBean
  */
-@Stateful
+@Stateless
 public class MusicBean implements MusicBeanRemote {
-	@PersistenceContext(name="Spotify")
+	@PersistenceContext()
 	EntityManager em;
 	
     /**
@@ -32,8 +31,8 @@ public class MusicBean implements MusicBeanRemote {
     		em.getTransaction().begin();
     		music.setUploader(user);
     		user.getMusics().add(music);
-    		em.persist(music);
-    		em.persist(user);
+    		//em.persist(music);
+    		//em.persist(user);
     		em.getTransaction().commit();
     		return MusicUploadResult.Success;
     	} catch(Exception e) {
@@ -53,7 +52,7 @@ public class MusicBean implements MusicBeanRemote {
     		}
     		em.getTransaction().begin();
     		music.setTitle(title);
-    		em.persist(music);
+    		//em.persist(music);
     		em.getTransaction().commit();
     		return MusicEditResult.Success;
     	} catch(Exception e) {
@@ -73,7 +72,7 @@ public class MusicBean implements MusicBeanRemote {
     		}
     		em.getTransaction().begin();
     		music.setArtist(artist);
-    		em.persist(music);
+    		//em.persist(music);
     		em.getTransaction().commit();
     		return MusicEditResult.Success;
     	} catch(Exception e) {
@@ -93,7 +92,7 @@ public class MusicBean implements MusicBeanRemote {
     		}
     		em.getTransaction().begin();
     		music.setAlbum(album);
-    		em.persist(music);
+    		//em.persist(music);
     		em.getTransaction().commit();
     		return MusicEditResult.Success;
     	} catch(Exception e) {
@@ -113,7 +112,7 @@ public class MusicBean implements MusicBeanRemote {
     		}
     		em.getTransaction().begin();
     		music.setYear(year);
-    		em.persist(music);
+    		//em.persist(music);
     		em.getTransaction().commit();
     		return MusicEditResult.Success;
     	} catch(Exception e) {

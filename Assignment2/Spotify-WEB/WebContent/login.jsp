@@ -1,6 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c"  uri="http://java.sun.com/jsp/jstl/core"%>
-<%@ taglib prefix="h"  uri="http://java.sun.com/jsf/html"%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -12,7 +11,7 @@
 	<div class="w3-container">
 		<header class="w3-container w3-green">
 			<h2>É necessário efetuar login</h2>
-			<h3><c:out value="${action}"/></h3>
+			<h3><c:out value="${user}"/></h3>
 		</header>
 		<div class="w3-row">
 			<div class="w3-col w3-half">

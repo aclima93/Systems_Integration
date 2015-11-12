@@ -2,10 +2,9 @@ package userEJB;
 
 import java.util.List;
 
-import javax.ejb.Stateful;
+import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
+import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
 import jpa.User;
@@ -13,56 +12,29 @@ import jpa.User;
 /**
  * Session Bean implementation class MainBean
  */
-@Stateful
+@Stateless
 public class UserBean implements UserBeanRemote {
-	EntityManagerFactory emf;
+	@PersistenceContext()
 	EntityManager em;
-	private boolean loggedIn;
-	private User currentUser;
 	
 
     /**
      * Default constructor. 
      */
     public UserBean() {
-        this.loggedIn = false;
-        this.currentUser = null;
-        this.emf = Persistence.createEntityManagerFactory("Spotify");
-        this.em = this.emf.createEntityManager();
     }
-    
-    /**
-	 * @return the loggedIn
-	 */
-	public boolean isLoggedIn() {
-		return loggedIn;
-	}
-	
-	/**
-	 * @return the currentUser
-	 */
-	public User getCurrentUser() {
-		return currentUser;
-	}
 
-	/**
-	 * @param currentUser the currentUser to set
-	 */
-	public void setCurrentUser(User currentUser) {
-		this.currentUser = currentUser;
-	}
-
-	public UserRegisterResult register(User user) {
+	public UserRegisterResult register(String name, String email, String password) {
 		try {
 			Query query = em.createQuery("from User u where u.email = :email");
-			query.setParameter("email", user.getEmail());
+			query.setParameter("email", email);
 			@SuppressWarnings("unchecked")
 			List<User> result = query.getResultList();
 			if(!result.isEmpty()) {
 				return UserRegisterResult.EmailAlreadyUsed;
 			}
 			em.getTransaction().begin();
-			em.persist(user);
+			em.persist(new User(name, email, password));
 			em.getTransaction().commit();
 			return UserRegisterResult.Success;
 		} catch(Exception e) {
@@ -71,46 +43,30 @@ public class UserBean implements UserBeanRemote {
 		}
 	}
 
-	public UserLoginResult login(String email, String password) {
+	public User login(String email, String password) {
 		try {
 	    	Query query = em.createQuery("from User u where u.email = :email");
 	    	query.setParameter("email",	email);
 	    	@SuppressWarnings("unchecked")
 	    	List<User> result = query.getResultList();
-	    	if(result.isEmpty()) {
-	    		return UserLoginResult.UserDoesNotExist;
+	    	if(result.isEmpty() || result.size() > 1) {
+	    		return null;
 	    	}
-	    	for(User u : result) {
-	    		if(u.getPassword().compareTo(password) == 0) {
-	    			this.loggedIn = true;
-	    			this.currentUser = u;
-	    			return UserLoginResult.Success;
-	    		} else {
-	    			return UserLoginResult.WrongPassword;
-	    		}
-	    	}
-	    	return UserLoginResult.Error;
+	    	User u = result.get(0);
+    		if(u.getPassword().compareTo(password) == 0) {
+    			return u;
+    		} else {
+    			return null;
+    		}
 		} catch(Exception e) {
-			e.printStackTrace();
-			return UserLoginResult.Error;
+			return null;
 		}
     }
 	
-	public UserLogoutResult logout() {
-		try {
-			this.currentUser = null;
-			this.loggedIn = false;
-			return UserLogoutResult.Success;
-		} catch(Exception e) {
-			return UserLogoutResult.Error;
-		}
-	}
-	
-	public UserEditResult changeUserName(String name) {
+	public UserEditResult changeUserName(User user, String name) {
 		try {
 			em.getTransaction().begin();
-			this.currentUser.setName(name);
-			em.persist(this.currentUser);
+			user.setName(name);
 			em.getTransaction().commit();
 			return UserEditResult.Success;
 		} catch (Exception e) {
@@ -119,7 +75,7 @@ public class UserBean implements UserBeanRemote {
 		}
 	}
 	
-	public UserEditResult changeUserEmail(String email) {
+	public UserEditResult changeUserEmail(User user, String email) {
 		try {
 			Query query = em.createQuery("from User u where u.email = :email");
 			query.setParameter("email", email);
@@ -129,8 +85,7 @@ public class UserBean implements UserBeanRemote {
 				return UserEditResult.EmailAlreadyUsed;
 			} else {
 				em.getTransaction().begin();
-				this.currentUser.setEmail(email);
-				em.persist(this.currentUser);
+				user.setEmail(email);
 				em.getTransaction().commit();
 				return UserEditResult.Success;
 			}
@@ -140,11 +95,10 @@ public class UserBean implements UserBeanRemote {
 		}
 	}
 	
-	public UserEditResult changeUserPassword(String password) {
+	public UserEditResult changeUserPassword(User user, String password) {
 		try {
 			em.getTransaction().begin();
-			this.currentUser.setPassword(password);
-			em.persist(this.currentUser);
+			user.setPassword(password);
 			em.getTransaction().commit();
 			return UserEditResult.Success;
 		} catch(Exception e) {
@@ -153,13 +107,11 @@ public class UserBean implements UserBeanRemote {
 		}
 	}
 	
-	public UserDeleteResult deleteUser() {
+	public UserDeleteResult deleteUser(User user) {
 		try {
 			em.getTransaction().begin();
-			em.remove(em.find(User.class, this.currentUser.getId()));
+			em.remove(user);
 			em.getTransaction().commit();
-			this.loggedIn = false;
-			this.currentUser = null;
 			return UserDeleteResult.Success;
 		} catch(Exception e) {
 			em.getTransaction().rollback();

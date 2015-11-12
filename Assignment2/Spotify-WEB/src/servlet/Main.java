@@ -1,20 +1,18 @@
 package servlet;
 
 import java.io.IOException;
-import java.util.Enumeration;
 
+import javax.ejb.EJB;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import musicEJB.MusicBean;
+import jpa.User;
 import musicEJB.MusicBeanRemote;
-import playlistEJB.PlaylistBean;
 import playlistEJB.PlaylistBeanRemote;
-import userEJB.UserLoginResult;
-import userEJB.UserBean;
+import userEJB.UserRegisterResult;
 import userEJB.UserBeanRemote;
 
 /**
@@ -23,9 +21,11 @@ import userEJB.UserBeanRemote;
 @WebServlet("/Main")
 public class Main extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	
+	@EJB
 	private UserBeanRemote user;
+	@EJB
 	private MusicBeanRemote music;
+	@EJB
 	private PlaylistBeanRemote playlist;
        
     /**
@@ -33,9 +33,6 @@ public class Main extends HttpServlet {
      */
     public Main() {
         super();
-        this.user = new UserBean();
-        this.music = new MusicBean();
-        this.playlist = new PlaylistBean();
     }
 
 	/**
@@ -50,27 +47,35 @@ public class Main extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String action = request.getParameter("action");
-		if(!this.user.isLoggedIn()) {
+		if(request.getSession().getAttribute("user") == null) {
 			if(action == null) {
-				request.setAttribute("loggedIn", "false");
+				request.setAttribute("user", null);
 				request.getRequestDispatcher("login.jsp").forward(request, response);
 			} else if(action.compareToIgnoreCase("login")==0) {
 				String email = request.getParameter("email");
 				String password = request.getParameter("password");
-				UserLoginResult result = this.user.login(email, password);
-				if(result == UserLoginResult.Success) {
-					response.getWriter().append("Successful login");
-				} else if(result == UserLoginResult.UserDoesNotExist) {
-					response.getWriter().append("That user doesn't exist");
-				} else if(result == UserLoginResult.WrongPassword) {
-					response.getWriter().append("Wrong password");
+				User result = this.user.login(email, password);
+				if(result != null) {
+					request.setAttribute("user", result);
+					request.getRequestDispatcher("index.jsp").forward(request, response);
 				} else {
-					response.getWriter().append("General Error");
+					request.setAttribute("user", result);
+					request.setAttribute("error", "Error logging in");
+					request.getRequestDispatcher("error.jsp").forward(request, response);
 				}
 				return;
 			} else if (action.compareToIgnoreCase("register")==0){
-				request.setAttribute("action", "register");
-				request.getRequestDispatcher("login.jsp").forward(request, response);
+				String name = request.getParameter("name");
+				String email = request.getParameter("email");
+				String password = request.getParameter("password");
+				UserRegisterResult result = this.user.register(name, email, password);
+				if(result == UserRegisterResult.Success) {
+					response.getWriter().append("Successful register. You are now logged in.");
+				} else if(result == UserRegisterResult.EmailAlreadyUsed) {
+					response.getWriter().append("There is already an user with that e-mail address.");
+				} else {
+					response.getWriter().append("General Error.");
+				}
 			}
 		} else {
 			response.getWriter().append("Served at: ").append(request.getContextPath());

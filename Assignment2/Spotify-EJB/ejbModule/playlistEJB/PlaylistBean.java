@@ -2,7 +2,7 @@ package playlistEJB;
 
 import java.util.List;
 
-import javax.ejb.Stateful;
+import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
@@ -10,14 +10,13 @@ import javax.persistence.Query;
 import jpa.Music;
 import jpa.Playlist;
 import jpa.User;
-import musicEJB.MusicDeleteResult;
 
 /**
  * Session Bean implementation class PlaylistBean
  */
-@Stateful
+@Stateless
 public class PlaylistBean implements PlaylistBeanRemote {
-	@PersistenceContext(name="Spotify")
+	@PersistenceContext()
 	EntityManager em;
 
     /**
@@ -54,7 +53,7 @@ public class PlaylistBean implements PlaylistBeanRemote {
 		try {
 			em.getTransaction().begin();
 			playlist.setName(name);
-			em.persist(playlist);
+			//em.persist(playlist);
 			em.getTransaction().commit();
 			return PlaylistEditResult.Success;
 		} catch(Exception e) {

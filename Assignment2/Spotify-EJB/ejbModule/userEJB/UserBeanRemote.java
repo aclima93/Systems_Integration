@@ -6,12 +6,10 @@ import jpa.User;
 
 @Remote
 public interface UserBeanRemote {
-	public boolean isLoggedIn();
-	public UserRegisterResult register(User user);
-	public UserLoginResult login(String email, String password);
-	public UserLogoutResult logout();
-	public UserEditResult changeUserName(String name);
-	public UserEditResult changeUserEmail(String email);
-	public UserEditResult changeUserPassword(String password);
-	public UserDeleteResult deleteUser();
+	public UserRegisterResult register(String name, String email, String password);
+	public User login(String email, String password);
+	public UserEditResult changeUserName(User user, String name);
+	public UserEditResult changeUserEmail(User user, String email);
+	public UserEditResult changeUserPassword(User user, String password);
+	public UserDeleteResult deleteUser(User user);
 }
