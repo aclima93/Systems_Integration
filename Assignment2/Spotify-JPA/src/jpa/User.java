@@ -17,12 +17,12 @@ public class User implements Serializable {
 	/**
 	 * {@link Playlist}s created by this {@link User}
 	 */
-	@OneToMany(mappedBy="creator")
+	@OneToMany(mappedBy="creator", cascade={CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.DETACH, CascadeType.MERGE})
 	private List<Playlist> playlists;
 	/**
 	 * {@link Music}s uploaded by this {@link User}
 	 */
-	@OneToMany(mappedBy="uploader")
+	@OneToMany(mappedBy="uploader", cascade={CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.DETACH, CascadeType.MERGE})
 	private List<Music> musics;
 	private String name;
 	private String email;

@@ -4,6 +4,6 @@ package userEJB;
  * @author pedro
  *
  */
-public enum LogoutResult {
+public enum UserLogoutResult {
 	Success, Error;
 }

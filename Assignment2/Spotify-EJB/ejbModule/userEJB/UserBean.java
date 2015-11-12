@@ -4,11 +4,9 @@ import java.util.List;
 
 import javax.ejb.Stateful;
 import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 import javax.persistence.Query;
-import javax.transaction.Transaction;
-
-import com.sun.net.httpserver.Authenticator.Success;
 
 import jpa.User;
 
@@ -17,7 +15,7 @@ import jpa.User;
  */
 @Stateful
 public class UserBean implements UserBeanRemote {
-	@PersistenceContext(name="Spotify")
+	EntityManagerFactory emf;
 	EntityManager em;
 	private boolean loggedIn;
 	private User currentUser;
@@ -29,6 +27,8 @@ public class UserBean implements UserBeanRemote {
     public UserBean() {
         this.loggedIn = false;
         this.currentUser = null;
+        this.emf = Persistence.createEntityManagerFactory("Spotify");
+        this.em = this.emf.createEntityManager();
     }
     
     /**
@@ -52,56 +52,57 @@ public class UserBean implements UserBeanRemote {
 		this.currentUser = currentUser;
 	}
 
-	public RegisterResult register(User user) {
+	public UserRegisterResult register(User user) {
 		try {
 			Query query = em.createQuery("from User u where u.email = :email");
 			query.setParameter("email", user.getEmail());
 			@SuppressWarnings("unchecked")
 			List<User> result = query.getResultList();
 			if(!result.isEmpty()) {
-				return RegisterResult.EmailAlreadyUsed;
+				return UserRegisterResult.EmailAlreadyUsed;
 			}
 			em.getTransaction().begin();
 			em.persist(user);
 			em.getTransaction().commit();
-			return RegisterResult.Success;
+			return UserRegisterResult.Success;
 		} catch(Exception e) {
 			em.getTransaction().rollback();
-			return RegisterResult.Error;
+			return UserRegisterResult.Error;
 		}
 	}
 
-	public LoginResult login(String email, String password) {
+	public UserLoginResult login(String email, String password) {
 		try {
 	    	Query query = em.createQuery("from User u where u.email = :email");
 	    	query.setParameter("email",	email);
 	    	@SuppressWarnings("unchecked")
 	    	List<User> result = query.getResultList();
 	    	if(result.isEmpty()) {
-	    		return LoginResult.UserDoesNotExist;
+	    		return UserLoginResult.UserDoesNotExist;
 	    	}
 	    	for(User u : result) {
 	    		if(u.getPassword().compareTo(password) == 0) {
 	    			this.loggedIn = true;
 	    			this.currentUser = u;
-	    			return LoginResult.Success;
+	    			return UserLoginResult.Success;
 	    		} else {
-	    			return LoginResult.WrongPassword;
+	    			return UserLoginResult.WrongPassword;
 	    		}
 	    	}
-	    	return LoginResult.Error;
+	    	return UserLoginResult.Error;
 		} catch(Exception e) {
-			return LoginResult.Error;
+			e.printStackTrace();
+			return UserLoginResult.Error;
 		}
     }
 	
-	public LogoutResult logout() {
+	public UserLogoutResult logout() {
 		try {
 			this.currentUser = null;
 			this.loggedIn = false;
-			return LogoutResult.Success;
+			return UserLogoutResult.Success;
 		} catch(Exception e) {
-			return LogoutResult.Error;
+			return UserLogoutResult.Error;
 		}
 	}
 	

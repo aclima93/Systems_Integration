@@ -4,6 +4,6 @@ package userEJB;
  * @author pedro
  *
  */
-public enum LoginResult {
+public enum UserLoginResult {
 	Success, WrongPassword, UserDoesNotExist, Error;
 }

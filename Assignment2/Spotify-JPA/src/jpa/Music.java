@@ -17,13 +17,14 @@ public class Music implements Serializable {
 	/**
 	 * The {@link Playlist}s to which this {@link Music} belongs
 	 */
-	@ManyToMany(mappedBy="songs")
+	@ManyToMany(mappedBy="songs", cascade={CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.DETACH, CascadeType.MERGE})
 	private List<Playlist> playlists;
 	/**
 	 * {@link User} who uploaded this {@link Music}
 	 */
-	@ManyToOne(optional=true)
+	@ManyToOne(optional=true, cascade={CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.DETACH, CascadeType.MERGE})
 	private User uploader;
+	
 	private String title;
 	private String artist;
 	private String album;

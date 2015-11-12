@@ -17,12 +17,12 @@ public class Playlist implements Serializable {
 	/**
 	 * {@link Music}s on this {@link Playlist} 
 	 */
-	@ManyToMany
+	@ManyToMany(cascade={CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.DETACH, CascadeType.MERGE})
 	private List<Music> songs;
 	/**
 	 * {@link User} that created this {@link Playlist}
 	 */
-	@ManyToOne(optional=true)
+	@ManyToOne(optional=true, cascade={CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.DETACH, CascadeType.MERGE})
 	private User creator;
 	private String name;
 
