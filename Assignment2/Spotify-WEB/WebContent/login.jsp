@@ -9,7 +9,7 @@
 </head>
 <body>
 	<div class="w3-container">
-		<header class="w3-container w3-green">
+		<header class="w3-container w3-blue">
 			<h2>É necessário efetuar login</h2>
 			<h3><c:out value="${user}"/></h3>
 		</header>
@@ -20,18 +20,18 @@
 					<form class="w3-form" method="post" action="Main">
 						<div class="w3-input-group">
 							<label>Nome</label>
-							<input class="w3-input" name="name" type="text"/>
+							<input class="w3-input" name="name" type="text" required/>
 						</div>
 						<div class="w3-input-group">
 							<label>Email</label>
-							<input class="w3-input" name="email" type="text"/>
+							<input class="w3-input" name="email" type="text" required/>
 						</div>
 						<div class="w3-input-group">
 							<label>Password</label>
-							<input class="w3-input" name="password" type="password"/>
+							<input class="w3-input" name="password" type="password" required/>
 						</div>
 						<input type="hidden" name="action" value="register"/>
-						<input type="submit" class="w3-btn w3-green" value="Registar"/>
+						<input type="submit" class="w3-btn w3-cyan" value="Registar"/>
 					</form>
 				</div>
 			</div>
@@ -41,14 +41,14 @@
 					<form class="w3-form" method="post" action="Main">
 						<div class="w3-input-group">
 							<label>Email</label>
-							<input class="w3-input" name="email" type="text"/>
+							<input class="w3-input" name="email" type="text" required/>
 						</div>
 						<div class="w3-input-group">
 							<label>Password</label>
-							<input class="w3-input" name="password" type="password"/>
+							<input class="w3-input" name="password" type="password" required/>
 						</div>
 						<input type="hidden" name="action" value="login"/>
-						<button type="submit" class="w3-btn w3-green">Login</button>
+						<button type="submit" class="w3-btn w3-cyan">Login</button>
 					</form>
 				</div>
 			</div>

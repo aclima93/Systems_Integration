@@ -28,15 +28,10 @@ public class MusicBean implements MusicBeanRemote {
     @Override
     public MusicUploadResult uploadMusic(Music music, User user) {
     	try {
-    		em.getTransaction().begin();
     		music.setUploader(user);
     		user.getMusics().add(music);
-    		//em.persist(music);
-    		//em.persist(user);
-    		em.getTransaction().commit();
     		return MusicUploadResult.Success;
     	} catch(Exception e) {
-    		em.getTransaction().rollback();
     		return MusicUploadResult.Error;
     	}
     }
@@ -50,13 +45,10 @@ public class MusicBean implements MusicBeanRemote {
     		if(query.getResultList().isEmpty()) {
     			return MusicEditResult.Unauthorized;
     		}
-    		em.getTransaction().begin();
     		music.setTitle(title);
     		//em.persist(music);
-    		em.getTransaction().commit();
     		return MusicEditResult.Success;
     	} catch(Exception e) {
-    		em.getTransaction().rollback();
     		return MusicEditResult.Error;
     	}
     }
@@ -70,13 +62,10 @@ public class MusicBean implements MusicBeanRemote {
     		if(query.getResultList().isEmpty()) {
     			return MusicEditResult.Unauthorized;
     		}
-    		em.getTransaction().begin();
     		music.setArtist(artist);
     		//em.persist(music);
-    		em.getTransaction().commit();
     		return MusicEditResult.Success;
     	} catch(Exception e) {
-    		em.getTransaction().rollback();
     		return MusicEditResult.Error;
     	}
 	}
@@ -90,13 +79,10 @@ public class MusicBean implements MusicBeanRemote {
     		if(query.getResultList().isEmpty()) {
     			return MusicEditResult.Unauthorized;
     		}
-    		em.getTransaction().begin();
     		music.setAlbum(album);
     		//em.persist(music);
-    		em.getTransaction().commit();
     		return MusicEditResult.Success;
     	} catch(Exception e) {
-    		em.getTransaction().rollback();
     		return MusicEditResult.Error;
     	}
 	}
@@ -110,13 +96,10 @@ public class MusicBean implements MusicBeanRemote {
     		if(query.getResultList().isEmpty()) {
     			return MusicEditResult.Unauthorized;
     		}
-    		em.getTransaction().begin();
     		music.setYear(year);
     		//em.persist(music);
-    		em.getTransaction().commit();
     		return MusicEditResult.Success;
     	} catch(Exception e) {
-    		em.getTransaction().rollback();
     		return MusicEditResult.Error;
     	}
 	}
@@ -130,12 +113,9 @@ public class MusicBean implements MusicBeanRemote {
     		if(query.getResultList().isEmpty()) {
     			return MusicDeleteResult.Unauthorized;
     		}
-    		em.getTransaction().begin();
     		em.remove(em.find(Music.class, music.getId()));
-    		em.getTransaction().commit();
     		return MusicDeleteResult.Success;
 		} catch(Exception e) {
-			em.getTransaction().rollback();
 			return MusicDeleteResult.Error;
 		}
 	}

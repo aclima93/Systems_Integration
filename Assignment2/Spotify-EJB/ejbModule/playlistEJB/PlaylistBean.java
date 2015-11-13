@@ -38,12 +38,9 @@ public class PlaylistBean implements PlaylistBeanRemote {
 			}
 			Playlist playlist = new Playlist(name);
 			playlist.setCreator(user);
-			em.getTransaction().begin();
 			em.persist(playlist);
-			em.getTransaction().commit();
 			return PlaylistCreateResult.Success;
 		} catch(Exception e) {
-			em.getTransaction().rollback();
 			return PlaylistCreateResult.Error;
 		}
 	}
@@ -51,13 +48,10 @@ public class PlaylistBean implements PlaylistBeanRemote {
 	@Override
 	public PlaylistEditResult changePlaylistName(Playlist playlist, String name) {
 		try {
-			em.getTransaction().begin();
 			playlist.setName(name);
 			//em.persist(playlist);
-			em.getTransaction().commit();
 			return PlaylistEditResult.Success;
 		} catch(Exception e) {
-			em.getTransaction().rollback();
 			return PlaylistEditResult.Error;
 		}
 	}
@@ -99,12 +93,9 @@ public class PlaylistBean implements PlaylistBeanRemote {
     		if(query.getResultList().isEmpty()) {
     			return PlaylistDeleteResult.Unauthorized;
     		}
-    		em.getTransaction().begin();
     		em.remove(em.find(Playlist.class, playlist.getId()));
-    		em.getTransaction().commit();
     		return PlaylistDeleteResult.Success;
 		} catch(Exception e) {
-			em.getTransaction().rollback();
 			return PlaylistDeleteResult.Error;
 		}
 	}

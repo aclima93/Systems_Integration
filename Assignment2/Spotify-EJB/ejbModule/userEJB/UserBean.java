@@ -33,12 +33,9 @@ public class UserBean implements UserBeanRemote {
 			if(!result.isEmpty()) {
 				return UserRegisterResult.EmailAlreadyUsed;
 			}
-			em.getTransaction().begin();
-			em.persist(new User(name, email, password));
-			em.getTransaction().commit();
+			em.merge(new User(name, email, password));
 			return UserRegisterResult.Success;
 		} catch(Exception e) {
-			em.getTransaction().rollback();
 			return UserRegisterResult.Error;
 		}
 	}
@@ -63,58 +60,50 @@ public class UserBean implements UserBeanRemote {
 		}
     }
 	
-	public UserEditResult changeUserName(User user, String name) {
+	public User changeUserName(User user, String name) {
 		try {
-			em.getTransaction().begin();
-			user.setName(name);
-			em.getTransaction().commit();
-			return UserEditResult.Success;
+			User newUser = em.find(User.class, user.getId());
+			newUser.setName(name);
+			return newUser;
 		} catch (Exception e) {
-			em.getTransaction().rollback();
-			return UserEditResult.Error;
+			return null;
 		}
 	}
 	
-	public UserEditResult changeUserEmail(User user, String email) {
+	public User changeUserEmail(User user, String email) {
 		try {
 			Query query = em.createQuery("from User u where u.email = :email");
 			query.setParameter("email", email);
 			@SuppressWarnings("unchecked")
 			List<User> result = query.getResultList();
 			if(!result.isEmpty()) {
-				return UserEditResult.EmailAlreadyUsed;
+				return user;
 			} else {
-				em.getTransaction().begin();
-				user.setEmail(email);
-				em.getTransaction().commit();
-				return UserEditResult.Success;
+				User newUser = em.find(User.class, user.getId());
+				newUser.setEmail(email);
+				return newUser;
 			}
 		} catch(Exception e) {
-			em.getTransaction().rollback();
-			return UserEditResult.Error;
+			return null;
 		}
 	}
 	
-	public UserEditResult changeUserPassword(User user, String password) {
+	public User changeUserPassword(User user, String password) {
 		try {
-			em.getTransaction().begin();
-			user.setPassword(password);
-			em.getTransaction().commit();
-			return UserEditResult.Success;
-		} catch(Exception e) {
-			em.getTransaction().rollback();
-			return UserEditResult.Error;
+			User newUser = em.find(User.class, user.getId());
+			newUser.setPassword(password);
+			return newUser;
+		} catch (Exception e) {
+			return null;
 		}
 	}
 	
 	public UserDeleteResult deleteUser(User user) {
 		try {
-			em.getTransaction().begin();
-			em.remove(user);
-			em.getTransaction().commit();
+			User newUser = em.find(User.class, user.getId());
+			em.remove(newUser);
 			return UserDeleteResult.Success;
 		} catch(Exception e) {
-			em.getTransaction().rollback();
 			return UserDeleteResult.Error;
 		}
 	}
