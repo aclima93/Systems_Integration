@@ -38,40 +38,61 @@
 		<c:if test="${not empty message}">
 			<h3>${message}</h3>
 		</c:if>
-		<div class="w3-row w3-cyan">
+		<div class="w3-row w3-blue">
 			<div class="w3-col m3">
 				<p>Title</p>
 			</div>
-			<div class="w3-col m3">
+			<div class="w3-col m2">
 				<p>Artist</p>
 			</div>
-			<div class="w3-col m3">
+			<div class="w3-col m2">
 				<p>Album</p>
 			</div>
 			<div class="w3-col m1">
 				<p>Year</p>
 			</div>
-			<div class="w3-col m2" style="vertical-align:center; text-align:center">
+			<div class="w3-col m4">
 				<p>Options</p>
 			</div>
+		</div>
+		<c:if test="${empty list}">
+			<div class="w3-row w3-cyan">
+				<center><h3>Sorry, there are no results to show.</h3></center>
+			</div>
+		</c:if>
+		<div class="w3-row w3-cyan">
 			<c:forEach items="${list}" var="element">
 					<div class="w3-col m3">
 						<p>${element.title}</p>
 					</div>
-					<div class="w3-col m3">
+					<div class="w3-col m2">
 						<p>${element.artist}</p>
 					</div>
-					<div class="w3-col m3">
+					<div class="w3-col m2">
 						<p>${element.album}</p>
 					</div>
 					<div class="w3-col m1">
 						<p>${element.year}</p>
 					</div>
 					<div class="w3-col m2">
-						<form style="vertical-align:center; text-align:center" method="post" action="Main">
+						<form method="post" action="Main">
 							<input type="hidden" name="song" value="${element.id}"/>
 							<input type="hidden" name="action" value="editSongInfo"/>
 							<input type="submit" class="w3-btn w3-cyan" value="Edit"/>
+						</form>
+					</div>
+					<div class="w3-col m2" style="vertical-align:center; text-align:center" >
+						<form method="post" action="Main">
+							<input type="hidden" name="target" value="listMySongs"/>
+							<input type="hidden" name="action" value="addSongToPlaylist"/>
+							<input type="hidden" name="song" value="${element.id}"/>
+ 							<select class="w3-select" name="playlist" required>
+								<option value="" disabled selected hidden="true">Select playlist</option>
+								<c:forEach items="${playlists}" var="playlist">
+									<option value="${playlist.id}">${playlist.name}</option>
+								</c:forEach>
+							</select>
+							<input type="submit" class="w3-btn w3-cyan" value="Add to playlist"/>
 						</form>
 					</div>
 			</c:forEach>

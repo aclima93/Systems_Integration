@@ -71,6 +71,19 @@ public class PlaylistBean implements PlaylistBeanRemote {
 			return resultasc;
 		}
 	}
+	
+	@Override
+	public List<Playlist> getMyPlaylists(User user) {
+		try {
+			Query query = em.createQuery("from Playlist p where p.creator=:u");
+			query.setParameter("u", user);
+			@SuppressWarnings("unchecked")
+			List<Playlist> result = query.getResultList();
+			return result;
+		} catch(Exception e) {
+			return null;
+		}
+	}
 
 	@Override
 	public List<Music> listMusicOnPlaylist(int id) {
@@ -105,6 +118,30 @@ public class PlaylistBean implements PlaylistBeanRemote {
 	@Override
 	public Playlist getPlaylistById(int id) {
 		return em.find(Playlist.class, id);
+	}
+
+	@Override
+	public PlaylistEditResult addSongToPlaylist(int playlistId, int songId) {
+		try {
+		Playlist playlist = em.find(Playlist.class, playlistId);
+		Music song = em.find(Music.class, songId);
+		playlist.getSongs().add(song);
+		return PlaylistEditResult.Success;
+		} catch(Exception e) {
+			return PlaylistEditResult.Error;
+		}
+	}
+
+	@Override
+	public PlaylistEditResult deleteSongFromPlaylist(int playlistId, int songId) {
+		try {
+			Playlist playlist = em.find(Playlist.class, playlistId);
+			Music music = em.find(Music.class, songId);
+			playlist.getSongs().remove(music);
+			return PlaylistEditResult.Success;
+		} catch(Exception e) {
+			return PlaylistEditResult.Error;
+		}
 	}
 
 }

@@ -28,8 +28,8 @@
 				</div>
 				<div class="w3-col m2">
 					<form class="w3-form" method="post" action="Main">
-						<input type="hidden" name="action" value="index"/>
-						<input type="submit" class="w3-btn w3-cyan" value="Main Menu"/>
+						<input type="hidden" name="action" value="musicMenu"/>
+						<input type="submit" class="w3-btn w3-cyan" value="Music Menu"/>
 					</form>
 				</div>
 			</div>

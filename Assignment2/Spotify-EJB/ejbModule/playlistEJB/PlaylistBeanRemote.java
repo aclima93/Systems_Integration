@@ -10,10 +10,13 @@ import jpa.User;
 
 @Remote
 public interface PlaylistBeanRemote {
-	PlaylistCreateResult createPlaylist(User user, String name);
-	PlaylistEditResult changePlaylistName(int id, String name);
-	List<Playlist> listPlaylists(PlaylistSortOrder order);
-	List<Music> listMusicOnPlaylist(int id);
-	PlaylistDeleteResult deletePlaylist(int id, User user);
-	Playlist getPlaylistById(int id);
+	public PlaylistCreateResult createPlaylist(User user, String name);
+	public PlaylistEditResult changePlaylistName(int id, String name);
+	public List<Playlist> listPlaylists(PlaylistSortOrder order);
+	public List<Playlist> getMyPlaylists(User user);
+	public List<Music> listMusicOnPlaylist(int id);
+	public PlaylistDeleteResult deletePlaylist(int id, User user);
+	public Playlist getPlaylistById(int id);
+	public PlaylistEditResult addSongToPlaylist(int playlistId, int songId);
+	public PlaylistEditResult deleteSongFromPlaylist(int playlistId, int songId);
 }

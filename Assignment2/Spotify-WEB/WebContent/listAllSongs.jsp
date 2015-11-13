@@ -35,33 +35,58 @@
 			</div>
 		</header>
 		<br/>
-		<div class="w3-row w3-cyan">
+		<c:if test="${not empty message}">
+			<h3>${message}</h3>
+		</c:if>
+		<div class="w3-row w3-blue">
 			<div class="w3-col m3">
 				<p>Title</p>
 			</div>
-			<div class="w3-col m3">
+			<div class="w3-col m2">
 				<p>Artist</p>
 			</div>
-			<div class="w3-col m3">
+			<div class="w3-col m2">
 				<p>Album</p>
 			</div>
-			<div class="w3-col m3">
+			<div class="w3-col m1">
 				<p>Year</p>
 			</div>
+			<div class="w3-col m4">
+				<p>Options</p>
+			</div>
+		</div>
+		<c:if test="${empty list}">
+			<div class="w3-row w3-cyan">
+				<center><h3>Sorry, there are no results to show.</h3></center>
+			</div>
+		</c:if>
+		<div class="w3-row w3-cyan">
 			<c:forEach items="${list}" var="element">
-				<div class="w3-row">
-					<div class="w3-col m3">
-						<p>${element.title}</p>
-					</div>
-					<div class="w3-col m3">
-						<p>${element.artist}</p>
-					</div>
-					<div class="w3-col m3">
-						<p>${element.album}</p>
-					</div>
-					<div class="w3-col m3">
-						<p>${element.year}</p>
-					</div>
+				<div class="w3-col m3">
+					<p>${element.title}</p>
+				</div>
+				<div class="w3-col m2">
+					<p>${element.artist}</p>
+				</div>
+				<div class="w3-col m2">
+					<p>${element.album}</p>
+				</div>
+				<div class="w3-col m1">
+					<p>${element.year}</p>
+				</div>
+				<div class="w3-col m2">
+					<form method="post" action="Main">
+						<input type="hidden" name="target" value="listAllSongs"/>
+						<input type="hidden" name="action" value="addSongToPlaylist"/>
+						<input type="hidden" name="song" value="${element.id}"/>
+							<select class="w3-select" name="playlist" required>
+							<option value="" disabled selected hidden="true">Select playlist</option>
+							<c:forEach items="${playlists}" var="playlist">
+								<option value="${playlist.id}">${playlist.name}</option>
+							</c:forEach>
+						</select>
+						<input type="submit" class="w3-btn w3-cyan" value="Add to playlist"/>
+					</form>
 				</div>
 			</c:forEach>
 		</div>

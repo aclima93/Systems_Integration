@@ -15,6 +15,8 @@ import jpa.Playlist;
 import jpa.User;
 import musicEJB.MusicBeanRemote;
 import musicEJB.MusicDeleteResult;
+import musicEJB.MusicEditResult;
+import musicEJB.MusicSearchParameter;
 import musicEJB.MusicUploadResult;
 import playlistEJB.PlaylistBeanRemote;
 import playlistEJB.PlaylistCreateResult;
@@ -121,6 +123,7 @@ public class Main extends HttpServlet {
 				
 			} else if(action.compareToIgnoreCase("index") == 0) {
 				// Main menu
+				request.getSession().removeAttribute("list");
 				request.getRequestDispatcher("index.jsp").forward(request, response);
 				
 			} else if(action.compareToIgnoreCase("logout") == 0) {
@@ -227,6 +230,7 @@ public class Main extends HttpServlet {
 			} else if(action.compareToIgnoreCase("createPlaylist") == 0) {
 				// User wants to create new playlist				
 				String name = request.getParameter("name");
+				request.getSession().removeAttribute("list");
 				PlaylistCreateResult result = this.playlist.createPlaylist(currentUser, name);
 				
 				if(result == PlaylistCreateResult.Success) {
@@ -349,11 +353,13 @@ public class Main extends HttpServlet {
 			} else if(action.compareToIgnoreCase("listAllSongs") == 0) {
 				// List all songs
 				request.setAttribute("list", this.music.getAllMusic());
+				request.setAttribute("playlists", this.playlist.getMyPlaylists(currentUser));
 				request.getRequestDispatcher("listAllSongs.jsp").forward(request, response);
 				
 			} else if(action.compareToIgnoreCase("listMySongs") == 0) {
 				// List songs uploaded by current user
 				request.setAttribute("list", this.music.listSongsByUser(currentUser));
+				request.setAttribute("playlists", this.playlist.getMyPlaylists(currentUser));
 				request.getRequestDispatcher("listMySongs.jsp").forward(request, response);
 				
 			} else if(action.compareToIgnoreCase("addNewMusic") == 0) {
@@ -474,7 +480,94 @@ public class Main extends HttpServlet {
 				}
 			} else if(action.compareToIgnoreCase("searchSongs") == 0) {
 				// Search with criteria
+				String criteria = request.getParameter("criteria");
+				if(criteria == null) {
+					// First time on the menu
+					request.removeAttribute("list");
+					request.setAttribute("playlists", this.playlist.getMyPlaylists(currentUser));
+					request.getRequestDispatcher("searchSongs.jsp").forward(request, response);
+					
+				} else if(criteria.compareToIgnoreCase("title") == 0) {
+					// Search by title
+					String keyword = request.getParameter("keyword");
+					List<Music> result = this.music.searchMusic(MusicSearchParameter.Title, keyword);
+					request.getSession().setAttribute("list", result);
+					request.setAttribute("playlists", this.playlist.getMyPlaylists(currentUser));
+					request.getRequestDispatcher("searchSongs.jsp").forward(request, response);
+					
+				} else if(criteria.compareToIgnoreCase("artist") == 0) {
+					// Search by artist
+					String keyword = request.getParameter("keyword");
+					List<Music> result = this.music.searchMusic(MusicSearchParameter.Artist, keyword);
+					request.getSession().setAttribute("list", result);
+					request.setAttribute("playlists", this.playlist.getMyPlaylists(currentUser));
+					request.getRequestDispatcher("searchSongs.jsp").forward(request, response);
+					
+				} else if(criteria.compareToIgnoreCase("album") == 0) {
+					// Search by album
+					String keyword = request.getParameter("keyword");
+					List<Music> result = this.music.searchMusic(MusicSearchParameter.Album, keyword);
+					request.getSession().setAttribute("list", result);
+					request.setAttribute("playlists", this.playlist.getMyPlaylists(currentUser));
+					request.getRequestDispatcher("searchSongs.jsp").forward(request, response);
+					
+				} else if(criteria.compareToIgnoreCase("year") == 0) {
+					// Search by year
+					String keyword = request.getParameter("keyword");
+					List<Music> result = this.music.searchMusic(MusicSearchParameter.Year, keyword);
+					request.getSession().setAttribute("list", result);
+					request.setAttribute("playlists", this.playlist.getMyPlaylists(currentUser));
+					request.getRequestDispatcher("searchSongs.jsp").forward(request, response);
+					
+				}
+			} else if(action.compareToIgnoreCase("addSongToPlaylist") == 0) {
+				// That's it, add a song to a playlist
+				int playlist = Integer.parseInt(request.getParameter("playlist"));
+				int song = Integer.parseInt(request.getParameter("song"));
+				PlaylistEditResult result = this.playlist.addSongToPlaylist(playlist, song);
 				
+				if(result == PlaylistEditResult.Success) {
+					request.getSession().setAttribute("message", "Successfully added song to playlist.");
+					String target = request.getParameter("target");
+					if(target.compareToIgnoreCase("listAllSongs") == 0) {
+						// We were listing all songs
+						request.getSession().setAttribute("list", this.music.getAllMusic());
+						request.getRequestDispatcher("listAllSongs.jsp").forward(request, response);
+						
+					} else if(target.compareToIgnoreCase("listMySongs") == 0) {
+						// We were checking the user songs
+						request.getSession().setAttribute("list", this.music.listSongsByUser(currentUser));
+						request.getRequestDispatcher("listMySongs.jsp").forward(request, response);
+						
+					} else if(target.compareToIgnoreCase("searchSongs") == 0) {
+						// We were searching with criteria
+						request.getRequestDispatcher("searchSongs.jsp").forward(request, response);
+						
+					}
+				} else {
+					// Error of some sort
+					request.getSession().setAttribute("error", "Error adding song to playlist.");
+					request.getRequestDispatcher("error.jsp").forward(request, response);
+					
+				}
+			} else if(action.compareToIgnoreCase("deleteSongFromPlaylist") == 0) {
+				// Lastly, delete a song from a playlist
+				int playlist = Integer.parseInt(request.getParameter("playlist"));
+				int song = Integer.parseInt(request.getParameter("song"));
+				PlaylistEditResult result = this.playlist.deleteSongFromPlaylist(playlist, song);
+				
+				if(result == PlaylistEditResult.Success) {
+					// Successfully removed from playlist
+					request.getSession().setAttribute("list", this.playlist.listMusicOnPlaylist(playlist));
+					request.getSession().setAttribute("message", "Successfully removed song from playlist");
+					request.getRequestDispatcher("playlistView.jsp").forward(request, response);
+					
+				} else {
+					// Error
+					request.getSession().setAttribute("error", "Error removing song from playlist.");
+					request.getRequestDispatcher("error.jsp").forward(request, response);
+					
+				}
 			}
 		}
 	}

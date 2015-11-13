@@ -136,24 +136,32 @@ public class MusicBean implements MusicBeanRemote {
 			Query query = null;
 			switch(parameter) {
 			case Title:
-				query = em.createQuery("from Music m WHERE m.title LIKE %:m%");
-				break;
+				query = em.createQuery("from Music m WHERE m.title LIKE CONCAT('%',:m,'%')");
+				query.setParameter("m", value);
+				@SuppressWarnings("unchecked")
+				List<Music> resultTitle = query.getResultList();
+				return resultTitle;
 			case Artist:
-				query = em.createQuery("from Music m WHERE m.artist LIKE %:m%");
-				break;
+				query = em.createQuery("from Music m WHERE m.artist LIKE CONCAT('%',:m,'%')");
+				query.setParameter("m", value);
+				@SuppressWarnings("unchecked")
+				List<Music> resultArtist = query.getResultList();
+				return resultArtist;
 			case Album:
-				query = em.createQuery("from Music m WHERE m.album LIKE %:m%");
-				break;
+				query = em.createQuery("from Music m WHERE m.album LIKE CONCAT('%',:m,'%')");
+				query.setParameter("m", value);
+				@SuppressWarnings("unchecked")
+				List<Music> resultAlbum = query.getResultList();
+				return resultAlbum;
 			case Year:
-				query = em.createQuery("from Music m WHERE m.year=:m");
-				break;
+				query = em.createQuery("from Music m WHERE m.year LIKE CONCAT('%',:m,'%')");
+				query.setParameter("m", value);
+				@SuppressWarnings("unchecked")
+				List<Music> resultYear = query.getResultList();
+				return resultYear;
 			default:
 				return null;
 			}
-			query.setParameter("m", value);
-			@SuppressWarnings("unchecked")
-			List<Music> resultList = query.getResultList();
-			return resultList;
 		} catch(Exception e) {
 			return null;
 		}

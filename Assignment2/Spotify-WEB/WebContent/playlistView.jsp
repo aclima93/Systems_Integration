@@ -34,27 +34,73 @@
 				</div>
 			</div>
 		</header>
-		
-		<div class="w3-container w3-aqua">
+		<c:if test="${not empty message}">
+			<h3>${message}</h3>
+		</c:if>
+		<br/>
+		<div class="w3-container w3-indigo">
 			<div class="w3-row">
 				<form method="post" action="Main">
 					<div class="w3-col m9">
-						<input class="w3-input w3-aqua" type="text" name="name" value="${playlist.name}"/>
+						<input class="w3-input w3-indigo" type="text" name="name" value="${playlist.name}"/>
 					</div>
 					<div class="w3-col m3">
 						<input type="hidden" name="action" value="changePlaylistName"/>
 						<input type="hidden" name="playlist" value="${playlist.id}"/>
-						<input type="submit" class="w3-btn w3-aqua" value="Change name"/>
+						<input type="submit" class="w3-btn w3-indigo" value="Change name"/>
 					</div>
 				</form>
 			</div>
 		</div>
-		<c:if test="${not empty message}">
-			<h3>${message}</h3>
+		<br/>
+		<div class="w3-row w3-blue">
+			<div class="w3-col m3">
+				<p>Title</p>
+			</div>
+			<div class="w3-col m3">
+				<p>Artist</p>
+			</div>
+			<div class="w3-col m3">
+				<p>Album</p>
+			</div>
+			<div class="w3-col m1">
+				<p>Year</p>
+			</div>
+			<div class="w3-col m2">
+				<p>Options</p>
+			</div>
+		</div>
+		<c:if test="${empty list}">
+			<div class="w3-row w3-cyan">
+				<center><h3>Sorry, looks like this playlist is empty.</h3></center>
+			</div>
 		</c:if>
-		<c:if test="${not empty list}">
-			<h1>Yay</h1>
-		</c:if>
+		<div class="w3-row w3-cyan">
+			<c:forEach items="${list}" var="element">
+				<div class="w3-row w3-cyan">
+					<div class="w3-col m3">
+						<p>${element.title}</p>
+					</div>
+					<div class="w3-col m3">
+						<p>${element.artist}</p>
+					</div>
+					<div class="w3-col m3">
+						<p>${element.album}</p>
+					</div>
+					<div class="w3-col m1">
+						<p>${element.year}</p>
+					</div>
+					<div class="w3-col m2">
+						<form class="w3-form" method="post" action="Main">
+							<input type="hidden" name="action" value="deleteSongFromPlaylist"/>
+							<input type="hidden" name="playlist" value="${playlist.id}"/>
+							<input type="hidden" name="song" value="${element.id}"/>
+							<input type="submit" class="w3-btn w3-cyan" value="Delete from playlist"/>
+						</form>
+					</div>
+				</div>
+			</c:forEach>
+		</div>
 	</div>
 </body>
 </html>
