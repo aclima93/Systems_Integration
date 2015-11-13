@@ -38,7 +38,7 @@ public class PlaylistBean implements PlaylistBeanRemote {
 			}
 			Playlist playlist = new Playlist(name);
 			playlist.setCreator(user);
-			em.persist(playlist);
+			em.merge(playlist);
 			return PlaylistCreateResult.Success;
 		} catch(Exception e) {
 			return PlaylistCreateResult.Error;
@@ -58,21 +58,18 @@ public class PlaylistBean implements PlaylistBeanRemote {
 
 	@Override
 	public List<Playlist> listPlaylists(PlaylistSortOrder order) {
-		Query query = em.createQuery("from Playlist order by name :o");
 		switch(order) {
-		case Ascending:
-			query.setParameter("o", "asc");
-			break;
 		case Descending:
-			query.setParameter("o", "desc");
-			break;
+			Query querydesc = em.createQuery("from Playlist order by name desc");
+			@SuppressWarnings("unchecked")
+			List<Playlist> resultdesc = querydesc.getResultList();
+			return resultdesc;
 		default:
-			query.setParameter("o",	"asc");
-			break;
+			Query queryasc = em.createQuery("from Playlist order by name asc");
+			@SuppressWarnings("unchecked")
+			List<Playlist> resultasc = queryasc.getResultList();
+			return resultasc;
 		}
-		@SuppressWarnings("unchecked")
-		List<Playlist> result = query.getResultList();
-		return result;
 	}
 
 	@Override
@@ -85,15 +82,15 @@ public class PlaylistBean implements PlaylistBeanRemote {
 	}
 
 	@Override
-	public PlaylistDeleteResult deletePlaylist(Playlist playlist, User user) {
+	public PlaylistDeleteResult deletePlaylist(int id, User user) {
 		try {
-			Query query = em.createQuery("* from Playlist p, User u WHERE u.id=:u AND p.id=:p AND u.id = p.creator_id");
-    		query.setParameter("u", user.getId());
-    		query.setParameter("p", playlist.getId());
+			Query query = em.createQuery("from Playlist p WHERE p.id=:p AND p.creator=:u");
+    		query.setParameter("u", user);
+    		query.setParameter("p", id);
     		if(query.getResultList().isEmpty()) {
     			return PlaylistDeleteResult.Unauthorized;
     		}
-    		em.remove(em.find(Playlist.class, playlist.getId()));
+    		em.remove(em.find(Playlist.class, id));
     		return PlaylistDeleteResult.Success;
 		} catch(Exception e) {
 			return PlaylistDeleteResult.Error;

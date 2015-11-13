@@ -14,5 +14,5 @@ public interface PlaylistBeanRemote {
 	PlaylistEditResult changePlaylistName(Playlist playlist, String name);
 	List<Playlist> listPlaylists(PlaylistSortOrder order);
 	List<Music> listMusicOnPlaylist(Playlist playlist);
-	PlaylistDeleteResult deletePlaylist(Playlist playlist, User user);
+	PlaylistDeleteResult deletePlaylist(int id, User user);
 }

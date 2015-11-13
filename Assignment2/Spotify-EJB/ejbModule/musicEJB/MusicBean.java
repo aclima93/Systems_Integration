@@ -29,7 +29,9 @@ public class MusicBean implements MusicBeanRemote {
     public MusicUploadResult uploadMusic(Music music, User user) {
     	try {
     		music.setUploader(user);
+    		em.merge(music);
     		user.getMusics().add(music);
+    		em.merge(user);
     		return MusicUploadResult.Success;
     	} catch(Exception e) {
     		return MusicUploadResult.Error;
@@ -46,7 +48,7 @@ public class MusicBean implements MusicBeanRemote {
     			return MusicEditResult.Unauthorized;
     		}
     		music.setTitle(title);
-    		//em.persist(music);
+    		em.merge(music);
     		return MusicEditResult.Success;
     	} catch(Exception e) {
     		return MusicEditResult.Error;

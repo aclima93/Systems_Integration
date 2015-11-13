@@ -27,7 +27,6 @@
 					<h3>Account settings</h3>
 				</div>
 				<div class="w3-col m2">
-					
 					<form class="w3-form" method="post" action="Main">
 						<input type="hidden" name="action" value="index"/>
 						<input type="submit" class="w3-btn w3-cyan" value="Main Menu"/>
@@ -40,7 +39,7 @@
 			<form class="w3-form" method="post" action="Main">
 				<div class="w3-input-group">
 					<label>Change name</label>
-					<input class="w3-input" name="name" type="text" placeholder="New name" required/>
+					<input class="w3-input" name="name" type="text" placeholder="${user.name}" required/>
 					<input type="hidden" name="action" value="changeName"/>
 					<input type="submit" class="w3-btn w3-cyan" value="Change name"/>
 				</div>
@@ -48,7 +47,7 @@
 			<form class="w3-form" method="post" action="Main">
 				<div class="w3-input-group">
 					<label>Change email</label>
-					<input class="w3-input" name="email" type="text" placeholder="New e-mail" required/>
+					<input class="w3-input" name="email" type="text" placeholder="${user.email}" required/>
 					<input type="hidden" name="action" value="changeEmail"/>
 					<input type="submit" class="w3-btn w3-cyan" value="Change e-mail"/>
 				</div>
@@ -56,7 +55,7 @@
 			<form class="w3-form" method="post" action="Main">
 				<div class="w3-input-group">
 					<label>Change password</label>
-					<input class="w3-input" name="password" type="password" placeholder="New password" required/>
+					<input class="w3-input" name="password" type="password" placeholder="********" required/>
 					<input type="hidden" name="action" value="changePassword"/>
 					<input type="submit" class="w3-btn w3-cyan" value="Change password"/>
 				</div>
