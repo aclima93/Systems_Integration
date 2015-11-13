@@ -24,24 +24,46 @@
 			</div>
 			<div class="w3-row">
 				<div class="w3-col m10">
-					<h3>Welcome, <c:out value="${user.name}"/></h3>
+					<h3>Music list</h3>
+				</div>
+				<div class="w3-col m2">
+					<form class="w3-form" method="post" action="Main">
+						<input type="hidden" name="action" value="musicMenu"/>
+						<input type="submit" class="w3-btn w3-cyan" value="Music Menu"/>
+					</form>
 				</div>
 			</div>
 		</header>
-		<div class="w3-container">
-			<h3>Select an option.</h3>
-			<form class="w3-form" method="post" action="Main">
-				<input type="hidden" name="action" value="userMenu"/>
-				<input type="submit" class="w3-btn w3-cyan" value="Account settings"/>
-			</form>
-			<form class="w3-form" method="post" action="Main">
-				<input type="hidden" name="action" value="musicMenu"/>
-				<input type="submit" class="w3-btn w3-cyan" value="Music"/>
-			</form>
-			<form class="w3-form" method="post" action="Main">
-				<input type="hidden" name="action" value="playlistMenu"/>
-				<input type="submit" class="w3-btn w3-cyan" value="Playlists"/>
-			</form>
+		<br/>
+		<div class="w3-row w3-cyan">
+			<div class="w3-col m3">
+				<p>Title</p>
+			</div>
+			<div class="w3-col m3">
+				<p>Artist</p>
+			</div>
+			<div class="w3-col m3">
+				<p>Album</p>
+			</div>
+			<div class="w3-col m3">
+				<p>Year</p>
+			</div>
+			<c:forEach items="${list}" var="element">
+				<div class="w3-row">
+					<div class="w3-col m3">
+						<p>${element.title}</p>
+					</div>
+					<div class="w3-col m3">
+						<p>${element.artist}</p>
+					</div>
+					<div class="w3-col m3">
+						<p>${element.album}</p>
+					</div>
+					<div class="w3-col m3">
+						<p>${element.year}</p>
+					</div>
+				</div>
+			</c:forEach>
 		</div>
 	</div>
 </body>

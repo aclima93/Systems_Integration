@@ -26,12 +26,11 @@ public class MusicBean implements MusicBeanRemote {
     }
     
     @Override
-    public MusicUploadResult uploadMusic(Music music, User user) {
+    public MusicUploadResult uploadMusic(String title, String artist, String album, String year, User user) {
     	try {
+    		Music music = new Music(title, artist, album, year, "");
     		music.setUploader(user);
     		em.merge(music);
-    		user.getMusics().add(music);
-    		em.merge(user);
     		return MusicUploadResult.Success;
     	} catch(Exception e) {
     		return MusicUploadResult.Error;
@@ -39,83 +38,57 @@ public class MusicBean implements MusicBeanRemote {
     }
     
     @Override
-    public MusicEditResult changeMusicTitle(Music music, User user, String title) {
+    public Music changeMusicTitle(int id, String title) {
     	try {
-    		Query query = em.createQuery("* from Music m, User u WHERE u.email=:u AND m.path=:m AND u.id = m.uploader_id");
-    		query.setParameter("u", user.getEmail());
-    		query.setParameter("m", music.getPath());
-    		if(query.getResultList().isEmpty()) {
-    			return MusicEditResult.Unauthorized;
-    		}
+    		Music music = em.find(Music.class, id);
     		music.setTitle(title);
     		em.merge(music);
-    		return MusicEditResult.Success;
+    		return music;
     	} catch(Exception e) {
-    		return MusicEditResult.Error;
+    		return null;
+    	}
+    }
+
+    @Override
+    public Music changeMusicArtist(int id, String artist) {
+    	try {
+    		Music music = em.find(Music.class, id);
+    		music.setArtist(artist);
+    		em.merge(music);
+    		return music;
+    	} catch(Exception e) {
+    		return null;
+    	}
+    }
+    
+    @Override
+    public Music changeMusicAlbum(int id, String album) {
+    	try {
+    		Music music = em.find(Music.class, id);
+    		music.setAlbum(album);
+    		em.merge(music);
+    		return music;
+    	} catch(Exception e) {
+    		return null;
+    	}
+    }
+    
+    @Override
+    public Music changeMusicYear(int id, String year) {
+    	try {
+    		Music music = em.find(Music.class, id);
+    		music.setYear(year);
+    		em.merge(music);
+    		return music;
+    	} catch(Exception e) {
+    		return null;
     	}
     }
 
 	@Override
-	public MusicEditResult changeMusicArtist(Music music, User user, String artist) {
+	public MusicDeleteResult deleteMusic(int id) {
 		try {
-    		Query query = em.createQuery("* from Music m, User u WHERE u.email=:u AND m.path=:m AND u.id = m.uploader_id");
-    		query.setParameter("u", user.getEmail());
-    		query.setParameter("m", music.getPath());
-    		if(query.getResultList().isEmpty()) {
-    			return MusicEditResult.Unauthorized;
-    		}
-    		music.setArtist(artist);
-    		//em.persist(music);
-    		return MusicEditResult.Success;
-    	} catch(Exception e) {
-    		return MusicEditResult.Error;
-    	}
-	}
-
-	@Override
-	public MusicEditResult changeMusicAlbum(Music music, User user, String album) {
-		try {
-    		Query query = em.createQuery("* from Music m, User u WHERE u.email=:u AND m.path=:m AND u.id = m.uploader_id");
-    		query.setParameter("u", user.getEmail());
-    		query.setParameter("m", music.getPath());
-    		if(query.getResultList().isEmpty()) {
-    			return MusicEditResult.Unauthorized;
-    		}
-    		music.setAlbum(album);
-    		//em.persist(music);
-    		return MusicEditResult.Success;
-    	} catch(Exception e) {
-    		return MusicEditResult.Error;
-    	}
-	}
-
-	@Override
-	public MusicEditResult changeMusicYear(Music music, User user, String year) {
-		try {
-    		Query query = em.createQuery("* from Music m, User u WHERE u.email=:u AND m.path=:m AND u.id = m.uploader_id");
-    		query.setParameter("u", user.getEmail());
-    		query.setParameter("m", music.getPath());
-    		if(query.getResultList().isEmpty()) {
-    			return MusicEditResult.Unauthorized;
-    		}
-    		music.setYear(year);
-    		//em.persist(music);
-    		return MusicEditResult.Success;
-    	} catch(Exception e) {
-    		return MusicEditResult.Error;
-    	}
-	}
-
-	@Override
-	public MusicDeleteResult deleteMusic(Music music, User user) {
-		try {
-			Query query = em.createQuery("* from Music m, User u WHERE u.id=:u AND m.id=:m AND u.id = m.uploader_id");
-    		query.setParameter("u", user.getId());
-    		query.setParameter("m", music.getId());
-    		if(query.getResultList().isEmpty()) {
-    			return MusicDeleteResult.Unauthorized;
-    		}
-    		em.remove(em.find(Music.class, music.getId()));
+    		em.remove(em.find(Music.class, id));
     		return MusicDeleteResult.Success;
 		} catch(Exception e) {
 			return MusicDeleteResult.Error;
@@ -125,10 +98,33 @@ public class MusicBean implements MusicBeanRemote {
 	@Override
 	public List<Music> getAllMusic() {
 		try {
-			Query query = em.createQuery("* from Music");
+			Query query = em.createQuery("from Music");
 			@SuppressWarnings("unchecked")
 			List<Music> resultList = query.getResultList();
 			return resultList;
+		} catch(Exception e) {
+			return null;
+		}
+	}
+	
+	@Override
+	public List<Music> listSongsByUser(User user) {
+		try {
+			Query query = em.createQuery("from Music m where m.uploader=:u");
+			query.setParameter("u", user);
+			@SuppressWarnings("unchecked")
+			List<Music> result = query.getResultList();
+			return result;
+		} catch(Exception e) {
+			return null;
+		}
+	}
+	
+	@Override
+	public Music getSongByID(int id) {
+		try {
+			Music result = em.find(Music.class, id);
+			return result;
 		} catch(Exception e) {
 			return null;
 		}

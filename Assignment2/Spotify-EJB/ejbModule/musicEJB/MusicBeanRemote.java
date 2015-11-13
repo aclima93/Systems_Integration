@@ -9,12 +9,14 @@ import jpa.User;
 
 @Remote
 public interface MusicBeanRemote {
-	public MusicUploadResult uploadMusic(Music music, User user);
-	public MusicEditResult changeMusicTitle(Music music, User user, String title);
-	public MusicEditResult changeMusicArtist(Music music, User user, String artist);
-	public MusicEditResult changeMusicAlbum(Music music, User user, String album);
-	public MusicEditResult changeMusicYear(Music music, User user, String year);
-	public MusicDeleteResult deleteMusic(Music music, User user);
+	public MusicUploadResult uploadMusic(String title, String artist, String album, String year, User user);
+	public Music changeMusicTitle(int id, String title);
+	public Music changeMusicArtist(int id, String artist);
+	public Music changeMusicAlbum(int id, String album);
+	public Music changeMusicYear(int id, String year);
+	public MusicDeleteResult deleteMusic(int id);
 	public List<Music> getAllMusic();
+	public List<Music> listSongsByUser(User user);
+	public Music getSongByID(int id);
 	public List<Music> searchMusic(MusicSearchParameter parameter, String value);
 }

@@ -24,23 +24,32 @@
 			</div>
 			<div class="w3-row">
 				<div class="w3-col m10">
-					<h3>Welcome, <c:out value="${user.name}"/></h3>
+					<h3>Music</h3>
+				</div>
+				<div class="w3-col m2">
+					<form class="w3-form" method="post" action="Main">
+						<input type="hidden" name="action" value="index"/>
+						<input type="submit" class="w3-btn w3-cyan" value="Main Menu"/>
+					</form>
 				</div>
 			</div>
 		</header>
 		<div class="w3-container">
-			<h3>Select an option.</h3>
 			<form class="w3-form" method="post" action="Main">
-				<input type="hidden" name="action" value="userMenu"/>
-				<input type="submit" class="w3-btn w3-cyan" value="Account settings"/>
+				<input type="hidden" name="action" value="listAllSongs"/>
+				<input type="submit" class="w3-btn w3-cyan" value="List all songs"/>
 			</form>
 			<form class="w3-form" method="post" action="Main">
-				<input type="hidden" name="action" value="musicMenu"/>
-				<input type="submit" class="w3-btn w3-cyan" value="Music"/>
+				<input type="hidden" name="action" value="addNewMusic"/>
+				<input type="submit" class="w3-btn w3-cyan" value="Add new song"/>
 			</form>
 			<form class="w3-form" method="post" action="Main">
-				<input type="hidden" name="action" value="playlistMenu"/>
-				<input type="submit" class="w3-btn w3-cyan" value="Playlists"/>
+				<input type="hidden" name="action" value="listMySongs"/>
+				<input type="submit" class="w3-btn w3-cyan" value="Edit one of my songs"/>
+			</form>
+			<form class="w3-form" method="post" action="Main">
+				<input type="hidden" name="action" value="searchSongs"/>
+				<input type="submit" class="w3-btn w3-cyan" value="Search for songs"/>
 			</form>
 		</div>
 	</div>

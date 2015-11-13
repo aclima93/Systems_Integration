@@ -24,23 +24,27 @@
 			</div>
 			<div class="w3-row">
 				<div class="w3-col m10">
-					<h3>Welcome, <c:out value="${user.name}"/></h3>
+					<h3>Add music</h3>
+				</div>
+				<div class="w3-col m2">
+					<form class="w3-form" method="post" action="Main">
+						<input type="hidden" name="action" value="index"/>
+						<input type="submit" class="w3-btn w3-cyan" value="Main Menu"/>
+					</form>
 				</div>
 			</div>
 		</header>
 		<div class="w3-container">
-			<h3>Select an option.</h3>
+			<c:if test="${not empty message}">
+				<h3>${message}</h3>
+			</c:if>
 			<form class="w3-form" method="post" action="Main">
-				<input type="hidden" name="action" value="userMenu"/>
-				<input type="submit" class="w3-btn w3-cyan" value="Account settings"/>
-			</form>
-			<form class="w3-form" method="post" action="Main">
-				<input type="hidden" name="action" value="musicMenu"/>
-				<input type="submit" class="w3-btn w3-cyan" value="Music"/>
-			</form>
-			<form class="w3-form" method="post" action="Main">
-				<input type="hidden" name="action" value="playlistMenu"/>
-				<input type="submit" class="w3-btn w3-cyan" value="Playlists"/>
+				<input class="w3-input" type="text" name="title" placeholder="Song title" required/>
+				<input class="w3-input" type="text" name="artist" placeholder="Song artist" required/>
+				<input class="w3-input" type="text" name="album" placeholder="Song album" required/>
+				<input class="w3-input" type="text" name="year" placeholder="Song year" required/>
+				<input type="hidden" name="action" value="verifyNewSong"/>
+				<input type="submit" class="w3-btn w3-cyan" value="Create song"/>
 			</form>
 		</div>
 	</div>

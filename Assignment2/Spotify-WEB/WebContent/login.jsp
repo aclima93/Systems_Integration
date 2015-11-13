@@ -10,20 +10,20 @@
 <body>
 	<div class="w3-container">
 		<header class="w3-container w3-blue">
-			<h2>É necessário efetuar login</h2>
+			<h2>You have to login</h2>
 			<h3><c:out value="${user}"/></h3>
 		</header>
 		<div class="w3-row">
 			<div class="w3-col w3-half">
 				<div class="w3-container">
-					<h3>Registar</h3>
+					<h3>Register</h3>
 					<form class="w3-form" method="post" action="Main">
 						<div class="w3-input-group">
-							<label>Nome</label>
+							<label>Name</label>
 							<input class="w3-input" name="name" type="text" required/>
 						</div>
 						<div class="w3-input-group">
-							<label>Email</label>
+							<label>E-mail</label>
 							<input class="w3-input" name="email" type="text" required/>
 						</div>
 						<div class="w3-input-group">
@@ -31,7 +31,7 @@
 							<input class="w3-input" name="password" type="password" required/>
 						</div>
 						<input type="hidden" name="action" value="register"/>
-						<input type="submit" class="w3-btn w3-cyan" value="Registar"/>
+						<input type="submit" class="w3-btn w3-cyan" value="Register"/>
 					</form>
 				</div>
 			</div>
@@ -40,7 +40,7 @@
 					<h3>Login</h3>
 					<form class="w3-form" method="post" action="Main">
 						<div class="w3-input-group">
-							<label>Email</label>
+							<label>E-mail</label>
 							<input class="w3-input" name="email" type="text" required/>
 						</div>
 						<div class="w3-input-group">

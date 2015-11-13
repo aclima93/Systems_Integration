@@ -80,28 +80,6 @@
 					</div>
 				</div>
 			</c:forEach>
-			<!--<form class="w3-form" method="post" action="Main">
-				<div class="w3-input-group">
-					<label>Change email</label>
-					<input class="w3-input" name="email" type="text" placeholder="New e-mail" required/>
-					<input type="hidden" name="action" value="changeEmail"/>
-					<input type="submit" class="w3-btn w3-cyan" value="Change e-mail"/>
-				</div>
-			</form>
-			<form class="w3-form" method="post" action="Main">
-				<div class="w3-input-group">
-					<label>Change password</label>
-					<input class="w3-input" name="password" type="password" placeholder="New password" required/>
-					<input type="hidden" name="action" value="changePassword"/>
-					<input type="submit" class="w3-btn w3-cyan" value="Change password"/>
-				</div>
-			</form>
-			<form class="w3-form" method="post" action="Main">
-				<div class="w3-input-group">
-					<input type="hidden" name="action" value="deleteUser"/>
-					<input type="submit" class="w3-btn w3-deep-orange" value="Delete account"/>
-				</div>
-			</form>-->
 		</div>
 	</div>
 </body>

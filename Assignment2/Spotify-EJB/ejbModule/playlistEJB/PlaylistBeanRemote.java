@@ -11,8 +11,9 @@ import jpa.User;
 @Remote
 public interface PlaylistBeanRemote {
 	PlaylistCreateResult createPlaylist(User user, String name);
-	PlaylistEditResult changePlaylistName(Playlist playlist, String name);
+	PlaylistEditResult changePlaylistName(int id, String name);
 	List<Playlist> listPlaylists(PlaylistSortOrder order);
-	List<Music> listMusicOnPlaylist(Playlist playlist);
+	List<Music> listMusicOnPlaylist(int id);
 	PlaylistDeleteResult deletePlaylist(int id, User user);
+	Playlist getPlaylistById(int id);
 }

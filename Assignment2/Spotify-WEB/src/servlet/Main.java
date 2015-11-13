@@ -10,12 +10,16 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import jpa.Music;
 import jpa.Playlist;
 import jpa.User;
 import musicEJB.MusicBeanRemote;
+import musicEJB.MusicDeleteResult;
+import musicEJB.MusicUploadResult;
 import playlistEJB.PlaylistBeanRemote;
 import playlistEJB.PlaylistCreateResult;
 import playlistEJB.PlaylistDeleteResult;
+import playlistEJB.PlaylistEditResult;
 import playlistEJB.PlaylistSortOrder;
 import userEJB.UserRegisterResult;
 import userEJB.UserBeanRemote;
@@ -310,6 +314,167 @@ public class Main extends HttpServlet {
 					request.getSession().setAttribute("error", "Something went wrong.");
 					request.getRequestDispatcher("error.jsp").forward(request, response);
 				}
+			} else if(action.compareToIgnoreCase("listMusicInPlaylist") == 0) {
+				// Playlist view
+				int playlist = Integer.parseInt(request.getParameter("playlist"));
+				request.getSession().removeAttribute("list");
+				List<Music> result = this.playlist.listMusicOnPlaylist(playlist);
+				request.getSession().setAttribute("list", result);
+				request.getSession().setAttribute("playlist", this.playlist.getPlaylistById(playlist));
+				request.getRequestDispatcher("playlistView.jsp").forward(request, response);
+				
+			} else if(action.compareToIgnoreCase("changePlaylistName") == 0) {
+				// Change playlist name
+				int playlist = Integer.parseInt(request.getParameter("playlist"));
+				String name = request.getParameter("name");
+				request.getSession().removeAttribute("message");
+				PlaylistEditResult result = this.playlist.changePlaylistName(playlist, name);
+				
+				if(result == PlaylistEditResult.Success) {
+					// Successfully changed playlist name
+					request.getSession().setAttribute("message", "Successfully changed playlist name.");
+					request.getSession().setAttribute("playlist", this.playlist.getPlaylistById(playlist));
+					request.getRequestDispatcher("playlistView.jsp").forward(request, response);
+					
+				} else {
+					// Error changing playlist name
+					request.getSession().setAttribute("error", "Error changing playlist name.");
+					request.getRequestDispatcher("error.jsp").forward(request, response);
+					
+				}
+			} else if(action.compareToIgnoreCase("musicMenu") == 0) {
+				// Music menu
+				request.getRequestDispatcher("music.jsp").forward(request, response);
+				
+			} else if(action.compareToIgnoreCase("listAllSongs") == 0) {
+				// List all songs
+				request.setAttribute("list", this.music.getAllMusic());
+				request.getRequestDispatcher("listAllSongs.jsp").forward(request, response);
+				
+			} else if(action.compareToIgnoreCase("listMySongs") == 0) {
+				// List songs uploaded by current user
+				request.setAttribute("list", this.music.listSongsByUser(currentUser));
+				request.getRequestDispatcher("listMySongs.jsp").forward(request, response);
+				
+			} else if(action.compareToIgnoreCase("addNewMusic") == 0) {
+				// User wants to add a new song
+				request.getSession().removeAttribute("message");
+				request.getRequestDispatcher("newMusic.jsp").forward(request, response);
+				
+			} else if(action.compareToIgnoreCase("verifyNewSong") == 0) {
+				// Check if song is "addable"
+				String title = request.getParameter("title");
+				String artist = request.getParameter("artist");
+				String album = request.getParameter("album");
+				String year = request.getParameter("year");
+				MusicUploadResult result = this.music.uploadMusic(title, artist, album, year, currentUser);
+				
+				if(result == MusicUploadResult.Success) {
+					// Successfully uploaded
+					request.getSession().setAttribute("message", "Successfully added song.");
+					request.getRequestDispatcher("newMusic.jsp").forward(request, response);
+					
+				} else {
+					// Error uploading
+					request.getSession().setAttribute("Error", "Something went wrong while uploading that song.");
+					request.getRequestDispatcher("error.jsp").forward(request, response);
+					
+				}
+			} else if(action.compareToIgnoreCase("editSongInfo") == 0) {
+				// User wants to change something on the song
+				int id = Integer.parseInt(request.getParameter("song"));
+				Music song = this.music.getSongByID(id);
+				request.getSession().setAttribute("song", song);
+				request.getRequestDispatcher("editSongInfo.jsp").forward(request, response);
+				
+			} else if(action.compareToIgnoreCase("editSongTitle") == 0) {
+				// User wants to change song title
+				Music song = (Music)request.getSession().getAttribute("song");
+				int id = song.getId();
+				Music result = this.music.changeMusicTitle(id, request.getParameter("title"));
+				if (result == null) {
+					// Error editing song
+					request.getSession().setAttribute("error", "Error changing song title.");
+					request.getRequestDispatcher("error.jsp").forward(request, response);
+					
+				} else {
+					// Success
+					request.getSession().setAttribute("song", result);
+					request.getSession().setAttribute("message", "Successfully changed song title.");
+					request.getRequestDispatcher("editSongInfo.jsp").forward(request, response);
+					
+				}
+			} else if(action.compareToIgnoreCase("editSongArtist") == 0) {
+				// User wants to change song artist
+				Music song = (Music)request.getSession().getAttribute("song");
+				int id = song.getId();
+				Music result = this.music.changeMusicArtist(id, request.getParameter("artist"));
+				if (result == null) {
+					// Error editing song
+					request.getSession().setAttribute("error", "Error changing song artist.");
+					request.getRequestDispatcher("error.jsp").forward(request, response);
+					
+				} else {
+					// Success
+					request.getSession().setAttribute("song", result);
+					request.getSession().setAttribute("message", "Successfully changed song artist.");
+					request.getRequestDispatcher("editSongInfo.jsp").forward(request, response);
+					
+				}
+			} else if(action.compareToIgnoreCase("editSongAlbum") == 0) {
+				// User wants to change song album
+				Music song = (Music)request.getSession().getAttribute("song");
+				int id = song.getId();
+				Music result = this.music.changeMusicAlbum(id, request.getParameter("album"));
+				if (result == null) {
+					// Error editing song
+					request.getSession().setAttribute("error", "Error changing song album.");
+					request.getRequestDispatcher("error.jsp").forward(request, response);
+					
+				} else {
+					// Success
+					request.getSession().setAttribute("song", result);
+					request.getSession().setAttribute("message", "Successfully changed song album.");
+					request.getRequestDispatcher("editSongInfo.jsp").forward(request, response);
+					
+				}	
+			} else if(action.compareToIgnoreCase("editSongYear") == 0) {
+				// User wants to change song year
+				Music song = (Music)request.getSession().getAttribute("song");
+				int id = song.getId();
+				Music result = this.music.changeMusicYear(id, request.getParameter("year"));
+				if(result == null) {
+					// Error editing song
+					request.getSession().setAttribute("error", "Error changing song year.");
+					request.getRequestDispatcher("error.jsp").forward(request, response);
+					
+				} else {
+					// Success
+					request.getSession().setAttribute("song", result);
+					request.getSession().setAttribute("message", "Successfully changed song year.");
+					request.getRequestDispatcher("editSongInfo.jsp").forward(request, response);
+					
+				}
+			} else if(action.compareToIgnoreCase("deleteSong") == 0) {
+				// User wants to delete one of his songs
+				Music song = (Music)request.getSession().getAttribute("song");
+				int id = song.getId();
+				MusicDeleteResult result = this.music.deleteMusic(id);
+				if(result == null) {
+					// Error deleting song
+					request.getSession().setAttribute("error", "Error deleting song");
+					request.getRequestDispatcher("error.jsp").forward(request, response);
+					
+				} else {
+					// Success
+					request.setAttribute("list", this.music.listSongsByUser(currentUser));
+					request.getSession().setAttribute("message", "Successfully deleted song");
+					request.getRequestDispatcher("listMySongs.jsp").forward(request, response);
+					
+				}
+			} else if(action.compareToIgnoreCase("searchSongs") == 0) {
+				// Search with criteria
+				
 			}
 		}
 	}

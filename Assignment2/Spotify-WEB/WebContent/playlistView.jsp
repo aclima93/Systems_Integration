@@ -24,25 +24,37 @@
 			</div>
 			<div class="w3-row">
 				<div class="w3-col m10">
-					<h3>Welcome, <c:out value="${user.name}"/></h3>
+					<h3>Playlists</h3>
+				</div>
+				<div class="w3-col m2">
+					<form class="w3-form" method="post" action="Main">
+						<input type="hidden" name="action" value="playlistMenu"/>
+						<input type="submit" class="w3-btn w3-cyan" value="Playlist Menu"/>
+					</form>
 				</div>
 			</div>
 		</header>
-		<div class="w3-container">
-			<h3>Select an option.</h3>
-			<form class="w3-form" method="post" action="Main">
-				<input type="hidden" name="action" value="userMenu"/>
-				<input type="submit" class="w3-btn w3-cyan" value="Account settings"/>
-			</form>
-			<form class="w3-form" method="post" action="Main">
-				<input type="hidden" name="action" value="musicMenu"/>
-				<input type="submit" class="w3-btn w3-cyan" value="Music"/>
-			</form>
-			<form class="w3-form" method="post" action="Main">
-				<input type="hidden" name="action" value="playlistMenu"/>
-				<input type="submit" class="w3-btn w3-cyan" value="Playlists"/>
-			</form>
+		
+		<div class="w3-container w3-aqua">
+			<div class="w3-row">
+				<form method="post" action="Main">
+					<div class="w3-col m9">
+						<input class="w3-input w3-aqua" type="text" name="name" value="${playlist.name}"/>
+					</div>
+					<div class="w3-col m3">
+						<input type="hidden" name="action" value="changePlaylistName"/>
+						<input type="hidden" name="playlist" value="${playlist.id}"/>
+						<input type="submit" class="w3-btn w3-aqua" value="Change name"/>
+					</div>
+				</form>
+			</div>
 		</div>
+		<c:if test="${not empty message}">
+			<h3>${message}</h3>
+		</c:if>
+		<c:if test="${not empty list}">
+			<h1>Yay</h1>
+		</c:if>
 	</div>
 </body>
 </html>
