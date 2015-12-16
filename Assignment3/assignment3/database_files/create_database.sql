@@ -47,31 +47,74 @@ CREATE TABLE smartphones (
 /* Table for System Statistics */
 CREATE TABLE statistics (
 	num_updates_to_smartphones INT DEFAULT 0,
+	num_cur_smartphones INT DEFAULT 0,
 	num_total_smartphones INT DEFAULT 0,
 	num_sent_emails INT DEFAULT 0,
 	num_sent_tweets INT DEFAULT 0
 );
 
 
-/* automatic incrementing of smartphone update counter and total number of */
+/* Automatic incrementing of smartphone insertions counter*/
 DELIMITER $$
-CREATE TRIGGER before_smartphone_insert 
-    BEFORE INSERT ON smartphones
+CREATE TRIGGER after_smartphone_insert 
+    AFTER INSERT ON smartphones
     FOR EACH ROW
 BEGIN
     UPDATE statistics
-    SET num_updates_to_smartphones = num_updates_to_smartphones + 1; 
-END $$
+    SET num_updates_to_smartphones = num_updates_to_smartphones + 1,
+    	num_total_smartphones = num_total_smartphones + ABS( num_cur_smartphones - (SELECT COUNT(*) FROM smartphones) ),
+    	num_cur_smartphones = (SELECT COUNT(*) FROM smartphones);
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE TRIGGER after_smartphone_update 
+    AFTER UPDATE ON smartphones
+    FOR EACH ROW
+BEGIN
+    UPDATE statistics
+    SET num_updates_to_smartphones = num_updates_to_smartphones + 1,
+    	num_total_smartphones = num_total_smartphones + ABS( num_cur_smartphones - (SELECT COUNT(*) FROM smartphones) ),
+    	num_cur_smartphones = (SELECT COUNT(*) FROM smartphones);
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE TRIGGER after_smartphone_delete
+    AFTER DELETE ON smartphones
+    FOR EACH ROW
+BEGIN
+    UPDATE statistics
+    SET num_updates_to_smartphones = num_updates_to_smartphones + 1,
+    	num_total_smartphones = num_total_smartphones + ABS( num_cur_smartphones - (SELECT COUNT(*) FROM smartphones) ),
+    	num_cur_smartphones = (SELECT COUNT(*) FROM smartphones);
+END$$
 DELIMITER ;
 
 
 /* Initialize Statistics Counters */
-INSERT INTO statistics (num_updates_to_smartphones, num_total_smartphones, num_sent_emails, num_sent_tweets) VALUES (0,0,0,0);
+INSERT INTO statistics () VALUES ();
 
 
 /* For debugging purposes */
-INSERT INTO smartphones (technical_data, url, name, brand, currency, summary_data, price) VALUES ('Some technical mumbo jumbo','www.my.url.com','Generic Smartphone','Generic Brand','€','My summary is bigger than yours!', 1337);
+/* before any action */
+/*SELECT * FROM statistics;
 
+/* after insert */
+INSERT INTO smartphones (technical_data, url, name, brand, currency, summary_data, price) VALUES ('Some technical mumbo jumbo','www.my.url.com','Generic Smartphone','Generic Brand','€','My summary is bigger than yours!', 1337);
+INSERT INTO smartphones (technical_data, url, name, brand, currency, summary_data, price) VALUES ('2 Some technical mumbo jumbo','2 www.my.url.com','2 Generic Smartphone','2 Generic Brand','€','2 My summary is bigger than yours!', 1337);
+/*SELECT * FROM statistics;
+/*SELECT * FROM smartphones;*/
+
+/* after update */
+UPDATE smartphones SET price = 666 WHERE id = 1;
+/*SELECT * FROM statistics;
+/*SELECT * FROM smartphones;*/
+
+/* after delete */
+DELETE FROM smartphones WHERE id = 1;
+SELECT * FROM statistics;
+/*SELECT * FROM smartphones;*/
 
 
 
