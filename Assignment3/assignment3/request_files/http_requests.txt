@@ -1,0 +1,8 @@
+# add a subscription
+http://localhost:8081/smartphones_mailinglist/add_subscription/?subscription=wowowow
+
+# add a list of smartphones
+http://localhost:8081/smartphones_mailinglist/add_smartphones/?smartphones=wowowow
+
+# send confirmation email
+http://localhost:8081/?email=aclspam%40hotmail.com
