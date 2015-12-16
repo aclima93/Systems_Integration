@@ -2,6 +2,7 @@
 
 mysql.server stop
 mysql.server start
-mysql -u root -D mysql -p
 
-source create_database.sql;
+# the password is the empty string	
+mysql -u root -D mysql -p
+source /Users/aclima/Documents/Repositories/Systems_Integration/Assignment3/assignment3/database_files/create_database.sql;
