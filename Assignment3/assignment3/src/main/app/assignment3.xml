@@ -34,7 +34,7 @@ http://www.mulesoft.org/schema/mule/twitter http://www.mulesoft.org/schema/mule/
 	<smtp:gmail-connector name="Gmail" validateConnections="true" doc:name="Gmail"/>
     <twitter:config name="Twitter" accessKey="4517518408-3y5AGk1NNzgkDK50m4BunRZYp5PcSXUEwBpp1Gb" accessSecret="6i3h29N3MYYFB3OyPSbqZ5ZBpgafosRvlrWqJGwYczTHk" consumerKey="8zjMgss0csnIDq3TFSqmb91Qv" consumerSecret="DNEsnrLJtlBJDhe1BkrqADSYqvQ8FqwjLWVtgG9Eh4WqIfbZAZ" doc:name="Twitter"/>
 
-    <flow name="add_smartphones_flow">
+    <flow name="add_smartphones_and_send_tweet_flow">
         <http:listener config-ref="HTTP_Listener_Configuration" path="/smartphones_mailinglist/add_smartphones/" doc:name="HTTP"/>
         <set-payload value="#[message.inboundProperties.'http.query.params'.smartphones]" doc:name="Set Payload"/>
         <logger message="smartphones: '#[message.inboundProperties.'http.query.params'.smartphones]'" level="INFO" doc:name="Logger"/>
@@ -56,7 +56,7 @@ http://www.mulesoft.org/schema/mule/twitter http://www.mulesoft.org/schema/mule/
             </otherwise>
         </choice>
     </flow>
-    <flow name="add_subscription_send_confirmation_flow">
+    <flow name="add_subscription_and_send_confirmation_flow">
         <http:listener config-ref="HTTP_Listener_Configuration" path="/smartphones_mailinglist/add_subscription/" doc:name="HTTP"/>
         <logger message="subscription: '#[message.inboundProperties.'http.query.params'.subscription]'" level="INFO" doc:name="Logger"/>
         <db:insert config-ref="MySQL_Configuration" doc:name="Insert Subscription into Database">
