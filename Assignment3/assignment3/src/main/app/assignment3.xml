@@ -37,44 +37,53 @@ http://www.mulesoft.org/schema/mule/twitter http://www.mulesoft.org/schema/mule/
     <flow name="add_smartphones_and_send_tweet_flow">
         <http:listener config-ref="HTTP_Listener_Configuration" path="/smartphones_mailinglist/add_smartphones/" doc:name="HTTP"/>
         <set-payload value="#[message.inboundProperties.'http.query.params'.smartphones]" doc:name="Set Payload"/>
-        <logger message="smartphones: '#[message.inboundProperties.'http.query.params'.smartphones]'" level="INFO" doc:name="Logger"/>
+        <logger message="smartphones input: #[message.payload]" level="INFO" doc:name="Logger"/>
         <db:insert config-ref="MySQL_Configuration" doc:name="Insert Smartphone into Database">
             <db:parameterized-query><![CDATA[INSERT INTO smartphones (technical_data, url, name, brand, currency, summary_data, price) VALUES ('Some technical mumbo jumbo','www.my.url.com','Generic Smartphone','Generic Brand','€','My summary is bigger than yours!', 1337);]]></db:parameterized-query>
         </db:insert>
+        <logger message="smartphones output: #[message.payload]" level="INFO" doc:name="Logger"/>
         <set-payload value="#[message.payload]" doc:name="Set Payload"/>
         <choice doc:name="Check Insertion Result">
             <when expression="payload.equals(1)">
+                <logger message="statistics input: #[message.payload]" level="INFO" doc:name="Logger"/>
                 <db:select config-ref="MySQL_Configuration" doc:name="Select Statistics from Database">
                     <db:parameterized-query><![CDATA[SELECT * FROM statistics;]]></db:parameterized-query>
                 </db:select>
+                <logger message="statistics output: #[message.payload]" level="INFO" doc:name="Logger"/>
                 <set-payload value="#[message.payload]" doc:name="Set Payload"/>
+                <logger message="twitter input: #[message.payload]" level="INFO" doc:name="Logger"/>
                 <twitter:update-status config-ref="Twitter" status="#[message.payload]" doc:name="Tweet Statistics"/>
-                <logger message="#[message.payload]" level="INFO" doc:name="Logger"/>
+                <logger message="twitter output: #[message.payload]" level="INFO" doc:name="Logger"/>
             </when>
             <otherwise>
-                <logger message="#[message.payload]" level="INFO" doc:name="Logger"/>
+                <logger message="twitter otherwise: #[message.payload]" level="ERROR" doc:name="Logger"/>
             </otherwise>
         </choice>
+        <set-payload value="#[message.payload]" doc:name="Set Payload"/>
     </flow>
     <flow name="add_subscription_and_send_confirmation_flow">
         <http:listener config-ref="HTTP_Listener_Configuration" path="/smartphones_mailinglist/add_subscription/" doc:name="HTTP"/>
-        <logger message="subscription: '#[message.inboundProperties.'http.query.params'.subscription]'" level="INFO" doc:name="Logger"/>
+        <set-payload value="#[message.inboundProperties.'http.query.params'.subscription]" doc:name="Set Payload"/>
+        <logger message="subscription input: #[message.payload]" level="INFO" doc:name="Logger"/>
         <db:insert config-ref="MySQL_Configuration" doc:name="Insert Subscription into Database">
-            <db:parameterized-query><![CDATA[INSERT INTO subscriptions (email, name, brand_filter, min_price, max_price) VALUES ('aclspam%40hotmail.com', 'acl', 'Generic Brand', 0, 1000);]]></db:parameterized-query>
+            <db:parameterized-query><![CDATA[INSERT INTO subscriptions (email, name, brand_filter, min_price, max_price) VALUES ('aclspam@hotmail.com', 'acl', 'Generic Brand', 0, 1000);]]></db:parameterized-query>
         </db:insert>
+        <logger message="subscription output: #[message.payload]" level="INFO" doc:name="Logger"/>
         <set-payload value="deisugaalmas@gmail.com" doc:name="Set Payload"/>
-        <logger message="payload: '#[payload]'" level="INFO" doc:name="Logger"/>
+        <logger message="notification email input: #[message.payload]" level="INFO" doc:name="Logger"/>
         <smtp:outbound-endpoint host="smtp.gmail.com" port="587" user="is.spammer.2015%40gmail.com" password="vamoster20" connector-ref="Gmail" to="#[message.payload]" from="is.spammer" subject="Testing mule email" responseTimeout="10000" doc:name="Send notification email"/>
-        <set-payload value="'#[message.payload]'" doc:name="Set Payload"/>
+        <logger message="notification email output: #[message.payload]" level="INFO" doc:name="Logger"/>
+        <set-payload value="#[message.payload]" doc:name="Set Payload"/>
     </flow>
     <flow name="unsubscribe_flow">
         <http:listener config-ref="HTTP_Listener_Configuration" path="/smartphones_mailinglist/unsubscribe/" doc:name="HTTP"/>
-        <set-payload value="#[message.inboundProperties.'http.query.params'.email]" doc:name="Set Payload"/>
-        <logger message="email: '#[message.inboundProperties.'http.query.params'.email]'" level="INFO" doc:name="Logger"/>
+        <set-payload value="'#[message.inboundProperties.'http.query.params'.email]'" doc:name="Set Payload"/>
+        <logger message="unsubscribe input: #[message.inboundProperties.'http.query.params'.email]" level="INFO" doc:name="Logger"/>
         <db:delete config-ref="MySQL_Configuration" doc:name="Delete Subscription from Database">
-            <db:parameterized-query><![CDATA[DELETE FROM statistics WHERE email LIKE '#[message.payload]';]]></db:parameterized-query>
+            <db:parameterized-query><![CDATA[DELETE FROM subscriptions WHERE email LIKE #[message.payload];]]></db:parameterized-query>
         </db:delete>
-        <logger message="#[message.payload]" level="INFO" doc:name="Logger"/>
+        <logger message="unsubscribe output: #[message.payload]" level="INFO" doc:name="Logger"/>
+        <set-payload value="#[message.payload]" doc:name="Set Payload"/>
     </flow>
     
     
