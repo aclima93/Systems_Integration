@@ -15,7 +15,7 @@ USE mailinglist;
 
 /* Table for Subscriptions to the mailing list */
 CREATE TABLE subscriptions (
-	id mediumint(8) unsigned NOT NULL auto_increment,
+	id mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
 
 	email VARCHAR(254) NOT NULL, /* as per RFC 5321 */
 	name VARCHAR(50) NOT NULL,
@@ -30,7 +30,7 @@ CREATE TABLE subscriptions (
 
 /* Table for Smartphones */
 CREATE TABLE smartphones (
-	id mediumint(8) unsigned NOT NULL auto_increment,
+	id mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
 
 	technical_data TEXT,
     url VARCHAR(256) NOT NULL,

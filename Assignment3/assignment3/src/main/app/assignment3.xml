@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+<mule xmlns:smtps="http://www.mulesoft.org/schema/mule/smtps"
+	xmlns:smtp="http://www.mulesoft.org/schema/mule/smtp"
+	xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
 	xmlns:spring="http://www.springframework.org/schema/beans" 
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/smtps http://www.mulesoft.org/schema/mule/smtps/current/mule-smtps.xsd
+http://www.mulesoft.org/schema/mule/smtp http://www.mulesoft.org/schema/mule/smtp/current/mule-smtp.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
 http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
 http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
@@ -11,27 +15,37 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
 http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
     
     <http:listener-config name="HTTP_Listener_Configuration" host="0.0.0.0" port="8081" doc:name="HTTP Listener Configuration"/>
-    <db:mysql-config name="MySQL_Configuration" url="jdbc:mysql://localhost:3306/company?user=root&amp;amp;password=NO" doc:name="MySQL Configuration">
+    <db:mysql-config name="MySQL_Configuration"  doc:name="MySQL Configuration" database="mailinglist" host="localhost" password="generatedata" port="3306" user="generatedata">
         <db:connection-properties>
             <db:property key="useSSL" value="false"/>
         </db:connection-properties>
     </db:mysql-config>
     
+    <smtps:connector name="smtpsConnector" doc:name="SMTP">
+		<smtps:tls-client path="clientKeystore"
+			storePassword="mulepassword" />
+		<smtps:tls-trust-store path="greenmail-truststore"
+			storePassword="password" />
+	</smtps:connector>	
+	<smtp:gmail-connector name="Gmail" validateConnections="true" doc:name="Gmail"/>
     <flow name="add_smartphones_flow">
-        <http:listener config-ref="HTTP_Listener_Configuration" path="/smartphones_mailinglist/add_smartphones" doc:name="HTTP"/>
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/smartphones_mailinglist/add_smartphones/" doc:name="HTTP"/>
         <set-payload value="#[message.inboundProperties.'http.query.params'.smartphones]" doc:name="Set Payload"/>
         <logger message="smartphones: '#[message.inboundProperties.'http.query.params'.smartphones]'" level="INFO" doc:name="Logger"/>
-        <db:select config-ref="MySQL_Configuration" doc:name="Database">
+        <db:insert config-ref="MySQL_Configuration" doc:name="Database">
             <db:parameterized-query><![CDATA[INSERT INTO smartphones (technical_data, url, name, brand, currency, summary_data, price) VALUES ('Some technical mumbo jumbo','www.my.url.com','Generic Smartphone','Generic Brand','€','My summary is bigger than yours!', 1337);]]></db:parameterized-query>
-        </db:select>
+        </db:insert>
+        <set-payload value="'#[message.payload]'" doc:name="Set Payload"/>
     </flow>
-    
-    <flow name="add_subscription_flow">
-        <http:listener config-ref="HTTP_Listener_Configuration" path="/smartphones_mailinglist/add_subscription" doc:name="HTTP"/>
-        <set-payload value="#[message.inboundProperties.'http.query.params'.subscription]" doc:name="Set Payload"/>
+    <flow name="add_subscription_send_confirmation_flow">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/smartphones_mailinglist/add_subscription/" doc:name="HTTP"/>
         <logger message="subscription: '#[message.inboundProperties.'http.query.params'.subscription]'" level="INFO" doc:name="Logger"/>
-        <db:select config-ref="MySQL_Configuration" doc:name="Database">
+        <db:insert config-ref="MySQL_Configuration" doc:name="Database">
             <db:parameterized-query><![CDATA[INSERT INTO subscriptions (email, name, brand_filter, min_price, max_price) VALUES ('aclspam%40hotmail.com', 'acl', 'Generic Brand', 0, 1000);]]></db:parameterized-query>
-        </db:select>
+        </db:insert>
+        <set-payload value="'aclspam%40hotmail.com'" doc:name="Set Payload"/>
+        <logger message="payload: '#[payload]'" level="INFO" doc:name="Logger"/>
+        <smtp:outbound-endpoint host="smtp.gmail.com" port="587" user="is.spammer.2015%40gmail.com" password="vamoster20" connector-ref="Gmail" to="aclspam%40hotmail.com" from="is.spammer" subject="Testing mule email" responseTimeout="10000" doc:name="Send notification email"/>
+        <set-payload value="'#[message.payload]'" doc:name="Set Payload"/>
     </flow>
 </mule>
