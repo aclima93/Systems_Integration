@@ -32,7 +32,7 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
         <http:listener config-ref="HTTP_Listener_Configuration" path="/smartphones_mailinglist/add_smartphones/" doc:name="HTTP"/>
         <set-payload value="#[message.inboundProperties.'http.query.params'.smartphones]" doc:name="Set Payload"/>
         <logger message="smartphones: '#[message.inboundProperties.'http.query.params'.smartphones]'" level="INFO" doc:name="Logger"/>
-        <db:insert config-ref="MySQL_Configuration" doc:name="Database">
+        <db:insert config-ref="MySQL_Configuration" doc:name="Insert Smartphone into Database">
             <db:parameterized-query><![CDATA[INSERT INTO smartphones (technical_data, url, name, brand, currency, summary_data, price) VALUES ('Some technical mumbo jumbo','www.my.url.com','Generic Smartphone','Generic Brand','€','My summary is bigger than yours!', 1337);]]></db:parameterized-query>
         </db:insert>
         <set-payload value="'#[message.payload]'" doc:name="Set Payload"/>
@@ -40,12 +40,12 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
     <flow name="add_subscription_send_confirmation_flow">
         <http:listener config-ref="HTTP_Listener_Configuration" path="/smartphones_mailinglist/add_subscription/" doc:name="HTTP"/>
         <logger message="subscription: '#[message.inboundProperties.'http.query.params'.subscription]'" level="INFO" doc:name="Logger"/>
-        <db:insert config-ref="MySQL_Configuration" doc:name="Database">
+        <db:insert config-ref="MySQL_Configuration" doc:name="Insert Subscription into Database">
             <db:parameterized-query><![CDATA[INSERT INTO subscriptions (email, name, brand_filter, min_price, max_price) VALUES ('aclspam%40hotmail.com', 'acl', 'Generic Brand', 0, 1000);]]></db:parameterized-query>
         </db:insert>
-        <set-payload value="'aclspam%40hotmail.com'" doc:name="Set Payload"/>
+        <set-payload value="deisugaalmas@gmail.com" doc:name="Set Payload"/>
         <logger message="payload: '#[payload]'" level="INFO" doc:name="Logger"/>
-        <smtp:outbound-endpoint host="smtp.gmail.com" port="587" user="is.spammer.2015%40gmail.com" password="vamoster20" connector-ref="Gmail" to="aclspam%40hotmail.com" from="is.spammer" subject="Testing mule email" responseTimeout="10000" doc:name="Send notification email"/>
+        <smtp:outbound-endpoint host="smtp.gmail.com" port="587" user="is.spammer.2015%40gmail.com" password="vamoster20" connector-ref="Gmail" to="#[message.payload]" from="is.spammer" subject="Testing mule email" responseTimeout="10000" doc:name="Send notification email"/>
         <set-payload value="'#[message.payload]'" doc:name="Set Payload"/>
     </flow>
 </mule>
