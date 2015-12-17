@@ -67,6 +67,15 @@ http://www.mulesoft.org/schema/mule/twitter http://www.mulesoft.org/schema/mule/
         <smtp:outbound-endpoint host="smtp.gmail.com" port="587" user="is.spammer.2015%40gmail.com" password="vamoster20" connector-ref="Gmail" to="#[message.payload]" from="is.spammer" subject="Testing mule email" responseTimeout="10000" doc:name="Send notification email"/>
         <set-payload value="'#[message.payload]'" doc:name="Set Payload"/>
     </flow>
+    <flow name="unsubscribe_flow">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/smartphones_mailinglist/unsubscribe/" doc:name="HTTP"/>
+        <set-payload value="#[message.inboundProperties.'http.query.params'.email]" doc:name="Set Payload"/>
+        <logger message="email: '#[message.inboundProperties.'http.query.params'.email]'" level="INFO" doc:name="Logger"/>
+        <db:delete config-ref="MySQL_Configuration" doc:name="Delete Subscription from Database">
+            <db:parameterized-query><![CDATA[DELETE FROM statistics WHERE email LIKE '#[message.payload]';]]></db:parameterized-query>
+        </db:delete>
+        <logger message="#[message.payload]" level="INFO" doc:name="Logger"/>
+    </flow>
     
     
 </mule>
