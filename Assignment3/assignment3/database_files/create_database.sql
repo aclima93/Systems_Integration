@@ -17,7 +17,7 @@ USE mailinglist;
 CREATE TABLE subscriptions (
 	id mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
 
-	email VARCHAR(254) NOT NULL, /* as per RFC 5321 */
+	email VARCHAR(254) NOT NULL UNIQUE, /* as per RFC 5321 */
 	name VARCHAR(50) NOT NULL,
 	brand_filter VARCHAR(50) NOT NULL,
 	min_price INT NOT NULL,

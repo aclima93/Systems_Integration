@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:twitter="http://www.mulesoft.org/schema/mule/twitter" xmlns:vm="http://www.mulesoft.org/schema/mule/vm"
+<mule xmlns:schedulers="http://www.mulesoft.org/schema/mule/schedulers"
+	xmlns:twitter="http://www.mulesoft.org/schema/mule/twitter" xmlns:vm="http://www.mulesoft.org/schema/mule/vm"
 	xmlns:mulexml="http://www.mulesoft.org/schema/mule/xml" xmlns:smtps="http://www.mulesoft.org/schema/mule/smtps"
 	xmlns:smtp="http://www.mulesoft.org/schema/mule/smtp"
 	xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
 	xmlns:spring="http://www.springframework.org/schema/beans" 
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/schedulers http://www.mulesoft.org/schema/mule/schedulers/current/mule-schedulers.xsd
+http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd
 http://www.mulesoft.org/schema/mule/smtps http://www.mulesoft.org/schema/mule/smtps/current/mule-smtps.xsd
 http://www.mulesoft.org/schema/mule/smtp http://www.mulesoft.org/schema/mule/smtp/current/mule-smtp.xsd
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
@@ -19,6 +21,7 @@ http://www.mulesoft.org/schema/mule/xml http://www.mulesoft.org/schema/mule/xml/
 http://www.mulesoft.org/schema/mule/twitter http://www.mulesoft.org/schema/mule/twitter/current/mule-twitter.xsd">
     
     <http:listener-config name="HTTP_Listener_Configuration" host="0.0.0.0" port="8081" doc:name="HTTP Listener Configuration"/>
+    
     <db:mysql-config name="MySQL_Configuration"  doc:name="MySQL Configuration" database="mailinglist" host="localhost" password="generatedata" port="3306" user="generatedata">
         <db:connection-properties>
             <db:property key="useSSL" value="false"/>
@@ -31,8 +34,28 @@ http://www.mulesoft.org/schema/mule/twitter http://www.mulesoft.org/schema/mule/
 		<smtps:tls-trust-store path="greenmail-truststore"
 			storePassword="password" />
 	</smtps:connector>	
+	
 	<smtp:gmail-connector name="Gmail" validateConnections="true" doc:name="Gmail"/>
+	
     <twitter:config name="Twitter" accessKey="4517518408-3y5AGk1NNzgkDK50m4BunRZYp5PcSXUEwBpp1Gb" accessSecret="6i3h29N3MYYFB3OyPSbqZ5ZBpgafosRvlrWqJGwYczTHk" consumerKey="8zjMgss0csnIDq3TFSqmb91Qv" consumerSecret="DNEsnrLJtlBJDhe1BkrqADSYqvQ8FqwjLWVtgG9Eh4WqIfbZAZ" doc:name="Twitter"/>
+    <flow name="send_schedulled_emails_flow">
+	    <poll frequency="1000" doc:name="Poll">
+	        <schedulers:cron-scheduler expression="0 0/5 * 1/1 * ? *"/>
+	        <db:select config-ref="MySQL_Configuration" doc:name="Select validated emails from Database">
+                <db:parameterized-query><![CDATA[SELECT email FROM subscriptions WHERE is_validated = 1;]]></db:parameterized-query>
+	        </db:select>
+	    </poll>
+        <foreach doc:name="For Each">
+            <set-variable variableName="email" value="#[message.payload.'email']" doc:name="Set Email Variable"/>
+            <db:select config-ref="MySQL_Configuration" doc:name="Select relevant smartphones from Database">
+                <db:parameterized-query><![CDATA[SELECT * FROM smartphones WHERE name = #[message.payload.'name'] , brand = #[message.payload.'brand_filter'] , price BETWEEN #[message.payload.'min_price'] and #[message.payload.'max_price'];]]></db:parameterized-query>
+            </db:select>
+            <set-payload value="Here is your list of smartphones: #[message.payload]" doc:name="Set Payload"/>
+            <smtp:outbound-endpoint host="smtp.gmail.com" port="587" user="is.spammer.2015%40gmail.com" password="vamoster20" connector-ref="Gmail" to="#[flowVars.email]" from="is.spammer" subject="Testing mule email" responseTimeout="10000" doc:name="Send smartphone list email"/>
+            <logger message="'#[message.payload]'" level="INFO" doc:name="Logger"/>
+        </foreach>
+    </flow>
+    
     <sub-flow name="tweet_statistics_subflow">
         <db:update config-ref="MySQL_Configuration" doc:name="Update number of sent tweets in Database">
             <db:parameterized-query><![CDATA[UPDATE statistics SET num_sent_tweets = num_sent_tweets + 1;]]></db:parameterized-query>
