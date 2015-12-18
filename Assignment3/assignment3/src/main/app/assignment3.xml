@@ -38,6 +38,11 @@ http://www.mulesoft.org/schema/mule/twitter http://www.mulesoft.org/schema/mule/
 	<smtp:gmail-connector name="Gmail" validateConnections="true" doc:name="Gmail"/>
 	
     <twitter:config name="Twitter" accessKey="4517518408-3y5AGk1NNzgkDK50m4BunRZYp5PcSXUEwBpp1Gb" accessSecret="6i3h29N3MYYFB3OyPSbqZ5ZBpgafosRvlrWqJGwYczTHk" consumerKey="8zjMgss0csnIDq3TFSqmb91Qv" consumerSecret="DNEsnrLJtlBJDhe1BkrqADSYqvQ8FqwjLWVtgG9Eh4WqIfbZAZ" doc:name="Twitter"/>
+
+    <catch-exception-strategy name="Global_Catch_Exception_Strategy">
+        <logger message="Oops, something went wrong... #[exception]" level="INFO" doc:name="Logger"/>
+    </catch-exception-strategy>
+
     <flow name="send_schedulled_emails_flow">
 	    <poll frequency="1000" doc:name="Poll">
 	        <schedulers:cron-scheduler expression="0 0/5 * 1/1 * ? *"/>
@@ -45,6 +50,7 @@ http://www.mulesoft.org/schema/mule/twitter http://www.mulesoft.org/schema/mule/
                 <db:parameterized-query><![CDATA[SELECT email FROM subscriptions WHERE is_validated = 1;]]></db:parameterized-query>
 	        </db:select>
 	    </poll>
+        <logger message="Sending poll emails to validated emails: #[message.payload]" level="INFO" doc:name="Logger"/>
         <foreach doc:name="For Each">
             <set-variable variableName="email" value="#[message.payload.'email']" doc:name="Set Email Variable"/>
             <db:select config-ref="MySQL_Configuration" doc:name="Select relevant smartphones from Database">
@@ -54,6 +60,7 @@ http://www.mulesoft.org/schema/mule/twitter http://www.mulesoft.org/schema/mule/
             <smtp:outbound-endpoint host="smtp.gmail.com" port="587" user="is.spammer.2015%40gmail.com" password="vamoster20" connector-ref="Gmail" to="#[flowVars.email]" from="is.spammer" subject="Testing mule email" responseTimeout="10000" doc:name="Send smartphone list email"/>
             <logger message="'#[message.payload]'" level="INFO" doc:name="Logger"/>
         </foreach>
+        <exception-strategy ref="Global_Catch_Exception_Strategy" doc:name="Reference Exception Strategy"/>
     </flow>
     
     <sub-flow name="tweet_statistics_subflow">
@@ -88,7 +95,9 @@ http://www.mulesoft.org/schema/mule/twitter http://www.mulesoft.org/schema/mule/
             </otherwise>
         </choice>
         <set-payload value="'#[message.payload]'" doc:name="Set Payload"/>
+        <exception-strategy ref="Global_Catch_Exception_Strategy" doc:name="Reference Exception Strategy"/>
     </flow>
+
     <flow name="add_subscription_and_send_confirmation_flow">
         <http:listener config-ref="HTTP_Listener_Configuration" path="/smartphones_mailinglist/add_subscription/" doc:name="HTTP"/>
         <logger message="subscription input: #[message.inboundProperties.'http.query.params'.email]" level="INFO" doc:name="Logger"/>
@@ -104,6 +113,7 @@ http://www.mulesoft.org/schema/mule/twitter http://www.mulesoft.org/schema/mule/
         <smtp:outbound-endpoint host="smtp.gmail.com" port="587" user="is.spammer.2015%40gmail.com" password="vamoster20" connector-ref="Gmail" to="#[message.inboundProperties.'http.query.params'.email]" from="is.spammer" subject="Testing mule email" responseTimeout="10000" doc:name="Send notification email"/>
         <logger message="notification email output: #[message.payload]" level="INFO" doc:name="Logger"/>
         <set-payload value="'#[message.payload]'" doc:name="Set Payload"/>
+        <exception-strategy ref="Global_Catch_Exception_Strategy" doc:name="Reference Exception Strategy"/>
     </flow>
     <flow name="unsubscribe_flow">
         <http:listener config-ref="HTTP_Listener_Configuration" path="/smartphones_mailinglist/unsubscribe/" doc:name="HTTP"/>
@@ -113,6 +123,7 @@ http://www.mulesoft.org/schema/mule/twitter http://www.mulesoft.org/schema/mule/
         </db:delete>
         <logger message="unsubscribe output: #[message.payload]" level="INFO" doc:name="Logger"/>
         <set-payload value="'#[message.payload]'" doc:name="Set Payload"/>
+        <exception-strategy ref="Global_Catch_Exception_Strategy" doc:name="Reference Exception Strategy"/>
     </flow>
     <flow name="validate_subscription_flow">
         <http:listener config-ref="HTTP_Listener_Configuration" path="/smartphones_mailinglist/validate_subscription/" doc:name="HTTP"/>
@@ -122,6 +133,7 @@ http://www.mulesoft.org/schema/mule/twitter http://www.mulesoft.org/schema/mule/
         </db:update>
         <logger message="validate email output: #[message.payload]" level="INFO" doc:name="Logger"/>
         <set-payload value="'#[message.payload]'" doc:name="Set Payload"/>
+        <exception-strategy ref="Global_Catch_Exception_Strategy" doc:name="Reference Exception Strategy"/>
     </flow>
     
     
