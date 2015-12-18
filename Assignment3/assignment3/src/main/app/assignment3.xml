@@ -42,7 +42,7 @@ http://www.mulesoft.org/schema/mule/xml http://www.mulesoft.org/schema/mule/xml/
 
     <flow name="send_schedulled_emails_flow">
 	    <poll frequency="1000" doc:name="Poll">
-	        <schedulers:cron-scheduler expression="0 0/1 * 1/1 * ? *"/>
+	        <schedulers:cron-scheduler expression="0 0 0 1/1 * ? *"/>
 	        <db:select config-ref="MySQL_Configuration" doc:name="Select validated emails from Database">
                 <db:parameterized-query><![CDATA[SELECT * FROM subscriptions WHERE is_validated = 1;]]></db:parameterized-query>
 	        </db:select>
@@ -79,11 +79,14 @@ http://www.mulesoft.org/schema/mule/xml http://www.mulesoft.org/schema/mule/xml/
     <flow name="add_smartphones_and_send_tweet_flow">
         <http:listener config-ref="HTTP_Listener_Configuration" path="/smartphones_mailinglist/add_smartphones/" doc:name="HTTP"/>
         <set-payload value="#[message.inboundProperties.'http.query.params'.smartphones]" doc:name="Set Smartphones List Payload"/>
-        <logger message="smartphones input: #[message.payload]" level="INFO" doc:name="Logger"/>
-        <db:insert config-ref="MySQL_Configuration" doc:name="Insert Smartphone into Database">
-            <db:parameterized-query><![CDATA[INSERT INTO smartphones (technical_data, url, name, brand, currency, summary_data, price) VALUES ('Some technical mumbo jumbo','www.my.url.com','Generic Smartphone','Generic Brand','€','My summary is bigger than yours!', 1337);]]></db:parameterized-query>
-        </db:insert>
-        <logger message="smartphones output: #[message.payload]" level="INFO" doc:name="Logger"/>
+        <mulexml:jaxb-xml-to-object-transformer returnClass="generated.ObjectFactory" ignoreBadInput="true" jaxbContext-ref="JAXB_Context" doc:name="XML to JAXB Object"/>
+        <foreach doc:name="For Each">
+            <logger message="smartphones input: #[message.payload]" level="INFO" doc:name="Logger"/>
+            <db:insert config-ref="MySQL_Configuration" doc:name="Insert Smartphone into Database">
+                <db:parameterized-query><![CDATA[INSERT INTO smartphones (technical_data, url, name, brand, currency, summary_data, price) VALUES ('Some technical mumbo jumbo','www.my.url.com','Generic Smartphone','Generic Brand','€','My summary is bigger than yours!', 1337);]]></db:parameterized-query>
+            </db:insert>
+            <logger message="smartphones output: #[message.payload]" level="INFO" doc:name="Logger"/>
+        </foreach>
         <choice doc:name="Check Insertion Result">
             <when expression="payload.equals(1)">
                 <flow-ref name="tweet_statistics_subflow" doc:name="tweet_statistics_subflow"/>

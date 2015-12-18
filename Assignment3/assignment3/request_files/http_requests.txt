@@ -1,8 +1,8 @@
 # add a list of smartphones
-http://localhost:8081/smartphones_mailinglist/add_smartphones/?smartphones=wowowow
+http://localhost:8081/smartphones_mailinglist/add_smartphones/?smartphones=<smartphones> <smartphone price="666" name="Nome 1" brand="Marca 1" currency="€" summary_data="Lorum ipsum dolor sit amet"> <technical_data> <table> <table_title>Informações gerais</table_title> <table_data> <data_name>sistema operativo</data_name> <data_value>Android 4.4.2 KitKat</data_value> </table_data> </table> <table> <table_title>Ecrã</table_title> <table_data> <data_name>Tamanho do ecrã</data_name> <data_value>5,5" (2560 x 1440 pixeis)</data_value> </table_data> <table_data> <data_name>Número de cores</data_name> <data_value>16,7 milhões</data_value> </table_data> </table> </technical_data> </smartphone> <smartphone price="1337" name="Nome 2" brand="Marca 2" currency="€" summary_data="Lorum ipsum dolor sit amet"> <technical_data> <table> <table_title>Informações gerais</table_title> <table_data> <data_name>sistema operativo</data_name> <data_value>Android 4.4.2 KitKat</data_value> </table_data> </table> <table> <table_title>Ecrã</table_title> <table_data> <data_name>Tamanho do ecrã</data_name> <data_value>5,5" (2560 x 1440 pixeis)</data_value> </table_data> <table_data> <data_name>Número de cores</data_name> <data_value>16,7 milhões</data_value> </table_data> </table> </technical_data> </smartphone> </smartphones>
 
 # add a subscription
-http://localhost:8081/smartphones_mailinglist/add_subscription/?email=aclspam%40hotmail.com&name=Generic%32Name&brand=Generic%32Brand&min_price=0&max_price=1000
+http://localhost:8081/smartphones_mailinglist/add_subscription/?email=aclspam%40hotmail.com&name=Generic%20Name&brand=Generic%20Brand&min_price=0&max_price=1000
 
 # validate email
 http://localhost:8081/smartphones_mailinglist/validate_subscription/?email=aclspam%40hotmail.com
@@ -13,5 +13,5 @@ http://localhost:8081/smartphones_mailinglist/unsubscribe/?email=aclspam%40hotma
 # cron for every minute
 0 0/1 * 1/1 * ? *
 
-# cron for every minute
-0 0/1 * 1/1 * ? *
+# cron for every day at midnight
+0 0 0 1/1 * ? *
