@@ -73,6 +73,9 @@ http://www.mulesoft.org/schema/mule/twitter http://www.mulesoft.org/schema/mule/
             <db:parameterized-query><![CDATA[INSERT INTO subscriptions (email, name, brand_filter, min_price, max_price) VALUES (#[message.inboundProperties.'http.query.params'.email], 'acl', 'Generic Brand', 0, 1000);]]></db:parameterized-query>
         </db:insert>
         <logger message="subscription output: #[message.payload]" level="INFO" doc:name="Logger"/>
+        <db:update config-ref="MySQL_Configuration" doc:name="Update number fo sent emails in Database">
+            <db:parameterized-query><![CDATA[UPDATE statistics SET num_sent_emails = num_sent_emails + 1;]]></db:parameterized-query>
+        </db:update>
         <set-payload value="Validate your subscription here: http://localhost:8081/smartphones_mailinglist/validate_subscription/?email=#[message.inboundProperties.'http.query.params'.email]" doc:name="Set Payload"/>
         <logger message="notification email message: #[message.payload]" level="INFO" doc:name="Logger"/>
         <smtp:outbound-endpoint host="smtp.gmail.com" port="587" user="is.spammer.2015%40gmail.com" password="vamoster20" connector-ref="Gmail" to="#[message.inboundProperties.'http.query.params'.email]" from="is.spammer" subject="Testing mule email" responseTimeout="10000" doc:name="Send notification email"/>
