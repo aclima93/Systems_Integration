@@ -2,10 +2,16 @@
 http://localhost:8081/smartphones_mailinglist/add_smartphones/?smartphones=wowowow
 
 # add a subscription
-http://localhost:8081/smartphones_mailinglist/add_subscription/?email=aclspam%40hotmail.com
+http://localhost:8081/smartphones_mailinglist/add_subscription/?email=aclspam%40hotmail.com&name=Generic%32Name&brand=Generic%32Brand&min_price=0&max_price=1000
 
 # validate email
 http://localhost:8081/smartphones_mailinglist/validate_subscription/?email=aclspam%40hotmail.com
 
 # unsubscribe email
 http://localhost:8081/smartphones_mailinglist/unsubscribe/?email=aclspam%40hotmail.com
+
+# cron for every minute
+0 0/1 * 1/1 * ? *
+
+# cron for every minute
+0 0/1 * 1/1 * ? *

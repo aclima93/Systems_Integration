@@ -19,7 +19,7 @@ CREATE TABLE subscriptions (
 
 	email VARCHAR(254) NOT NULL UNIQUE, /* as per RFC 5321 */
 	name VARCHAR(50) NOT NULL,
-	brand_filter VARCHAR(50) NOT NULL,
+	brand VARCHAR(50) NOT NULL,
 	min_price INT NOT NULL,
 	max_price INT NOT NULL,
 	is_validated TINYINT(1) unsigned NOT NULL DEFAULT 0,
