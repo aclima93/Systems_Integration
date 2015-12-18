@@ -56,7 +56,7 @@ http://www.mulesoft.org/schema/mule/twitter http://www.mulesoft.org/schema/mule/
             <db:select config-ref="MySQL_Configuration" doc:name="Select relevant smartphones from Database">
                 <db:parameterized-query><![CDATA[SELECT * FROM smartphones WHERE name = #[message.payload.'name'] , brand = #[message.payload.'brand_filter'] , price BETWEEN #[message.payload.'min_price'] and #[message.payload.'max_price'];]]></db:parameterized-query>
             </db:select>
-            <set-payload value="Here is your list of smartphones: #[message.payload]" doc:name="Set Payload"/>
+            <set-payload value="Here is your list of smartphones: #[message.payload]" doc:name="Set smartphone list content Payload"/>
             <smtp:outbound-endpoint host="smtp.gmail.com" port="587" user="is.spammer.2015%40gmail.com" password="vamoster20" connector-ref="Gmail" to="#[flowVars.email]" from="is.spammer" subject="Testing mule email" responseTimeout="10000" doc:name="Send smartphone list email"/>
             <logger message="'#[message.payload]'" level="INFO" doc:name="Logger"/>
         </foreach>
@@ -64,15 +64,16 @@ http://www.mulesoft.org/schema/mule/twitter http://www.mulesoft.org/schema/mule/
     </flow>
     
     <sub-flow name="tweet_statistics_subflow">
+        <logger message="Starting subflow for tweeting statistics" level="INFO" doc:name="Logger"/>
         <db:update config-ref="MySQL_Configuration" doc:name="Update number of sent tweets in Database">
             <db:parameterized-query><![CDATA[UPDATE statistics SET num_sent_tweets = num_sent_tweets + 1;]]></db:parameterized-query>
         </db:update>
         <db:select config-ref="MySQL_Configuration" doc:name="Select Statistics from Database">
             <db:parameterized-query><![CDATA[SELECT * FROM statistics;]]></db:parameterized-query>
         </db:select>
-        <set-payload value="#[message.payload[0]]" doc:name="Set Payload"/>
+        <set-payload value="#[message.payload[0]]" doc:name="Set Statistics Payload"/>
         <logger message="statistics output: #[message.payload]" level="INFO" doc:name="Logger"/>
-        <set-payload value="Statistics: #[message.payload.'num_updates_to_smartphones'] updates, #[message.payload.'num_cur_smartphones'] smartphones, #[message.payload.'num_sent_emails'] emails, #[message.payload.'num_sent_tweets'] tweets" doc:name="Set Payload"/>
+        <set-payload value="Statistics: #[message.payload.'num_updates_to_smartphones'] updates, #[message.payload.'num_cur_smartphones'] smartphones, #[message.payload.'num_sent_emails'] emails, #[message.payload.'num_sent_tweets'] tweets" doc:name="Set Tweet Payload"/>
         <logger message="twitter input: #[message.payload]" level="INFO" doc:name="Logger"/>
         <twitter:update-status config-ref="Twitter" status="#[message.payload]" doc:name="Tweet Statistics"/>
         <logger message="twitter output: #[message.payload]" level="INFO" doc:name="Logger"/>
@@ -80,7 +81,7 @@ http://www.mulesoft.org/schema/mule/twitter http://www.mulesoft.org/schema/mule/
 
     <flow name="add_smartphones_and_send_tweet_flow">
         <http:listener config-ref="HTTP_Listener_Configuration" path="/smartphones_mailinglist/add_smartphones/" doc:name="HTTP"/>
-        <set-payload value="#[message.inboundProperties.'http.query.params'.smartphones]" doc:name="Set Payload"/>
+        <set-payload value="#[message.inboundProperties.'http.query.params'.smartphones]" doc:name="Set Smartphones List Payload"/>
         <logger message="smartphones input: #[message.payload]" level="INFO" doc:name="Logger"/>
         <db:insert config-ref="MySQL_Configuration" doc:name="Insert Smartphone into Database">
             <db:parameterized-query><![CDATA[INSERT INTO smartphones (technical_data, url, name, brand, currency, summary_data, price) VALUES ('Some technical mumbo jumbo','www.my.url.com','Generic Smartphone','Generic Brand','€','My summary is bigger than yours!', 1337);]]></db:parameterized-query>
@@ -88,7 +89,6 @@ http://www.mulesoft.org/schema/mule/twitter http://www.mulesoft.org/schema/mule/
         <logger message="smartphones output: #[message.payload]" level="INFO" doc:name="Logger"/>
         <choice doc:name="Check Insertion Result">
             <when expression="payload.equals(1)">
-                <set-payload value="#[message.payload]" doc:name="Set Payload"/>
                 <flow-ref name="tweet_statistics_subflow" doc:name="tweet_statistics_subflow"/>
             </when>
             <otherwise>
@@ -109,7 +109,7 @@ http://www.mulesoft.org/schema/mule/twitter http://www.mulesoft.org/schema/mule/
         <db:update config-ref="MySQL_Configuration" doc:name="Update number fo sent emails in Database">
             <db:parameterized-query><![CDATA[UPDATE statistics SET num_sent_emails = num_sent_emails + 1;]]></db:parameterized-query>
         </db:update>
-        <set-payload value="Validate your subscription here: http://localhost:8081/smartphones_mailinglist/validate_subscription/?email=#[message.inboundProperties.'http.query.params'.email]" doc:name="Set Payload"/>
+        <set-payload value="Validate your subscription here: http://localhost:8081/smartphones_mailinglist/validate_subscription/?email=#[message.inboundProperties.'http.query.params'.email]" doc:name="Set validation email content Payload"/>
         <logger message="notification email message: #[message.payload]" level="INFO" doc:name="Logger"/>
         <smtp:outbound-endpoint host="smtp.gmail.com" port="587" user="is.spammer.2015%40gmail.com" password="vamoster20" connector-ref="Gmail" to="#[message.inboundProperties.'http.query.params'.email]" from="is.spammer" subject="Testing mule email" responseTimeout="10000" doc:name="Send notification email"/>
         <logger message="notification email output: #[message.payload]" level="INFO" doc:name="Logger"/>
