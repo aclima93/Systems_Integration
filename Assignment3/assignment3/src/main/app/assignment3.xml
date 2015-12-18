@@ -70,8 +70,9 @@ http://www.mulesoft.org/schema/mule/twitter http://www.mulesoft.org/schema/mule/
         <db:select config-ref="MySQL_Configuration" doc:name="Select Statistics from Database">
             <db:parameterized-query><![CDATA[SELECT * FROM statistics;]]></db:parameterized-query>
         </db:select>
+        <set-payload value="#[message.payload[0]]" doc:name="Set Payload"/>
         <logger message="statistics output: #[message.payload]" level="INFO" doc:name="Logger"/>
-        <set-payload value="#[message.payload]" doc:name="Set Payload"/>
+        <set-payload value="Statistics: #[message.payload.'num_updates_to_smartphones'] updates, #[message.payload.'num_cur_smartphones'] smartphones, #[message.payload.'num_sent_emails'] emails, #[message.payload.'num_sent_tweets'] tweets" doc:name="Set Payload"/>
         <logger message="twitter input: #[message.payload]" level="INFO" doc:name="Logger"/>
         <twitter:update-status config-ref="Twitter" status="#[message.payload]" doc:name="Tweet Statistics"/>
         <logger message="twitter output: #[message.payload]" level="INFO" doc:name="Logger"/>
