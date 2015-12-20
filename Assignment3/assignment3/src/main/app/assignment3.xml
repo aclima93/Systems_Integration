@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:schedulers="http://www.mulesoft.org/schema/mule/schedulers"
+<mule xmlns:cxf="http://www.mulesoft.org/schema/mule/cxf" xmlns:ws="http://www.mulesoft.org/schema/mule/ws" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:schedulers="http://www.mulesoft.org/schema/mule/schedulers"
 	xmlns:twitter="http://www.mulesoft.org/schema/mule/twitter" xmlns:mulexml="http://www.mulesoft.org/schema/mule/xml" xmlns:smtps="http://www.mulesoft.org/schema/mule/smtps"
 	xmlns:smtp="http://www.mulesoft.org/schema/mule/smtp"
 	xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
@@ -16,7 +16,9 @@ http://www.mulesoft.org/schema/mule/smtp http://www.mulesoft.org/schema/mule/smt
 http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/xml http://www.mulesoft.org/schema/mule/xml/current/mule-xml.xsd
 http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
-http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd
+http://www.mulesoft.org/schema/mule/cxf http://www.mulesoft.org/schema/mule/cxf/current/mule-cxf.xsd
+http://www.mulesoft.org/schema/mule/ws http://www.mulesoft.org/schema/mule/ws/current/mule-ws.xsd">
     
     <http:listener-config name="HTTP_Listener_Configuration" host="0.0.0.0" port="8081" doc:name="HTTP Listener Configuration"/>
     
@@ -38,6 +40,7 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
     <twitter:config name="Twitter" accessKey="4517518408-3y5AGk1NNzgkDK50m4BunRZYp5PcSXUEwBpp1Gb" accessSecret="6i3h29N3MYYFB3OyPSbqZ5ZBpgafosRvlrWqJGwYczTHk" consumerKey="8zjMgss0csnIDq3TFSqmb91Qv" consumerSecret="DNEsnrLJtlBJDhe1BkrqADSYqvQ8FqwjLWVtgG9Eh4WqIfbZAZ" doc:name="Twitter"/>
     <mulexml:jaxb-context name="JAXB_Context" packageNames="generated" doc:name="JAXB Context"/>
     <file:connector name="File" readFromDirectory="/Users/aclima/Documents/Repositories/Systems_Integration/Assignment3/assignment3/smartphones" autoDelete="false" streaming="true" validateConnections="true" doc:name="File"/>
+    <ws:consumer-config name="Web_Service_Consumer" wsdlLocation="src/main/soap/smartphone.wsdl" service="AddSmartphoneService" port="AddSmartphonePort" serviceAddress="http://localhost:8081/addsmartphonesoap" doc:name="Web Service Consumer"/>
 
     <catch-exception-strategy name="Global_Catch_Exception_Strategy">
         <logger message="Oops, something went wrong... #[exception]" level="INFO" doc:name="Logger"/>
@@ -157,6 +160,12 @@ num_cur_smartphones = (SELECT COUNT(*) FROM smartphones);]]></db:parameterized-q
         </db:update>
         <logger message="validate email output: #[message.payload]" level="INFO" doc:name="Logger"/>
         <set-payload value="'#[message.payload]'" doc:name="Set Payload"/>
+        <exception-strategy ref="Global_Catch_Exception_Strategy" doc:name="Reference Exception Strategy"/>
+    </flow>
+    <flow name="add_smartphone_soap">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/addsmartphonesoap" doc:name="HTTP"/>
+        <ws:consumer config-ref="Web_Service_Consumer" operation="AddSmartphone" doc:name="Web Service Consumer"/>
+        <flow-ref name="unmarshall_and_store_smartphones_subflow" doc:name="unmarshall_and_store_smartphones_subflow"/>
         <exception-strategy ref="Global_Catch_Exception_Strategy" doc:name="Reference Exception Strategy"/>
     </flow>
     

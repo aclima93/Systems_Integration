@@ -78,7 +78,11 @@ import java.util.List;
 @XmlRootElement(name = "smartphone")
 public class Smartphone implements Serializable, Comparable<Smartphone> {
 
-    @XmlElement(name = "technical_data")
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	@XmlElement(name = "technical_data")
     protected Smartphone.TechnicalData technicalData;
     @XmlAttribute(name = "url", required = true)
     protected String url;
@@ -318,7 +322,12 @@ public class Smartphone implements Serializable, Comparable<Smartphone> {
     })
     public static class TechnicalData implements Serializable{
     	
-    	@Override
+    	/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
+		@Override
     	public String toString(){
     		String result = "";
         	for(Smartphone.TechnicalData.Table table : this.getTable()){
@@ -402,7 +411,11 @@ public class Smartphone implements Serializable, Comparable<Smartphone> {
         })
         public static class Table implements Serializable{
 
-            @XmlElement(name = "table_title", required = true)
+            /**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+			@XmlElement(name = "table_title", required = true)
             protected String tableTitle;
             @XmlElement(name = "table_data", required = true)
             protected List<Smartphone.TechnicalData.Table.TableData> tableData;
@@ -488,7 +501,11 @@ public class Smartphone implements Serializable, Comparable<Smartphone> {
             })
             public static class TableData implements Serializable{
 
-                @XmlElement(name = "data_name", required = true)
+                /**
+				 * 
+				 */
+				private static final long serialVersionUID = 1L;
+				@XmlElement(name = "data_name", required = true)
                 protected String dataName;
                 @XmlElement(name = "data_value", required = true)
                 protected String dataValue;

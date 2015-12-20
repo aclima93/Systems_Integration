@@ -3,6 +3,7 @@
     targetNamespace="http://localhost:8081/smartphone.wsdl"
     xmlns:tns="http://localhost:8081/smartphone.wsdl"
     xmlns:xsd1="http://localhost:8081/smartphone.xsd"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
     xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
     xmlns="http://schemas.xmlsoap.org/wsdl/">
     <types>
@@ -79,14 +80,14 @@
     </message>
     <portType name="AddSmartphonePortType">
         <operation name="AddSmartphone">
-            <input message="tns:AddSmartphoneInput" />
-            <output message="tns:AddSmartphoneOutput" />
+            <input name="smartphone" message="tns:AddSmartphoneInput" />
+            <output name="result" message="tns:AddSmartphoneOutput" />
         </operation>
     </portType>
     <binding name="AddSmartphoneSoapBinding" type="tns:AddSmartphonePortType">
         <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http" />
         <operation name="AddSmartphone">
-            <soap:operation soapAction="http://localhost:8081/AddSmartphone" />
+            <soap:operation soapAction="/AddSmartphone" />
             <input>
                 <soap:body use="literal" />
             </input>
