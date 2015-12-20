@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:schedulers="http://www.mulesoft.org/schema/mule/schedulers"
+<mule xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:schedulers="http://www.mulesoft.org/schema/mule/schedulers"
 	xmlns:twitter="http://www.mulesoft.org/schema/mule/twitter" xmlns:mulexml="http://www.mulesoft.org/schema/mule/xml" xmlns:smtps="http://www.mulesoft.org/schema/mule/smtps"
 	xmlns:smtp="http://www.mulesoft.org/schema/mule/smtp"
 	xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
@@ -14,7 +14,8 @@ http://www.mulesoft.org/schema/mule/smtps http://www.mulesoft.org/schema/mule/sm
 http://www.mulesoft.org/schema/mule/twitter http://www.mulesoft.org/schema/mule/twitter/current/mule-twitter.xsd
 http://www.mulesoft.org/schema/mule/smtp http://www.mulesoft.org/schema/mule/smtp/current/mule-smtp.xsd
 http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
-http://www.mulesoft.org/schema/mule/xml http://www.mulesoft.org/schema/mule/xml/current/mule-xml.xsd">
+http://www.mulesoft.org/schema/mule/xml http://www.mulesoft.org/schema/mule/xml/current/mule-xml.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd">
     
     <http:listener-config name="HTTP_Listener_Configuration" host="0.0.0.0" port="8081" doc:name="HTTP Listener Configuration"/>
     
@@ -35,6 +36,7 @@ http://www.mulesoft.org/schema/mule/xml http://www.mulesoft.org/schema/mule/xml/
 	
     <twitter:config name="Twitter" accessKey="4517518408-3y5AGk1NNzgkDK50m4BunRZYp5PcSXUEwBpp1Gb" accessSecret="6i3h29N3MYYFB3OyPSbqZ5ZBpgafosRvlrWqJGwYczTHk" consumerKey="8zjMgss0csnIDq3TFSqmb91Qv" consumerSecret="DNEsnrLJtlBJDhe1BkrqADSYqvQ8FqwjLWVtgG9Eh4WqIfbZAZ" doc:name="Twitter"/>
     <mulexml:jaxb-context name="JAXB_Context" packageNames="generated" doc:name="JAXB Context"/>
+    <file:connector name="File" readFromDirectory="/Users/aclima/Documents/Repositories/Systems_Integration/Assignment3/assignment3/smartphones" autoDelete="false" streaming="true" validateConnections="true" doc:name="File"/>
 
     <catch-exception-strategy name="Global_Catch_Exception_Strategy">
         <logger message="Oops, something went wrong... #[exception]" level="INFO" doc:name="Logger"/>
@@ -75,18 +77,20 @@ http://www.mulesoft.org/schema/mule/xml http://www.mulesoft.org/schema/mule/xml/
         <twitter:update-status config-ref="Twitter" status="#[message.payload]" doc:name="Tweet Statistics"/>
         <logger message="twitter output: #[message.payload]" level="INFO" doc:name="Logger"/>
     </sub-flow>
+    <sub-flow name="unmarshall_and_store_smartphones_subflow">
+        <logger message="smartphones input: #[message.payload]" level="INFO" doc:name="Logger"/>
+        <mulexml:jaxb-xml-to-object-transformer returnClass="generated.Smartphone" ignoreBadInput="true" jaxbContext-ref="JAXB_Context" doc:name="XML to JAXB Object"/>
+        <logger message="smartphone input: #[message.payload]" level="INFO" doc:name="Logger"/>
+        <db:insert config-ref="MySQL_Configuration" doc:name="Insert Smartphone into Database">
+            <db:parameterized-query><![CDATA[INSERT INTO smartphones (technical_data, url, name, brand, currency, summary_data, price) VALUES ('Some technical mumbo jumbo','www.my.url.com','Generic Smartphone','Generic Brand','€','My summary is bigger than yours!', 1337);]]></db:parameterized-query>
+        </db:insert>
+        <logger message="smartphone output: #[message.payload]" level="INFO" doc:name="Logger"/>
+        <logger message="smartphones output: #[message.payload]" level="INFO" doc:name="Logger"/>
+    </sub-flow>
 
     <flow name="add_smartphones_and_send_tweet_flow">
-        <http:listener config-ref="HTTP_Listener_Configuration" path="/smartphones_mailinglist/add_smartphones/" doc:name="HTTP"/>
-        <set-payload value="#[message.inboundProperties.'http.query.params'.smartphones]" doc:name="Set Smartphones List Payload"/>
-        <mulexml:jaxb-xml-to-object-transformer returnClass="generated.ObjectFactory" ignoreBadInput="true" jaxbContext-ref="JAXB_Context" doc:name="XML to JAXB Object"/>
-        <foreach doc:name="For Each">
-            <logger message="smartphones input: #[message.payload]" level="INFO" doc:name="Logger"/>
-            <db:insert config-ref="MySQL_Configuration" doc:name="Insert Smartphone into Database">
-                <db:parameterized-query><![CDATA[INSERT INTO smartphones (technical_data, url, name, brand, currency, summary_data, price) VALUES ('Some technical mumbo jumbo','www.my.url.com','Generic Smartphone','Generic Brand','€','My summary is bigger than yours!', 1337);]]></db:parameterized-query>
-            </db:insert>
-            <logger message="smartphones output: #[message.payload]" level="INFO" doc:name="Logger"/>
-        </foreach>
+        <file:inbound-endpoint path="/Users/aclima/Documents/Repositories/Systems_Integration/Assignment3/assignment3/smartphones" connector-ref="File" pollingFrequency="10000" fileAge="5000" responseTimeout="10000" doc:name="File"/>
+        <flow-ref name="unmarshall_and_store_smartphones_subflow" doc:name="unmarshall_and_store_smartphones_subflow"/>
         <choice doc:name="Check Insertion Result">
             <when expression="payload.equals(1)">
                 <flow-ref name="tweet_statistics_subflow" doc:name="tweet_statistics_subflow"/>
