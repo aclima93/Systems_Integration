@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:schedulers="http://www.mulesoft.org/schema/mule/schedulers"
+<mule xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:schedulers="http://www.mulesoft.org/schema/mule/schedulers"
 	xmlns:twitter="http://www.mulesoft.org/schema/mule/twitter" xmlns:mulexml="http://www.mulesoft.org/schema/mule/xml" xmlns:smtps="http://www.mulesoft.org/schema/mule/smtps"
 	xmlns:smtp="http://www.mulesoft.org/schema/mule/smtp"
 	xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
@@ -15,7 +15,8 @@ http://www.mulesoft.org/schema/mule/twitter http://www.mulesoft.org/schema/mule/
 http://www.mulesoft.org/schema/mule/smtp http://www.mulesoft.org/schema/mule/smtp/current/mule-smtp.xsd
 http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/xml http://www.mulesoft.org/schema/mule/xml/current/mule-xml.xsd
-http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd">
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
     
     <http:listener-config name="HTTP_Listener_Configuration" host="0.0.0.0" port="8081" doc:name="HTTP Listener Configuration"/>
     
@@ -80,18 +81,26 @@ http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/fil
     <sub-flow name="unmarshall_and_store_smartphones_subflow">
         <logger message="smartphones input: #[message.payload]" level="INFO" doc:name="Logger"/>
         <mulexml:jaxb-xml-to-object-transformer returnClass="generated.Smartphone" ignoreBadInput="true" jaxbContext-ref="JAXB_Context" doc:name="XML to JAXB Object"/>
-        <logger message="smartphone input: #[message.payload]" level="INFO" doc:name="Logger"/>
-        <db:insert config-ref="MySQL_Configuration" doc:name="Insert Smartphone into Database">
-            <db:parameterized-query><![CDATA[INSERT INTO smartphones (technical_data, url, name, brand, currency, summary_data, price) VALUES ('Some technical mumbo jumbo','www.my.url.com','Generic Smartphone','Generic Brand','€','My summary is bigger than yours!', 1337);]]></db:parameterized-query>
-        </db:insert>
-        <logger message="smartphone output: #[message.payload]" level="INFO" doc:name="Logger"/>
+        <set-variable variableName="smartphone" value="#[message.payload]" doc:name="Set Smartphone Variable"/>
+        <choice doc:name="Should insert smartphone into Database">
+            <when expression="#[flowVars.smartphone.isRelevant()]">
+                <logger message="smartphone input: #[message.payload]" level="INFO" doc:name="Logger"/>
+                <db:insert config-ref="MySQL_Configuration" doc:name="Insert Smartphone into Database">
+                    <db:parameterized-query><![CDATA[INSERT INTO smartphones (technical_data, url, name, brand, currency, summary_data, price) VALUES (#[flowVars.smartphone.getTechnicalData().toString()], #[flowVars.smartphone.getUrl()], #[flowVars.smartphone.getName()], #[flowVars.smartphone.getBrand()], #[flowVars.smartphone.getCurrency()], #[flowVars.smartphone.getSummaryData()], #[flowVars.smartphone.getPrice()]);]]></db:parameterized-query>
+                </db:insert>
+                <logger message="smartphone output: #[message.payload]" level="INFO" doc:name="Logger"/>
+            </when>
+            <otherwise>
+                <logger message="Smartphone did not meet the requierments" level="INFO" doc:name="Logger"/>
+            </otherwise>
+        </choice>
         <logger message="smartphones output: #[message.payload]" level="INFO" doc:name="Logger"/>
     </sub-flow>
 
     <flow name="add_smartphones_and_send_tweet_flow">
         <file:inbound-endpoint path="/Users/aclima/Documents/Repositories/Systems_Integration/Assignment3/assignment3/smartphones" connector-ref="File" pollingFrequency="10000" fileAge="5000" responseTimeout="10000" doc:name="File"/>
         <flow-ref name="unmarshall_and_store_smartphones_subflow" doc:name="unmarshall_and_store_smartphones_subflow"/>
-        <choice doc:name="Check Insertion Result">
+        <choice doc:name="Should tweet about insertion">
             <when expression="payload.equals(1)">
                 <flow-ref name="tweet_statistics_subflow" doc:name="tweet_statistics_subflow"/>
             </when>

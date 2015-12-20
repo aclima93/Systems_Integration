@@ -102,6 +102,25 @@ public class Smartphone implements Serializable, Comparable<Smartphone> {
         return "Name: " + this.getName() + "\nBrand: " + this.getBrand() + "\nPrice: " + this.getPrice() + this.getCurrency() + "\n\n";
     }
 
+    public boolean isRelevant(){
+
+    	// search the collected data for the screen dimensions
+    	for(Smartphone.TechnicalData.Table table : this.getTechnicalData().getTable()){
+    		for( Smartphone.TechnicalData.Table.TableData tableData : table.getTableData() ){
+    			
+    			
+    			if(tableData.getDataName().equals("Tamanho do ecrã")){
+    				//TODO:
+    				//if( Integer.getInteger(tableData.getDataValue()) >= 10 ){
+    					return true;
+    				//}
+    			}
+    		}
+    	}
+    	
+    	return false;
+    }
+    
     /**
      * Gets the value of the technicalData property.
      * 
@@ -317,6 +336,19 @@ public class Smartphone implements Serializable, Comparable<Smartphone> {
         "table"
     })
     public static class TechnicalData implements Serializable{
+    	
+    	@Override
+    	public String toString(){
+    		String result = "";
+        	for(Smartphone.TechnicalData.Table table : this.getTable()){
+        		result += table.getTableTitle() + "\n";
+        		for( Smartphone.TechnicalData.Table.TableData tableData : table.getTableData() ){
+        			result += "\t" + tableData.getDataName() + ": " + tableData.getDataValue() + "\n";
+        		}
+        		result += "\n";
+        	}
+        	return result;
+    	}
 
         @XmlElement(required = true)
         protected List<Smartphone.TechnicalData.Table> table;

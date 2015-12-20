@@ -1,4 +1,4 @@
-<smartphone price="1337" name="Nome 2" brand="Marca 2" currency="€" summary_data="Lorum ipsum dolor sit amet">
+<smartphone price="1337" name="Nome 2" brand="Marca 2" currency="€" summary_data="Lorum ipsum dolor sit amet" url="www.my.url.com">
     <technical_data>
         <table>
             <table_title>Informações gerais</table_title>

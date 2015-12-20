@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <?xml-stylesheet type="text/xsl" href="smartphone.xsl"?>
-<smartphone price="309" name="G3 - Titânio - 32 GB - 4G - Smartphone" brand="LG" currency="€" summary_data="processador: Snapdragon 801 AC Quad Core 2,5 GHz 
+<smartphone price="309" name="G3 - Titânio - 32 GB - 4G - Smartphone" brand="LG" currency="€" url="www.my.url.com" summary_data="processador: Snapdragon 801 AC Quad Core 2,5 GHz 
 Tecnologia do ecrã: Tátil capacitivo  
 Tamanho do ecrã: 5,5&quot; (2560 x 1440 pixeis) 
 Resolução máxima (em pixeis): 13 MP 

@@ -32,7 +32,7 @@ CREATE TABLE subscriptions (
 CREATE TABLE smartphones (
 	id mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
 
-	technical_data TEXT,
+	technical_data TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci ,
     url VARCHAR(256) NOT NULL,
 	name VARCHAR(50) NOT NULL,
 	brand VARCHAR(50) NOT NULL,
