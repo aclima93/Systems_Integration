@@ -101,24 +101,6 @@ public class Smartphone implements Serializable, Comparable<Smartphone> {
     public String toString() {
         return "Name: " + this.getName() + "\nBrand: " + this.getBrand() + "\nPrice: " + this.getPrice() + this.getCurrency() + "\n\n";
     }
-
-    public boolean isRelevant(){
-
-    	// search the collected data for the screen dimensions
-    	for(Smartphone.TechnicalData.Table table : this.getTechnicalData().getTable()){
-    		for( Smartphone.TechnicalData.Table.TableData tableData : table.getTableData() ){
-    			
-    			
-    			if(tableData.getDataName().equals("Tamanho do ecrã")){
-    				if( Integer.getInteger(tableData.getDataValue()) >= 10 ){
-    					return true;
-    				}
-    			}
-    		}
-    	}
-    	
-    	return false;
-    }
     
     /**
      * Gets the value of the technicalData property.

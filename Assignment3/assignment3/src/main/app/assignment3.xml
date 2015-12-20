@@ -82,8 +82,10 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
         <logger message="smartphones input: #[message.payload]" level="INFO" doc:name="Logger"/>
         <mulexml:jaxb-xml-to-object-transformer returnClass="generated.Smartphone" ignoreBadInput="true" jaxbContext-ref="JAXB_Context" doc:name="XML to JAXB Object"/>
         <set-variable variableName="smartphone" value="#[message.payload]" doc:name="Set Smartphone Variable"/>
+        <custom-transformer class="generated.FilterSmartphone" doc:name="Check if smartphone is relevant Java" returnClass="java.lang.Boolean"/>
+        <logger message="isRelevant: #[message.payload]" level="INFO" doc:name="Logger"/>
         <choice doc:name="Should insert smartphone into Database">
-            <when expression="#[flowVars.smartphone.isRelevant()]">
+            <when expression="payload.equals(true)">
                 <logger message="smartphone input: #[message.payload]" level="INFO" doc:name="Logger"/>
                 <db:insert config-ref="MySQL_Configuration" doc:name="Insert Smartphone into Database">
                     <db:parameterized-query><![CDATA[INSERT INTO smartphones (technical_data, url, name, brand, currency, summary_data, price) VALUES (#[flowVars.smartphone.getTechnicalData().toString()], #[flowVars.smartphone.getUrl()], #[flowVars.smartphone.getName()], #[flowVars.smartphone.getBrand()], #[flowVars.smartphone.getCurrency()], #[flowVars.smartphone.getSummaryData()], #[flowVars.smartphone.getPrice()]);]]></db:parameterized-query>
