@@ -46,9 +46,9 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
     <flow name="send_schedulled_emails_flow">
 	    <poll frequency="1000" doc:name="Poll">
 	        <schedulers:cron-scheduler expression="0 0 0 1/1 * ? *"/>
-	        <db:select config-ref="MySQL_Configuration" doc:name="Select validated emails from Database">
+            <db:select config-ref="MySQL_Configuration" doc:name="Select validated emails from Database">
                 <db:parameterized-query><![CDATA[SELECT * FROM subscriptions WHERE is_validated = 1;]]></db:parameterized-query>
-	        </db:select>
+            </db:select>
 	    </poll>
         <logger message="Sending poll emails to validated emails: #[message.payload]" level="INFO" doc:name="Logger"/>
         <foreach doc:name="For Each">
@@ -87,6 +87,11 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
         <choice doc:name="Should insert smartphone into Database">
             <when expression="payload.equals(true)">
                 <logger message="smartphone input: #[message.payload]" level="INFO" doc:name="Logger"/>
+                <db:update config-ref="MySQL_Configuration" doc:name="Update number of updates to smartphones Database">
+                    <db:parameterized-query><![CDATA[UPDATE statistics SET 
+num_updates_to_smartphones = num_updates_to_smartphones + 1, 
+num_cur_smartphones = (SELECT COUNT(*) FROM smartphones);]]></db:parameterized-query>
+                </db:update>
                 <db:insert config-ref="MySQL_Configuration" doc:name="Insert Smartphone into Database">
                     <db:parameterized-query><![CDATA[INSERT INTO smartphones (technical_data, url, name, brand, currency, summary_data, price) VALUES (#[flowVars.smartphone.getTechnicalData().toString()], #[flowVars.smartphone.getUrl()], #[flowVars.smartphone.getName()], #[flowVars.smartphone.getBrand()], #[flowVars.smartphone.getCurrency()], #[flowVars.smartphone.getSummaryData()], #[flowVars.smartphone.getPrice()]);]]></db:parameterized-query>
                 </db:insert>

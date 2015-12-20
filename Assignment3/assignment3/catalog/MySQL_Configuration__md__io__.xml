@@ -551,6 +551,51 @@
           </org.mule.tooling.metadata.cache.DefaultMetadataCacheEntry>
         </entry>
         <entry>
+          <string>INSERT INTO smartphones (technical_data, url, name, brand, currency, summary_data, price) VALUES (#[flowVars.smartphone.getTechnicalData().toString()], #[flowVars.smartphone.getUrl()], #[flowVars.smartphone.getName()], #[flowVars.smartphone.getBrand()], #[flowVars.smartphone.getCurrency()], #[flowVars.smartphone.getSummaryData()], #[flowVars.smartphone.getPrice()]);</string>
+          <org.mule.tooling.metadata.cache.DefaultMetadataCacheEntry>
+            <output class="org.mule.common.metadata.DefaultMetaData">
+              <payload class="org.mule.common.metadata.DefaultSimpleMetaDataModel">
+                <dataType>DOUBLE</dataType>
+                <metaDataModelPropertiesManager>
+                  <properties/>
+                </metaDataModelPropertiesManager>
+              </payload>
+              <properties>
+                <entry>
+                  <org.mule.common.metadata.MetaDataPropertyScope>FLOW</org.mule.common.metadata.MetaDataPropertyScope>
+                  <org.mule.common.metadata.MetaDataProperties>
+                    <fields/>
+                  </org.mule.common.metadata.MetaDataProperties>
+                </entry>
+                <entry>
+                  <org.mule.common.metadata.MetaDataPropertyScope>RECORD</org.mule.common.metadata.MetaDataPropertyScope>
+                  <org.mule.common.metadata.MetaDataProperties>
+                    <fields/>
+                  </org.mule.common.metadata.MetaDataProperties>
+                </entry>
+                <entry>
+                  <org.mule.common.metadata.MetaDataPropertyScope>OUTBOUND</org.mule.common.metadata.MetaDataPropertyScope>
+                  <org.mule.common.metadata.MetaDataProperties>
+                    <fields/>
+                  </org.mule.common.metadata.MetaDataProperties>
+                </entry>
+                <entry>
+                  <org.mule.common.metadata.MetaDataPropertyScope>SESSION</org.mule.common.metadata.MetaDataPropertyScope>
+                  <org.mule.common.metadata.MetaDataProperties>
+                    <fields/>
+                  </org.mule.common.metadata.MetaDataProperties>
+                </entry>
+                <entry>
+                  <org.mule.common.metadata.MetaDataPropertyScope>INBOUND</org.mule.common.metadata.MetaDataPropertyScope>
+                  <org.mule.common.metadata.MetaDataProperties>
+                    <fields/>
+                  </org.mule.common.metadata.MetaDataProperties>
+                </entry>
+              </properties>
+            </output>
+          </org.mule.tooling.metadata.cache.DefaultMetadataCacheEntry>
+        </entry>
+        <entry>
           <string>INSERT INTO subscriptions (email, name, brand_filter, min_price, max_price) VALUES (#[message.inboundProperties.&apos;http.query.params&apos;.email], &apos;acl&apos;, &apos;Generic Brand&apos;, 0, 1000);</string>
           <org.mule.tooling.metadata.cache.DefaultMetadataCacheEntry>
             <output class="org.mule.common.metadata.DefaultMetaData">
@@ -898,34 +943,6 @@
                   </metaDataModelPropertiesManager>
                   <fields>
                     <org.mule.common.metadata.DefaultMetaDataField>
-                      <name>brand_filter</name>
-                      <model class="org.mule.common.metadata.DefaultSimpleMetaDataModel">
-                        <dataType>STRING</dataType>
-                        <metaDataModelPropertiesManager>
-                          <properties/>
-                        </metaDataModelPropertiesManager>
-                      </model>
-                      <accessType>READ_WRITE</accessType>
-                      <metaDataFieldPropertyManager>
-                        <properties>
-                          <org.mule.common.metadata.field.property.dsql.DsqlSelectMetaDataFieldProperty/>
-                          <org.mule.common.metadata.field.property.dsql.DsqlWhereMetaDataFieldProperty/>
-                          <org.mule.common.metadata.field.property.dsql.DsqlOrderMetaDataFieldProperty/>
-                          <org.mule.common.metadata.field.property.dsql.DsqlQueryOperatorsMetaDataFieldProperty>
-                            <supportedOperators>
-                              <org.mule.common.query.expression.LessOperator/>
-                              <org.mule.common.query.expression.LessOrEqualsOperator/>
-                              <org.mule.common.query.expression.EqualsOperator/>
-                              <org.mule.common.query.expression.GreaterOperator/>
-                              <org.mule.common.query.expression.GreaterOrEqualsOperator/>
-                              <org.mule.common.query.expression.NotEqualsOperator/>
-                              <org.mule.common.query.expression.LikeOperator/>
-                            </supportedOperators>
-                          </org.mule.common.metadata.field.property.dsql.DsqlQueryOperatorsMetaDataFieldProperty>
-                        </properties>
-                      </metaDataFieldPropertyManager>
-                    </org.mule.common.metadata.DefaultMetaDataField>
-                    <org.mule.common.metadata.DefaultMetaDataField>
                       <name>max_price</name>
                       <model class="org.mule.common.metadata.DefaultSimpleMetaDataModel">
                         <dataType>INTEGER</dataType>
@@ -954,7 +971,7 @@
                     </org.mule.common.metadata.DefaultMetaDataField>
                     <org.mule.common.metadata.DefaultMetaDataField>
                       <name>min_price</name>
-                      <model class="org.mule.common.metadata.DefaultSimpleMetaDataModel" reference="../../org.mule.common.metadata.DefaultMetaDataField[2]/model"/>
+                      <model class="org.mule.common.metadata.DefaultSimpleMetaDataModel" reference="../../org.mule.common.metadata.DefaultMetaDataField/model"/>
                       <accessType>READ_WRITE</accessType>
                       <metaDataFieldPropertyManager>
                         <properties>
@@ -976,7 +993,12 @@
                     </org.mule.common.metadata.DefaultMetaDataField>
                     <org.mule.common.metadata.DefaultMetaDataField>
                       <name>name</name>
-                      <model class="org.mule.common.metadata.DefaultSimpleMetaDataModel" reference="../../org.mule.common.metadata.DefaultMetaDataField/model"/>
+                      <model class="org.mule.common.metadata.DefaultSimpleMetaDataModel">
+                        <dataType>STRING</dataType>
+                        <metaDataModelPropertiesManager>
+                          <properties/>
+                        </metaDataModelPropertiesManager>
+                      </model>
                       <accessType>READ_WRITE</accessType>
                       <metaDataFieldPropertyManager>
                         <properties>
@@ -999,7 +1021,7 @@
                     </org.mule.common.metadata.DefaultMetaDataField>
                     <org.mule.common.metadata.DefaultMetaDataField>
                       <name>id</name>
-                      <model class="org.mule.common.metadata.DefaultSimpleMetaDataModel" reference="../../org.mule.common.metadata.DefaultMetaDataField[2]/model"/>
+                      <model class="org.mule.common.metadata.DefaultSimpleMetaDataModel" reference="../../org.mule.common.metadata.DefaultMetaDataField/model"/>
                       <accessType>READ_WRITE</accessType>
                       <metaDataFieldPropertyManager>
                         <properties>
@@ -1014,6 +1036,29 @@
                               <org.mule.common.query.expression.GreaterOperator/>
                               <org.mule.common.query.expression.GreaterOrEqualsOperator/>
                               <org.mule.common.query.expression.NotEqualsOperator/>
+                            </supportedOperators>
+                          </org.mule.common.metadata.field.property.dsql.DsqlQueryOperatorsMetaDataFieldProperty>
+                        </properties>
+                      </metaDataFieldPropertyManager>
+                    </org.mule.common.metadata.DefaultMetaDataField>
+                    <org.mule.common.metadata.DefaultMetaDataField>
+                      <name>brand</name>
+                      <model class="org.mule.common.metadata.DefaultSimpleMetaDataModel" reference="../../org.mule.common.metadata.DefaultMetaDataField[3]/model"/>
+                      <accessType>READ_WRITE</accessType>
+                      <metaDataFieldPropertyManager>
+                        <properties>
+                          <org.mule.common.metadata.field.property.dsql.DsqlSelectMetaDataFieldProperty/>
+                          <org.mule.common.metadata.field.property.dsql.DsqlWhereMetaDataFieldProperty/>
+                          <org.mule.common.metadata.field.property.dsql.DsqlOrderMetaDataFieldProperty/>
+                          <org.mule.common.metadata.field.property.dsql.DsqlQueryOperatorsMetaDataFieldProperty>
+                            <supportedOperators>
+                              <org.mule.common.query.expression.LessOperator/>
+                              <org.mule.common.query.expression.LessOrEqualsOperator/>
+                              <org.mule.common.query.expression.EqualsOperator/>
+                              <org.mule.common.query.expression.GreaterOperator/>
+                              <org.mule.common.query.expression.GreaterOrEqualsOperator/>
+                              <org.mule.common.query.expression.NotEqualsOperator/>
+                              <org.mule.common.query.expression.LikeOperator/>
                             </supportedOperators>
                           </org.mule.common.metadata.field.property.dsql.DsqlQueryOperatorsMetaDataFieldProperty>
                         </properties>
@@ -1046,7 +1091,7 @@
                     </org.mule.common.metadata.DefaultMetaDataField>
                     <org.mule.common.metadata.DefaultMetaDataField>
                       <name>email</name>
-                      <model class="org.mule.common.metadata.DefaultSimpleMetaDataModel" reference="../../org.mule.common.metadata.DefaultMetaDataField/model"/>
+                      <model class="org.mule.common.metadata.DefaultSimpleMetaDataModel" reference="../../org.mule.common.metadata.DefaultMetaDataField[3]/model"/>
                       <accessType>READ_WRITE</accessType>
                       <metaDataFieldPropertyManager>
                         <properties>
@@ -1939,6 +1984,53 @@
         </entry>
         <entry>
           <string>UPDATE subscriptions SET is_validated = 1 WHERE email = &apos;#[payload]&apos;;</string>
+          <org.mule.tooling.metadata.cache.DefaultMetadataCacheEntry>
+            <output class="org.mule.common.metadata.DefaultMetaData">
+              <payload class="org.mule.common.metadata.DefaultSimpleMetaDataModel">
+                <dataType>DOUBLE</dataType>
+                <metaDataModelPropertiesManager>
+                  <properties/>
+                </metaDataModelPropertiesManager>
+              </payload>
+              <properties>
+                <entry>
+                  <org.mule.common.metadata.MetaDataPropertyScope>FLOW</org.mule.common.metadata.MetaDataPropertyScope>
+                  <org.mule.common.metadata.MetaDataProperties>
+                    <fields/>
+                  </org.mule.common.metadata.MetaDataProperties>
+                </entry>
+                <entry>
+                  <org.mule.common.metadata.MetaDataPropertyScope>RECORD</org.mule.common.metadata.MetaDataPropertyScope>
+                  <org.mule.common.metadata.MetaDataProperties>
+                    <fields/>
+                  </org.mule.common.metadata.MetaDataProperties>
+                </entry>
+                <entry>
+                  <org.mule.common.metadata.MetaDataPropertyScope>OUTBOUND</org.mule.common.metadata.MetaDataPropertyScope>
+                  <org.mule.common.metadata.MetaDataProperties>
+                    <fields/>
+                  </org.mule.common.metadata.MetaDataProperties>
+                </entry>
+                <entry>
+                  <org.mule.common.metadata.MetaDataPropertyScope>SESSION</org.mule.common.metadata.MetaDataPropertyScope>
+                  <org.mule.common.metadata.MetaDataProperties>
+                    <fields/>
+                  </org.mule.common.metadata.MetaDataProperties>
+                </entry>
+                <entry>
+                  <org.mule.common.metadata.MetaDataPropertyScope>INBOUND</org.mule.common.metadata.MetaDataPropertyScope>
+                  <org.mule.common.metadata.MetaDataProperties>
+                    <fields/>
+                  </org.mule.common.metadata.MetaDataProperties>
+                </entry>
+              </properties>
+            </output>
+          </org.mule.tooling.metadata.cache.DefaultMetadataCacheEntry>
+        </entry>
+        <entry>
+          <string>UPDATE statistics SET 
+num_updates_to_smartphones = num_updates_to_smartphones + 1, 
+num_cur_smartphones = (SELECT COUNT(*) FROM smartphones);</string>
           <org.mule.tooling.metadata.cache.DefaultMetadataCacheEntry>
             <output class="org.mule.common.metadata.DefaultMetaData">
               <payload class="org.mule.common.metadata.DefaultSimpleMetaDataModel">
