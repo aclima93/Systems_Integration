@@ -110,10 +110,9 @@ public class Smartphone implements Serializable, Comparable<Smartphone> {
     			
     			
     			if(tableData.getDataName().equals("Tamanho do ecrã")){
-    				//TODO:
-    				//if( Integer.getInteger(tableData.getDataValue()) >= 10 ){
+    				if( Integer.getInteger(tableData.getDataValue()) >= 10 ){
     					return true;
-    				//}
+    				}
     			}
     		}
     	}

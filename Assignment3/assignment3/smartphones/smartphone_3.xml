@@ -1,4 +1,4 @@
-<smartphone price="1337" name="Nome 2" brand="Marca 2" currency="€" summary_data="Lorum ipsum dolor sit amet" url="www.my.url.com">
+<smartphone price="666" name="Nome 1" brand="Marca 1" currency="€" summary_data="Lorum ipsum dolor sit amet" url="www.my.url.com">
     <technical_data>
         <table>
             <table_title>Informações gerais</table_title>
@@ -9,6 +9,10 @@
         </table>
         <table>
             <table_title>Ecrã</table_title>
+            <table_data>
+                <data_name>Tamanho do ecrã</data_name>
+                <data_value>11</data_value>
+            </table_data>
             <table_data>
                 <data_name>Número de cores</data_name>
                 <data_value>16,7 milhões</data_value>
