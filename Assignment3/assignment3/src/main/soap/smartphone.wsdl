@@ -1,0 +1,104 @@
+<?xml version="1.0"?>
+<definitions name="AddSmartphoneSOAP"
+    targetNamespace="http://localhost:8081/smartphone.wsdl"
+    xmlns:tns="http://localhost:8081/smartphone.wsdl"
+    xmlns:xsd1="http://localhost:8081/smartphone.xsd"
+    xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+    xmlns="http://schemas.xmlsoap.org/wsdl/">
+    <types>
+        <xs:schema targetNamespace="http://localhost:8081/smartphone.xsd"
+            xmlns="http://www.w3.org/2000/10/XMLSchema">
+            <xs:element name="smartphone">
+                <xs:complexType>
+                    <xs:sequence>
+
+                        <!--
+                        NOTA:
+                        * Precisamos deste nó intermédio porque apesar de podermos NÃO ter technical data,
+                        * caso tenhamos então temos de ter pelo menos uma tabela associada.
+                        -->
+
+                        <!-- Ficha Técnica -->
+                        <xs:element name="technical_data" maxOccurs="1" minOccurs="0">
+                            <xs:complexType>
+                                <xs:sequence>
+
+                                    <!-- Tabelas -->
+                                    <xs:element name="table" maxOccurs="unbounded" minOccurs="1">
+                                        <xs:complexType>
+                                            <xs:sequence>
+
+                                                <!-- Título da Tabela -->
+                                                <xs:element name="table_title" type="xs:string"/>
+
+                                                <!-- Dados da Tabela -->
+                                                <xs:element name="table_data" maxOccurs="unbounded" minOccurs="1">
+                                                    <xs:complexType>
+                                                        <xs:sequence>
+                                                            <xs:element name="data_name" type="xs:string"/>
+                                                            <xs:element name="data_value" type="xs:string"/>
+                                                        </xs:sequence>
+                                                    </xs:complexType>
+                                                </xs:element>
+
+                                            </xs:sequence>
+                                        </xs:complexType>
+                                    </xs:element>
+
+                                </xs:sequence>
+                            </xs:complexType>
+                        </xs:element>
+                    </xs:sequence>
+
+                    <!-- Informação Principal -->
+                    <xs:attribute name="url" type="xs:string" use="required"/>
+                    <xs:attribute name="name" type="xs:string" use="required"/>
+                    <xs:attribute name="brand" type="xs:string" use="required"/>
+                    <xs:attribute name="currency" type="xs:string" use="required"/>
+                    <xs:attribute name="summary_data" type="xs:string" use="required"/>
+                    <xs:attribute name="price" use="required">
+                        <xs:simpleType>
+                            <xs:restriction base="xs:decimal">
+                                <xs:minInclusive value="0"/>
+                            </xs:restriction>
+                        </xs:simpleType>
+                    </xs:attribute>
+
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="response">
+                <xs:attribute name="result" type="xs:string" use="required"/>
+            </xs:element>
+        </xs:schema>
+    </types>
+    <message name="AddSmartphoneInput">
+        <part name="body" element="xsd1:smartphone" />
+    </message>
+    <message name="AddSmartphoneOutput">
+        <part name="body" element="xsd1:response" />
+    </message>
+    <portType name="AddSmartphonePortType">
+        <operation name="AddSmartphone">
+            <input message="tns:AddSmartphoneInput" />
+            <output message="tns:AddSmartphoneOutput" />
+        </operation>
+    </portType>
+    <binding name="AddSmartphoneSoapBinding" type="tns:AddSmartphonePortType">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http" />
+        <operation name="AddSmartphone">
+            <soap:operation soapAction="http://localhost:8081/AddSmartphone" />
+            <input>
+                <soap:body use="literal" />
+            </input>
+            <output>
+                <soap:body use="literal" />
+            </output>
+        </operation>
+    </binding>
+    <service name="AddSmartphoneService">
+        <documentation>Please work</documentation>
+        <port name="AddSmartphonePort" binding="tns:AddSmartphoneBinding">
+            <soap:address location="http://localhost:8081/addsmartphonesoap" />
+        </port>
+    </service>
+</definitions>
