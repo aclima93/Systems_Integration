@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:smtp="http://www.mulesoft.org/schema/mule/smtp"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" version="EE-3.7.2"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd 
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd 
+http://www.mulesoft.org/schema/mule/smtp http://www.mulesoft.org/schema/mule/smtp/current/mule-smtp.xsd http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+
+    <sub-flow name="send_validation_email_subflow">
+        <db:update config-ref="MySQL_Configuration" doc:name="Update number fo sent emails in Database">
+            <db:parameterized-query><![CDATA[UPDATE statistics SET num_sent_emails = num_sent_emails + 1;]]></db:parameterized-query>
+        </db:update>
+        <set-payload value="Validate your subscription here: http://localhost:8081/smartphones_mailinglist/validate_subscription/?email=#[flowVars.validation_email]" doc:name="Set validation email content Payload"/>
+        <logger message="validation email message: #[message.payload]" level="INFO" doc:name="Logger"/>
+        <smtp:outbound-endpoint host="smtp.gmail.com" port="587" user="is.spammer.2015%40gmail.com" password="vamoster20" connector-ref="Gmail" to="#[flowVars.validation_email]" from="is.spammer" subject="Please verify your email address" responseTimeout="10000" doc:name="Send validation email"/>
+        <logger message="validation email output: #[message.payload]" level="INFO" doc:name="Logger"/>
+    </sub-flow>
+    <sub-flow name="add_subscription_subflow">
+        <logger message="subscription input: #[message.payload]" level="INFO" doc:name="Logger"/>
+        <db:insert config-ref="MySQL_Configuration" doc:name="Insert Subscription into Database">
+            <db:parameterized-query><![CDATA[INSERT INTO subscriptions (email, name, brand, min_price, max_price) VALUES (#[message.payload.email], #[message.payload.name], #[message.payload.brand], #[message.payload.min_price], #[message.payload.max_price]);]]></db:parameterized-query>
+        </db:insert>
+        <logger message="subscription output: #[message.payload]" level="INFO" doc:name="Logger"/>
+    </sub-flow>
+
+    <flow name="web_add_subscription_and_send_validation_email_flow">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/smartphones_mailinglist/add_subscription/" doc:name="HTTP"/>
+        <set-payload value="#[message.inboundProperties.'http.query.params']" doc:name="Set HTTP Query Params Payload"/>
+        <set-variable variableName="validation_email" value="#[message.payload.email]" doc:name="Set Validation Email Variable"/>
+        <flow-ref name="add_subscription_subflow" doc:name="Add Subscription Subflow"/>
+        <flow-ref name="send_validation_email_subflow" doc:name="Send Validation Email Subflow"/>
+        <set-payload value="'#[message.payload]'" doc:name="Set Payload"/>
+        <exception-strategy ref="Global_Catch_Exception_Strategy" doc:name="Reference Exception Strategy"/>
+    </flow>
+
+</mule>

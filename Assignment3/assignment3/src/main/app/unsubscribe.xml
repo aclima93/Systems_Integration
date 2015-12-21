@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+
+    <sub-flow name="unsubscribe_email_subflow">
+        <logger message="unsubscribe input: #[message.payload]" level="INFO" doc:name="Logger"/>
+        <db:delete config-ref="MySQL_Configuration" doc:name="Delete Subscription from Database">
+            <db:parameterized-query><![CDATA[DELETE FROM subscriptions WHERE email = #[message.payload];]]></db:parameterized-query>
+        </db:delete>
+        <logger message="unsubscribe output: #[message.payload]" level="INFO" doc:name="Logger"/>
+    </sub-flow>
+
+    <flow name="web_unsubscribe_flow">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/smartphones_mailinglist/unsubscribe/" doc:name="HTTP"/>
+        <set-payload value="#[message.inboundProperties.'http.query.params'.email]" doc:name="Set Payload"/>
+        <flow-ref name="unsubscribe_email_subflow" doc:name="Unsubscribe Email Subflow"/>
+        <set-payload value="'#[message.payload]'" doc:name="Set Payload"/>
+        <exception-strategy ref="Global_Catch_Exception_Strategy" doc:name="Reference Exception Strategy"/>
+    </flow>
+
+</mule>
