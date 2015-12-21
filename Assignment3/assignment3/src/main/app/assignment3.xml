@@ -73,12 +73,12 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
         </db:select>
         <set-payload value="#[message.payload[0]]" doc:name="Set Statistics Payload"/>
         <logger message="statistics output: #[message.payload]" level="INFO" doc:name="Logger"/>
-        <set-payload value="Statistics: #[message.payload.'num_updates_to_smartphones'] updates, #[message.payload.'num_cur_smartphones'] smartphones, #[message.payload.'num_sent_emails'] emails, #[message.payload.'num_sent_tweets'] tweets" doc:name="Set Tweet Payload"/>
+        <set-payload value="#[new org.mule.el.datetime.DateTime().toString();] Statistics: #[message.payload.'num_updates_to_smartphones'] updates, #[message.payload.'num_cur_smartphones'] smartphones, #[message.payload.'num_sent_emails'] emails, #[message.payload.'num_sent_tweets'] tweets" doc:name="Set Tweet Payload"/>
         <logger message="twitter input: #[message.payload]" level="INFO" doc:name="Logger"/>
         <twitter:update-status config-ref="Twitter" status="#[message.payload]" doc:name="Tweet Statistics"/>
         <logger message="twitter output: #[message.payload]" level="INFO" doc:name="Logger"/>
     </sub-flow>
-    <sub-flow name="unmarshall_and_store_smartphones_subflow">
+    <sub-flow name="unmarshall_and_insert_smartphone_subflow">
         <logger message="smartphones input: #[message.payload]" level="INFO" doc:name="Logger"/>
         <mulexml:jaxb-xml-to-object-transformer returnClass="generated.Smartphone" ignoreBadInput="true" jaxbContext-ref="JAXB_Context" doc:name="XML to JAXB Object"/>
         <set-variable variableName="smartphone" value="#[message.payload]" doc:name="Set Smartphone Variable"/>
@@ -103,11 +103,11 @@ num_cur_smartphones = (SELECT COUNT(*) FROM smartphones);]]></db:parameterized-q
         </choice>
         <logger message="smartphones output: #[message.payload]" level="INFO" doc:name="Logger"/>
     </sub-flow>
-    <sub-flow name="add_smartphones_and_send_tweet_subflow">
-        <flow-ref name="unmarshall_and_store_smartphones_subflow" doc:name="unmarshall_and_store_smartphones_subflow"/>
+    <sub-flow name="add_smartphone_and_send_tweet_subflow">
+        <flow-ref name="unmarshall_and_insert_smartphone_subflow" doc:name="Unmarshall and Insert Smartphone Subflow"/>
         <choice doc:name="Should tweet about insertion">
             <when expression="payload.equals(1)">
-                <flow-ref name="tweet_statistics_subflow" doc:name="tweet_statistics_subflow"/>
+                <flow-ref name="tweet_statistics_subflow" doc:name="Tweet Statistics Subflow"/>
             </when>
             <otherwise>
                 <logger message="add smartphones fail" level="ERROR" doc:name="Logger"/>
@@ -116,36 +116,48 @@ num_cur_smartphones = (SELECT COUNT(*) FROM smartphones);]]></db:parameterized-q
         <set-payload value="'#[message.payload]'" doc:name="Set Payload"/>
     </sub-flow>
 
-    <flow name="add_smartphones_from_directory">
+    <flow name="file_add_smartphone">
         <file:inbound-endpoint path="/Users/aclima/Documents/Repositories/Systems_Integration/Assignment3/assignment3/smartphones" connector-ref="File" pollingFrequency="10000" fileAge="5000" responseTimeout="10000" doc:name="File"/>
-        <flow-ref name="add_smartphones_and_send_tweet_subflow" doc:name="add_smartphones_and_send_tweet_subflow"/>
+        <flow-ref name="add_smartphone_and_send_tweet_subflow" doc:name="Add Smartphone and Send Tweet Subflow"/>
         <exception-strategy ref="Global_Catch_Exception_Strategy" doc:name="Reference Exception Strategy"/>
     </flow>
-
-    <flow name="add_subscription_and_send_confirmation_flow">
-        <http:listener config-ref="HTTP_Listener_Configuration" path="/smartphones_mailinglist/add_subscription/" doc:name="HTTP"/>
-        <logger message="subscription input: #[message.inboundProperties.'http.query.params'.email]" level="INFO" doc:name="Logger"/>
-        <db:insert config-ref="MySQL_Configuration" doc:name="Insert Subscription into Database">
-            <db:parameterized-query><![CDATA[INSERT INTO subscriptions (email, name, brand, min_price, max_price) VALUES (#[message.inboundProperties.'http.query.params'.email], #[message.inboundProperties.'http.query.params'.name], #[message.inboundProperties.'http.query.params'.brand], #[message.inboundProperties.'http.query.params'.min_price], #[message.inboundProperties.'http.query.params'.max_price]);]]></db:parameterized-query>
-        </db:insert>
-        <logger message="subscription output: #[message.payload]" level="INFO" doc:name="Logger"/>
+    <sub-flow name="send_validation_email_subflow">
         <db:update config-ref="MySQL_Configuration" doc:name="Update number fo sent emails in Database">
             <db:parameterized-query><![CDATA[UPDATE statistics SET num_sent_emails = num_sent_emails + 1;]]></db:parameterized-query>
         </db:update>
-        <set-payload value="Validate your subscription here: http://localhost:8081/smartphones_mailinglist/validate_subscription/?email=#[message.inboundProperties.'http.query.params'.email]" doc:name="Set validation email content Payload"/>
-        <logger message="notification email message: #[message.payload]" level="INFO" doc:name="Logger"/>
-        <smtp:outbound-endpoint host="smtp.gmail.com" port="587" user="is.spammer.2015%40gmail.com" password="vamoster20" connector-ref="Gmail" to="#[message.inboundProperties.'http.query.params'.email]" from="is.spammer" subject="Please verify your email address" responseTimeout="10000" doc:name="Send notification email"/>
-        <logger message="notification email output: #[message.payload]" level="INFO" doc:name="Logger"/>
+        <set-payload value="Validate your subscription here: http://localhost:8081/smartphones_mailinglist/validate_subscription/?email=#[flowVars.validation_email]" doc:name="Set validation email content Payload"/>
+        <logger message="validation email message: #[message.payload]" level="INFO" doc:name="Logger"/>
+        <smtp:outbound-endpoint host="smtp.gmail.com" port="587" user="is.spammer.2015%40gmail.com" password="vamoster20" connector-ref="Gmail" to="#[flowVars.validation_email]" from="is.spammer" subject="Please verify your email address" responseTimeout="10000" doc:name="Send validation email"/>
+        <logger message="validation email output: #[message.payload]" level="INFO" doc:name="Logger"/>
+    </sub-flow>
+    <sub-flow name="add_subscription_subflow">
+        <logger message="subscription input: #[message.payload]" level="INFO" doc:name="Logger"/>
+        <db:insert config-ref="MySQL_Configuration" doc:name="Insert Subscription into Database">
+            <db:parameterized-query><![CDATA[INSERT INTO subscriptions (email, name, brand, min_price, max_price) VALUES (#[message.payload.email], #[message.payload.name], #[message.payload.brand], #[message.payload.min_price], #[message.payload.max_price]);]]></db:parameterized-query>
+        </db:insert>
+        <logger message="subscription output: #[message.payload]" level="INFO" doc:name="Logger"/>
+    </sub-flow>
+
+    <flow name="web_add_subscription_and_send_validation_email_flow">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/smartphones_mailinglist/add_subscription/" doc:name="HTTP"/>
+        <set-payload value="#[message.inboundProperties.'http.query.params']" doc:name="Set HTTP Query Params Payload"/>
+        <set-variable variableName="validation_email" value="#[message.payload.email]" doc:name="Set Validation Email Variable"/>
+        <flow-ref name="add_subscription_subflow" doc:name="Add Subscription Subflow"/>
+        <flow-ref name="send_validation_email_subflow" doc:name="Send Validation Email Subflow"/>
         <set-payload value="'#[message.payload]'" doc:name="Set Payload"/>
         <exception-strategy ref="Global_Catch_Exception_Strategy" doc:name="Reference Exception Strategy"/>
     </flow>
-    <flow name="unsubscribe_flow">
-        <http:listener config-ref="HTTP_Listener_Configuration" path="/smartphones_mailinglist/unsubscribe/" doc:name="HTTP"/>
-        <logger message="#[message.inboundProperties.'http.query.params'.email]" level="INFO" doc:name="Logger"/>
+    <sub-flow name="unsubscribe_email_subflow">
+        <logger message="unsubscribe input: #[message.payload]" level="INFO" doc:name="Logger"/>
         <db:delete config-ref="MySQL_Configuration" doc:name="Delete Subscription from Database">
-            <db:parameterized-query><![CDATA[DELETE FROM subscriptions WHERE email = #[message.inboundProperties.'http.query.params'.email];]]></db:parameterized-query>
+            <db:parameterized-query><![CDATA[DELETE FROM subscriptions WHERE email = #[message.payload];]]></db:parameterized-query>
         </db:delete>
         <logger message="unsubscribe output: #[message.payload]" level="INFO" doc:name="Logger"/>
+    </sub-flow>
+    <flow name="web_unsubscribe_flow">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/smartphones_mailinglist/unsubscribe/" doc:name="HTTP"/>
+        <set-payload value="#[message.inboundProperties.'http.query.params'.email]" doc:name="Set Payload"/>
+        <flow-ref name="unsubscribe_email_subflow" doc:name="Unsubscribe Email Subflow"/>
         <set-payload value="'#[message.payload]'" doc:name="Set Payload"/>
         <exception-strategy ref="Global_Catch_Exception_Strategy" doc:name="Reference Exception Strategy"/>
     </flow>
