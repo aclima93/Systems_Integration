@@ -37,89 +37,10 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
 	
     <twitter:config name="Twitter" accessKey="4517518408-3y5AGk1NNzgkDK50m4BunRZYp5PcSXUEwBpp1Gb" accessSecret="6i3h29N3MYYFB3OyPSbqZ5ZBpgafosRvlrWqJGwYczTHk" consumerKey="8zjMgss0csnIDq3TFSqmb91Qv" consumerSecret="DNEsnrLJtlBJDhe1BkrqADSYqvQ8FqwjLWVtgG9Eh4WqIfbZAZ" doc:name="Twitter"/>
     <mulexml:jaxb-context name="JAXB_Context" packageNames="generated" doc:name="JAXB Context"/>
-    <file:connector name="File" readFromDirectory="/Users/aclima/Documents/Repositories/Systems_Integration/Assignment3/assignment3/smartphones" autoDelete="false" streaming="true" validateConnections="true" doc:name="File"/>
+    <file:connector name="File" readFromDirectory="/Users/aclima/Documents/Repositories/Systems_Integration/Assignment3/assignment3/smartphones" autoDelete="true" streaming="true" validateConnections="true" doc:name="File"/>
 
     <catch-exception-strategy name="Global_Catch_Exception_Strategy">
-        <logger message="Oops, something went wrong... #[exception]" level="INFO" doc:name="Logger"/>
+        <logger message="Oops, something went wrong... #[exception]" level="ERROR" doc:name="Logger"/>
     </catch-exception-strategy>
-
-    <flow name="send_schedulled_emails_flow">
-	    <poll frequency="1000" doc:name="Poll">
-	        <schedulers:cron-scheduler expression="0 0 0 1/1 * ? *"/>
-            <db:select config-ref="MySQL_Configuration" doc:name="Select validated emails from Database">
-                <db:parameterized-query><![CDATA[SELECT * FROM subscriptions WHERE is_validated = 1;]]></db:parameterized-query>
-            </db:select>
-	    </poll>
-        <logger message="Sending poll emails to validated emails: #[message.payload]" level="INFO" doc:name="Logger"/>
-        <foreach doc:name="For Each">
-            <set-variable variableName="email" value="#[message.payload.'email']" doc:name="Set Email Variable"/>
-            <db:select config-ref="MySQL_Configuration" doc:name="Select relevant smartphones from Database">
-                <db:parameterized-query><![CDATA[SELECT * FROM smartphones WHERE (name LIKE #[message.payload.'name']) AND (brand LIKE #[message.payload.'brand']) AND (price BETWEEN #[message.payload.'min_price'] and #[message.payload.'max_price']);]]></db:parameterized-query>
-            </db:select>
-            <set-payload value="Here is your list of smartphones: #[message.payload]" doc:name="Set smartphone list content Payload"/>
-            <smtp:outbound-endpoint host="smtp.gmail.com" port="587" user="is.spammer.2015%40gmail.com" password="vamoster20" connector-ref="Gmail" to="#[flowVars.email]" from="is.spammer" subject="Testing mule email" responseTimeout="10000" doc:name="Send smartphone list email"/>
-            <logger message="'#[message.payload]'" level="INFO" doc:name="Logger"/>
-        </foreach>
-        <exception-strategy ref="Global_Catch_Exception_Strategy" doc:name="Reference Exception Strategy"/>
-    </flow>
-    
-    <sub-flow name="tweet_statistics_subflow">
-        <logger message="Starting subflow for tweeting statistics" level="INFO" doc:name="Logger"/>
-        <db:update config-ref="MySQL_Configuration" doc:name="Update number of sent tweets in Database">
-            <db:parameterized-query><![CDATA[UPDATE statistics SET num_sent_tweets = num_sent_tweets + 1;]]></db:parameterized-query>
-        </db:update>
-        <db:select config-ref="MySQL_Configuration" doc:name="Select Statistics from Database">
-            <db:parameterized-query><![CDATA[SELECT * FROM statistics;]]></db:parameterized-query>
-        </db:select>
-        <set-payload value="#[message.payload[0]]" doc:name="Set Statistics Payload"/>
-        <logger message="statistics output: #[message.payload]" level="INFO" doc:name="Logger"/>
-        <set-payload value="#[new org.mule.el.datetime.DateTime().toString();] Statistics: #[message.payload.'num_updates_to_smartphones'] updates, #[message.payload.'num_cur_smartphones'] smartphones, #[message.payload.'num_sent_emails'] emails, #[message.payload.'num_sent_tweets'] tweets" doc:name="Set Tweet Payload"/>
-        <logger message="twitter input: #[message.payload]" level="INFO" doc:name="Logger"/>
-        <twitter:update-status config-ref="Twitter" status="#[message.payload]" doc:name="Tweet Statistics"/>
-        <logger message="twitter output: #[message.payload]" level="INFO" doc:name="Logger"/>
-    </sub-flow>
-    <sub-flow name="unmarshall_and_insert_smartphone_subflow">
-        <logger message="smartphones input: #[message.payload]" level="INFO" doc:name="Logger"/>
-        <mulexml:jaxb-xml-to-object-transformer returnClass="generated.Smartphone" ignoreBadInput="true" jaxbContext-ref="JAXB_Context" doc:name="XML to JAXB Object"/>
-        <set-variable variableName="smartphone" value="#[message.payload]" doc:name="Set Smartphone Variable"/>
-        <custom-transformer class="generated.FilterSmartphone" doc:name="Check if smartphone is relevant Java" returnClass="java.lang.Boolean"/>
-        <logger message="isRelevant: #[message.payload]" level="INFO" doc:name="Logger"/>
-        <choice doc:name="Should insert smartphone into Database">
-            <when expression="payload.equals(true)">
-                <logger message="smartphone input: #[message.payload]" level="INFO" doc:name="Logger"/>
-                <db:update config-ref="MySQL_Configuration" doc:name="Update number of updates to smartphones Database">
-                    <db:parameterized-query><![CDATA[UPDATE statistics SET 
-num_updates_to_smartphones = num_updates_to_smartphones + 1, 
-num_cur_smartphones = (SELECT COUNT(*) FROM smartphones);]]></db:parameterized-query>
-                </db:update>
-                <db:insert config-ref="MySQL_Configuration" doc:name="Insert Smartphone into Database">
-                    <db:parameterized-query><![CDATA[INSERT INTO smartphones (technical_data, url, name, brand, currency, summary_data, price) VALUES (#[flowVars.smartphone.getTechnicalData().toString()], #[flowVars.smartphone.getUrl()], #[flowVars.smartphone.getName()], #[flowVars.smartphone.getBrand()], #[flowVars.smartphone.getCurrency()], #[flowVars.smartphone.getSummaryData()], #[flowVars.smartphone.getPrice()]);]]></db:parameterized-query>
-                </db:insert>
-                <logger message="smartphone output: #[message.payload]" level="INFO" doc:name="Logger"/>
-            </when>
-            <otherwise>
-                <logger message="Smartphone did not meet the requierments" level="INFO" doc:name="Logger"/>
-            </otherwise>
-        </choice>
-        <logger message="smartphones output: #[message.payload]" level="INFO" doc:name="Logger"/>
-    </sub-flow>
-    <sub-flow name="add_smartphone_and_send_tweet_subflow">
-        <flow-ref name="unmarshall_and_insert_smartphone_subflow" doc:name="Unmarshall and Insert Smartphone Subflow"/>
-        <choice doc:name="Should tweet about insertion">
-            <when expression="payload.equals(1)">
-                <flow-ref name="tweet_statistics_subflow" doc:name="Tweet Statistics Subflow"/>
-            </when>
-            <otherwise>
-                <logger message="add smartphones fail" level="ERROR" doc:name="Logger"/>
-            </otherwise>
-        </choice>
-        <set-payload value="'#[message.payload]'" doc:name="Set Payload"/>
-    </sub-flow>
-
-    <flow name="file_add_smartphone">
-        <file:inbound-endpoint path="/Users/aclima/Documents/Repositories/Systems_Integration/Assignment3/assignment3/smartphones" connector-ref="File" pollingFrequency="10000" fileAge="5000" responseTimeout="10000" doc:name="File"/>
-        <flow-ref name="add_smartphone_and_send_tweet_subflow" doc:name="Add Smartphone and Send Tweet Subflow"/>
-        <exception-strategy ref="Global_Catch_Exception_Strategy" doc:name="Reference Exception Strategy"/>
-    </flow>
     
 </mule>
