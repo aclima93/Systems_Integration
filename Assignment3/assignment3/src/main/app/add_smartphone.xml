@@ -101,7 +101,7 @@ num_cur_smartphones = (SELECT COUNT(*) FROM smartphones);]]></db:parameterized-q
     <flow name="soap_add_smartphone">
         <http:listener config-ref="HTTP_Listener_Configuration" path="/soap_add_smartphone" allowedMethods="GET,POST" doc:name="HTTP"/>
         <cxf:jaxws-service serviceClass="soap.Smartphone" doc:name="CXF"/>
-        <flow-ref name="add_smartphone_and_send_tweet_subflow" doc:name="add_smartphone_and_send_tweet_subflow"/>
+        <flow-ref name="add_smartphone_and_send_tweet_subflow" doc:name="Add Smartphone and Send Tweet Subflow"/>
         <exception-strategy ref="Global_Catch_Exception_Strategy" doc:name="Reference Exception Strategy"/>
     </flow>
 
