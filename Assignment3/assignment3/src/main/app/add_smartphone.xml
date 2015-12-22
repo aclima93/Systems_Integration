@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:json="http://www.mulesoft.org/schema/mule/json"
+<mule 
+	xmlns:json="http://www.mulesoft.org/schema/mule/json"
+	xmlns:cxf="http://www.mulesoft.org/schema/mule/cxf"
 	xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:db="http://www.mulesoft.org/schema/mule/db"
 	xmlns:mulexml="http://www.mulesoft.org/schema/mule/xml"
 	xmlns:file="http://www.mulesoft.org/schema/mule/file"
@@ -15,7 +17,9 @@ http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/fil
 http://www.mulesoft.org/schema/mule/twitter http://www.mulesoft.org/schema/mule/twitter/current/mule-twitter.xsd
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
 http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
-http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd
+http://www.mulesoft.org/schema/mule/cxf http://www.mulesoft.org/schema/mule/cxf/current/mule-cxf.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
 
     <sub-flow name="tweet_statistics_subflow">
         <logger message="Starting subflow for tweeting statistics" level="INFO" doc:name="Logger"/>
@@ -92,6 +96,12 @@ num_cur_smartphones = (SELECT COUNT(*) FROM smartphones);]]></db:parameterized-q
     <flow name="file_add_smartphone">
         <file:inbound-endpoint path="smartphones" connector-ref="File"   responseTimeout="10000" doc:name="File is added to Directory"/>
         <flow-ref name="add_smartphone_and_send_tweet_subflow" doc:name="Add Smartphone and Send Tweet Subflow"/>
+        <exception-strategy ref="Global_Catch_Exception_Strategy" doc:name="Reference Exception Strategy"/>
+    </flow>
+    <flow name="soap_add_smartphone">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/soap_add_smartphone" allowedMethods="GET,POST" doc:name="HTTP"/>
+        <cxf:jaxws-service serviceClass="soap.Smartphone" doc:name="CXF"/>
+        <flow-ref name="add_smartphone_and_send_tweet_subflow" doc:name="add_smartphone_and_send_tweet_subflow"/>
         <exception-strategy ref="Global_Catch_Exception_Strategy" doc:name="Reference Exception Strategy"/>
     </flow>
 
