@@ -13,3 +13,6 @@ http://localhost:8081/smartphones_mailinglist/unsubscribe/?email=aclspam%40hotma
 
 # cron for every day at midnight
 0 0 0 1/1 * ? *
+
+# where the server log is stored
+/Assignment3/.mule/logs/assignment3.log
