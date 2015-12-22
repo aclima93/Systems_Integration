@@ -70,40 +70,47 @@ public class SOAP_Client {
 
 	}
 
-	public static String subscribe(String email, String name, String brand, String min_price, String max_price) {
-		SubscriptionService as = new SubscriptionService();
-		Subscription asp = as.getSubscriptionPort();
-		
-		String result = asp.setParams(email, name, brand, min_price, max_price);
+	public static void subscribe(String email, String name, String brand, String min_price, String max_price) {
+		try {
+			SubscriptionService as = new SubscriptionService();
+			Subscription asp = as.getSubscriptionPort();
+			
+			String result = asp.setParams(email, name, brand, min_price, max_price);
 
-		System.out.println(result);
-
-		return result;
-	}
-
-	public static String unsubscribe(String email) {
-		UnsubscriptionService as = new UnsubscriptionService();
-		Unsubscription asp = as.getUnsubscriptionPort();
-		
-		String result = asp.setParams(email);
-
-		if(result.compareTo("'1'") == 0) {
-			System.out.println("Successfully deleted subscription");
-		} else {
-			System.out.println("Error removing subscription");
+			System.out.println(result);
+		} catch(Exception e) {
+			System.out.println("Oops, something went wrong!");
 		}
-
-		return result;
 	}
 
-	public static String addSmartphone(String xml) {
-		SmartphoneService as = new SmartphoneService();
-		Smartphone asp = as.getSmartphonePort();
-		
-		String result = asp.setXML(xml);
+	public static void unsubscribe(String email) {
+		try {
+			UnsubscriptionService as = new UnsubscriptionService();
+			Unsubscription asp = as.getUnsubscriptionPort();
+			
+			String result = asp.setParams(email);
 
-		System.out.println(result);
+			if(result.compareTo("'1'") == 0) {
+				System.out.println("Successfully deleted subscription");
+			} else {
+				System.out.println("Error removing subscription");
+			}
+		} catch(Exception e) {
+			System.out.println("Oops, something went wrong!");
+		}
+	}
 
-		return result;
+	public static void addSmartphone(String xml) {
+		try {
+			SmartphoneService as = new SmartphoneService();
+			Smartphone asp = as.getSmartphonePort();
+			
+			String result = asp.setXML(xml);
+
+			System.out.println(result);
+
+		} catch(Exception e) {
+			System.out.println("Oops, something went wrong!");
+		}
 	}
 }
