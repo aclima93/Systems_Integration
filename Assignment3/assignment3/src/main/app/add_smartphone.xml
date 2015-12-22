@@ -40,16 +40,23 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
         <logger message="isRelevant: #[message.payload]" level="INFO" doc:name="Logger"/>
         <choice doc:name="Should insert smartphone into Database">
             <when expression="payload.equals(true)">
-                <logger message="smartphone input: #[message.payload]" level="INFO" doc:name="Logger"/>
-                <db:update config-ref="MySQL_Configuration" doc:name="Update number of updates to smartphones Database">
-                    <db:parameterized-query><![CDATA[UPDATE statistics SET 
-num_updates_to_smartphones = num_updates_to_smartphones + 1, 
-num_cur_smartphones = (SELECT COUNT(*) FROM smartphones);]]></db:parameterized-query>
-                </db:update>
+                <logger message="smartphone input: #[flowVars.smartphone]" level="INFO" doc:name="Logger"/>
                 <db:insert config-ref="MySQL_Configuration" doc:name="Insert Smartphone into Database">
                     <db:parameterized-query><![CDATA[INSERT INTO smartphones (technical_data, url, name, brand, currency, summary_data, price) VALUES (#[flowVars.smartphone.getTechnicalData().toString()], #[flowVars.smartphone.getUrl()], #[flowVars.smartphone.getName()], #[flowVars.smartphone.getBrand()], #[flowVars.smartphone.getCurrency()], #[flowVars.smartphone.getSummaryData()], #[flowVars.smartphone.getPrice()]);]]></db:parameterized-query>
                 </db:insert>
                 <logger message="smartphone output: #[message.payload]" level="INFO" doc:name="Logger"/>
+                <choice doc:name="Should update number of updates to smartphones">
+                    <when expression="payload.equals(1)">
+                        <db:update config-ref="MySQL_Configuration" doc:name="Update number of updates to smartphones Database">
+                            <db:parameterized-query><![CDATA[UPDATE statistics SET 
+num_updates_to_smartphones = num_updates_to_smartphones + 1, 
+num_cur_smartphones = (SELECT COUNT(*) FROM smartphones);]]></db:parameterized-query>
+                        </db:update>
+                    </when>
+                    <otherwise>
+                        <logger message="Failed to insert smartphone into database" level="WARN" doc:name="Logger"/>
+                    </otherwise>
+                </choice>
             </when>
             <otherwise>
                 <logger message="Smartphone did not meet the requierments" level="INFO" doc:name="Logger"/>
@@ -64,7 +71,7 @@ num_cur_smartphones = (SELECT COUNT(*) FROM smartphones);]]></db:parameterized-q
                 <flow-ref name="tweet_statistics_subflow" doc:name="Tweet Statistics Subflow"/>
             </when>
             <otherwise>
-                <logger message="add smartphones fail" level="ERROR" doc:name="Logger"/>
+                <logger message="add smartphones fail" level="WARN" doc:name="Logger"/>
             </otherwise>
         </choice>
         <set-payload value="'#[message.payload]'" doc:name="Set Payload"/>
