@@ -24,8 +24,8 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
             <set-variable variableName="email" value="#[message.payload.'email']" doc:name="Set Email Variable"/>
             <db:select config-ref="MySQL_Configuration" doc:name="Select relevant smartphones from Database">
                 <db:parameterized-query><![CDATA[SELECT * FROM smartphones WHERE 
-(name LIKE #['%' + message.payload.'name' + '%' ]) AND 
-(brand LIKE #['%' + message.payload.'brand' + '%']) AND 
+(name COLLATE UTF8_GENERAL_CI LIKE #['%' + message.payload.'name' + '%' ]) AND 
+(brand COLLATE UTF8_GENERAL_CI LIKE #['%' + message.payload.'brand' + '%']) AND 
 (price BETWEEN #[message.payload.'min_price'] AND #[message.payload.'max_price']);]]></db:parameterized-query>
             </db:select>
             <set-payload value="Here is your list of smartphones: #[message.payload]" doc:name="Set smartphone list content Payload"/>
