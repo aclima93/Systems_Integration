@@ -14,47 +14,58 @@ public class SOAP_Client {
 	public static void main(String[] args) {
 		int option = 0;
 		Scanner sc = new Scanner(System.in);
-		do {
-			try {
-				System.out.println("Insert wanted option: ");
-				System.out.println("1 - Add subscription");
-				System.out.println("2 - Delete subscription");
-				System.out.println("3 - Add smartphone");
-				option = Integer.parseInt(sc.nextLine());
-			} catch(NumberFormatException e) {}
-			
-		} while(option < 1 || option > 3);
+		while(true) {
+			do {
+				try {
+					System.out.println("Insert wanted option: ");
+					System.out.println("1 - Add subscription");
+					System.out.println("2 - Delete subscription");
+					System.out.println("3 - Add smartphone");
+					System.out.println("4 - Exit");
+					option = Integer.parseInt(sc.nextLine());
+				} catch(NumberFormatException e) {}
+				
+			} while(option < 1 || option > 4);
 
-		switch(option) {
-			case 1: {
-				String email, name, brand, min_price, max_price;
-				System.out.println("Insert your e-mail: ");
-				email = sc.nextLine();
-				System.out.println("Insert smartphone name: ");
-				name = sc.nextLine();
-				System.out.println("Insert smartphone brand: ");
-				brand = sc.nextLine();
-				System.out.println("Insert minimum price: ");
-				min_price = sc.nextLine();
-				System.out.println("Insert maximum price: ");
-				max_price = sc.nextLine();
-				subscribe(email, name, brand, min_price, max_price);
-				break;
-			} case 2: {
-				String email;
-				System.out.println("Insert your e-mail: ");
-				email = sc.nextLine();
-				unsubscribe(email);
-				break;
-			} case 3: {
-				String xml;
-				System.out.println("Insert smartphone xml as a single line string: ");
-				xml = sc.nextLine();
-				addSmartphone(xml);
-				break;
-			} default: {
-				System.out.println("Oops, something went wrong!");
+			switch(option) {
+				case 1: {
+					String email, name, brand, min_price, max_price;
+					System.out.println("Insert your e-mail: ");
+					email = sc.nextLine();
+					System.out.println("Insert smartphone name: ");
+					name = sc.nextLine();
+					System.out.println("Insert smartphone brand: ");
+					brand = sc.nextLine();
+					System.out.println("Insert minimum price: ");
+					min_price = sc.nextLine();
+					System.out.println("Insert maximum price: ");
+					max_price = sc.nextLine();
+					subscribe(email, name, brand, min_price, max_price);
+					break;
+				} case 2: {
+					String email;
+					System.out.println("Insert your e-mail: ");
+					email = sc.nextLine();
+					unsubscribe(email);
+					break;
+				} case 3: {
+					String xml;
+					System.out.println("Insert smartphone xml as a single line string: ");
+					xml = sc.nextLine();
+					addSmartphone(xml);
+					break;
+				}case 4: {
+					System.out.println("Bye bye, now!");
+					System.exit(0);
+					break;
+				} default: {
+					System.out.println("Oops, something went wrong!");
+					break;
+				}
 			}
+			System.out.println();
+			System.out.println();
+			option = 0;
 		}
 
 	}
@@ -65,6 +76,8 @@ public class SOAP_Client {
 		
 		String result = asp.setParams(email, name, brand, min_price, max_price);
 
+		System.out.println(result);
+
 		return result;
 	}
 
@@ -74,6 +87,12 @@ public class SOAP_Client {
 		
 		String result = asp.setParams(email);
 
+		if(result.compareTo("'1'") == 0) {
+			System.out.println("Successfully deleted subscription");
+		} else {
+			System.out.println("Error removing subscription");
+		}
+
 		return result;
 	}
 
@@ -82,6 +101,8 @@ public class SOAP_Client {
 		Smartphone asp = as.getSmartphonePort();
 		
 		String result = asp.setXML(xml);
+
+		System.out.println(result);
 
 		return result;
 	}
