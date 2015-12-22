@@ -16,6 +16,7 @@ USE mailinglist;
 CREATE TABLE subscriptions (
 	id mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
 
+	channel VARCHAR(254) NOT NULL,
 	email VARCHAR(254) NOT NULL UNIQUE, /* as per RFC 5321 */
 	name VARCHAR(50) NOT NULL,
 	brand VARCHAR(50) NOT NULL,

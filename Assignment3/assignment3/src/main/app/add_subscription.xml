@@ -4,12 +4,12 @@
 	xmlns:http="http://www.mulesoft.org/schema/mule/http"
 	xmlns:smtp="http://www.mulesoft.org/schema/mule/smtp"
 	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
-	xmlns:spring="http://www.springframework.org/schema/beans" version="EE-3.7.2"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="
-http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd 
-http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd 
-http://www.mulesoft.org/schema/mule/smtp http://www.mulesoft.org/schema/mule/smtp/current/mule-smtp.xsd http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/smtp http://www.mulesoft.org/schema/mule/smtp/current/mule-smtp.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
 http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
 
     <sub-flow name="send_validation_email_subflow">
@@ -24,7 +24,7 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
     <sub-flow name="add_subscription_subflow">
         <logger message="subscription input: #[message.payload]" level="INFO" doc:name="Logger"/>
         <db:insert config-ref="MySQL_Configuration" doc:name="Insert Subscription into Database">
-            <db:parameterized-query><![CDATA[INSERT INTO subscriptions (email, name, brand, min_price, max_price) VALUES (#[message.payload.email], #[message.payload.name], #[message.payload.brand], #[message.payload.min_price], #[message.payload.max_price]);]]></db:parameterized-query>
+            <db:parameterized-query><![CDATA[INSERT INTO subscriptions (channel, email, name, brand, min_price, max_price) VALUES (#[flowVars.channel], #[message.payload.email], #[message.payload.name], #[message.payload.brand], #[message.payload.min_price], #[message.payload.max_price]);]]></db:parameterized-query>
         </db:insert>
         <logger message="subscription output: #[message.payload]" level="INFO" doc:name="Logger"/>
     </sub-flow>
@@ -33,6 +33,7 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
         <http:listener config-ref="HTTP_Listener_Configuration" path="/smartphones_mailinglist/add_subscription/" doc:name="HTTP"/>
         <set-payload value="#[message.inboundProperties.'http.query.params']" doc:name="Set HTTP Query Params Payload"/>
         <set-variable variableName="validation_email" value="#[message.payload.email]" doc:name="Set Validation Email Variable"/>
+        <set-variable variableName="channel" value="'web'" doc:name="Set Channel Variable"/>
         <flow-ref name="add_subscription_subflow" doc:name="Add Subscription Subflow"/>
         <flow-ref name="send_validation_email_subflow" doc:name="Send Validation Email Subflow"/>
         <set-payload value="'#[message.payload]'" doc:name="Set Payload"/>
