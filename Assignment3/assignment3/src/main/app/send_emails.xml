@@ -4,17 +4,17 @@
 	xmlns:schedulers="http://www.mulesoft.org/schema/mule/schedulers"
 	xmlns:smtp="http://www.mulesoft.org/schema/mule/smtp"
 	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
-	xmlns:spring="http://www.springframework.org/schema/beans" version="EE-3.7.2"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="
-http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd 
-http://www.mulesoft.org/schema/mule/schedulers http://www.mulesoft.org/schema/mule/schedulers/current/mule-schedulers.xsd 
-http://www.mulesoft.org/schema/mule/smtp http://www.mulesoft.org/schema/mule/smtp/current/mule-smtp.xsd http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/schedulers http://www.mulesoft.org/schema/mule/schedulers/current/mule-schedulers.xsd
+http://www.mulesoft.org/schema/mule/smtp http://www.mulesoft.org/schema/mule/smtp/current/mule-smtp.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
 http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
 
     <flow name="send_schedulled_emails_flow">
 	    <poll frequency="1000" doc:name="Poll">
-	        <schedulers:cron-scheduler expression="0 0 0 1/1 * ? *"/>
+	        <schedulers:cron-scheduler expression="0 0/1 * 1/1 * ? *"/>
             <db:select config-ref="MySQL_Configuration" doc:name="Select validated emails from Database">
                 <db:parameterized-query><![CDATA[SELECT * FROM subscriptions WHERE is_validated = 1;]]></db:parameterized-query>
             </db:select>
@@ -28,6 +28,9 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
             <set-payload value="Here is your list of smartphones: #[message.payload]" doc:name="Set smartphone list content Payload"/>
             <smtp:outbound-endpoint host="smtp.gmail.com" port="587" user="is.spammer.2015%40gmail.com" password="vamoster20" connector-ref="Gmail" to="#[flowVars.email]" from="is.spammer" subject="Testing mule email" responseTimeout="10000" doc:name="Send smartphone list email"/>
             <logger message="'#[message.payload]'" level="INFO" doc:name="Logger"/>
+            <db:update config-ref="MySQL_Configuration" doc:name="Update number of emails sent in Database">
+                <db:parameterized-query><![CDATA[UPDATE statistics SET num_sent_emails = num_sent_emails + 1;]]></db:parameterized-query>
+            </db:update>
         </foreach>
         <exception-strategy ref="Global_Catch_Exception_Strategy" doc:name="Reference Exception Strategy"/>
     </flow>
