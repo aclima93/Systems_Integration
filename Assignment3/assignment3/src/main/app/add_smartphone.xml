@@ -28,7 +28,7 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
         </db:select>
         <set-payload value="#[message.payload[0]]" doc:name="Set Statistics Payload"/>
         <logger message="statistics output: #[message.payload]" level="INFO" doc:name="Logger"/>
-        <set-payload value="#[new org.mule.el.datetime.DateTime().toString();] Statistics: #[message.payload.'num_updates_to_smartphones'] updates, #[message.payload.'num_cur_smartphones'] smartphones, #[message.payload.'num_sent_emails'] emails, #[message.payload.'num_sent_tweets'] tweets" doc:name="Set Tweet Payload"/>
+        <set-payload value="#[new org.mule.el.datetime.DateTime().toString();] Statistics: #[message.payload.'num_updates_to_smartphones'] update(s), #[message.payload.'num_cur_smartphones'] smartphone(s), #[message.payload.'num_sent_emails'] email(s), #[message.payload.'num_sent_tweets'] tweet(s)" doc:name="Set Tweet Message Payload"/>
         <logger message="twitter input: #[message.payload]" level="INFO" doc:name="Logger"/>
         <twitter:update-status config-ref="Twitter" status="#[message.payload]" doc:name="Tweet Statistics"/>
         <logger message="twitter output: #[message.payload]" level="INFO" doc:name="Logger"/>
