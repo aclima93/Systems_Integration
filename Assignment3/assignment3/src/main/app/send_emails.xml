@@ -11,6 +11,20 @@ http://www.mulesoft.org/schema/mule/schedulers http://www.mulesoft.org/schema/mu
 http://www.mulesoft.org/schema/mule/smtp http://www.mulesoft.org/schema/mule/smtp/current/mule-smtp.xsd
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
 http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+    <sub-flow name="send_email_subflow">
+        <set-variable variableName="email" value="#[message.payload.'email']" doc:name="Set Email Variable"/>
+        <db:select config-ref="MySQL_Configuration" doc:name="Select relevant smartphones from Database">
+            <db:parameterized-query><![CDATA[SELECT * FROM smartphones WHERE 
+(name COLLATE UTF8_GENERAL_CI LIKE #['%' + message.payload.'name' + '%' ]) AND 
+(brand COLLATE UTF8_GENERAL_CI LIKE #['%' + message.payload.'brand' + '%']) AND 
+(price BETWEEN #[message.payload.'min_price'] AND #[message.payload.'max_price']);]]></db:parameterized-query>
+        </db:select>
+        <set-payload value="Here is your list of smartphones: #[message.payload]" doc:name="Set smartphone list content Payload"/>
+        <smtp:outbound-endpoint host="smtp.gmail.com" port="587" user="is.spammer.2015%40gmail.com" password="vamoster20" connector-ref="Gmail" to="#[flowVars.email]" from="is.spammer" subject="Testing mule email" responseTimeout="10000" doc:name="Send smartphone list email"/>
+        <db:update config-ref="MySQL_Configuration" doc:name="Update number of emails sent in Database">
+            <db:parameterized-query><![CDATA[UPDATE statistics SET num_sent_emails = num_sent_emails + 1;]]></db:parameterized-query>
+        </db:update>
+    </sub-flow>
 
     <flow name="send_schedulled_emails_flow">
 	    <poll frequency="1000" doc:name="Poll">
@@ -21,18 +35,7 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
 	    </poll>
         <logger message="Sending poll emails to validated emails: #[message.payload]" level="INFO" doc:name="Logger"/>
         <foreach doc:name="For Each">
-            <set-variable variableName="email" value="#[message.payload.'email']" doc:name="Set Email Variable"/>
-            <db:select config-ref="MySQL_Configuration" doc:name="Select relevant smartphones from Database">
-                <db:parameterized-query><![CDATA[SELECT * FROM smartphones WHERE 
-(name COLLATE UTF8_GENERAL_CI LIKE #['%' + message.payload.'name' + '%' ]) AND 
-(brand COLLATE UTF8_GENERAL_CI LIKE #['%' + message.payload.'brand' + '%']) AND 
-(price BETWEEN #[message.payload.'min_price'] AND #[message.payload.'max_price']);]]></db:parameterized-query>
-            </db:select>
-            <set-payload value="Here is your list of smartphones: #[message.payload]" doc:name="Set smartphone list content Payload"/>
-            <smtp:outbound-endpoint host="smtp.gmail.com" port="587" user="is.spammer.2015%40gmail.com" password="vamoster20" connector-ref="Gmail" to="#[flowVars.email]" from="is.spammer" subject="Testing mule email" responseTimeout="10000" doc:name="Send smartphone list email"/>
-            <db:update config-ref="MySQL_Configuration" doc:name="Update number of emails sent in Database">
-                <db:parameterized-query><![CDATA[UPDATE statistics SET num_sent_emails = num_sent_emails + 1;]]></db:parameterized-query>
-            </db:update>
+            <flow-ref name="send_email_subflow" doc:name="Send Email with Relevant Smartphones"/>
         </foreach>
         <logger message="Sent emails with smartphones to subscribers" level="INFO" doc:name="Logger"/>
         <exception-strategy ref="Global_Catch_Exception_Strategy" doc:name="Reference Exception Strategy"/>

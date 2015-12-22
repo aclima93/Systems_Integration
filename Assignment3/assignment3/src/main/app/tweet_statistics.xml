@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:json="http://www.mulesoft.org/schema/mule/json"
+	xmlns:twitter="http://www.mulesoft.org/schema/mule/twitter"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
+http://www.mulesoft.org/schema/mule/twitter http://www.mulesoft.org/schema/mule/twitter/current/mule-twitter.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+    <sub-flow name="tweet_subflow">
+        <set-payload value="#[message.payload[0]]" doc:name="Set Statistics Payload"/>
+        <logger message="statistics output: #[message.payload]" level="DEBUG" doc:name="Logger"/>
+        <set-payload value="#[new org.mule.el.datetime.DateTime().toString();] Statistics: #[message.payload.'num_updates_to_smartphones'] update(s), #[message.payload.'num_cur_smartphones'] smartphone(s), #[message.payload.'num_sent_emails'] email(s), #[message.payload.'num_sent_tweets'] tweet(s)" doc:name="Set Tweet Message Payload"/>
+        <logger message="twitter input: #[message.payload]" level="DEBUG" doc:name="Logger"/>
+        <twitter:update-status config-ref="Twitter" status="#[message.payload]" doc:name="Tweet Statistics"/>
+        <logger message="twitter output: #[message.payload]" level="DEBUG" doc:name="Logger"/>
+        <json:object-to-json-transformer doc:name="Object to JSON"/>
+        <json:json-to-object-transformer returnClass="java.util.HashMap" doc:name="JSON to HashMap"/>
+    </sub-flow>
+
+<sub-flow name="tweet_statistics_subflow">
+        <logger message="Tweeting statistics" level="INFO" doc:name="Logger"/>
+        <db:select config-ref="MySQL_Configuration" doc:name="Select Statistics from Database">
+            <db:parameterized-query><![CDATA[SELECT * FROM statistics limit 1;]]></db:parameterized-query>
+        </db:select>
+        <logger message="#[message.payload]" level="INFO" doc:name="Logger"/>
+        <flow-ref name="tweet_subflow" doc:name="Tweet about it"/>
+        <choice doc:name="Should update number of tweets in database">
+            <when expression="#[payload.id != -1]">
+				<db:update config-ref="MySQL_Configuration" doc:name="Update number of sent tweets in Database">
+                    <db:parameterized-query><![CDATA[UPDATE statistics SET num_sent_tweets = num_sent_tweets + 1;]]></db:parameterized-query>
+                </db:update>
+                <logger message="Updated number of tweets in database" level="INFO" doc:name="Logger"/>
+            </when>
+            <otherwise>
+                <logger message="Failed to post to twitter" level="WARN" doc:name="Logger"/>
+            </otherwise>
+        </choice>
+        <logger message="Finished tweeting statistics" level="INFO" doc:name="Logger"/>
+    </sub-flow>
+
+</mule>

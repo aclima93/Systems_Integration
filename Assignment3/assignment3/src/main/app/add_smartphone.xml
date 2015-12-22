@@ -22,33 +22,6 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
 http://www.mulesoft.org/schema/mule/cxf http://www.mulesoft.org/schema/mule/cxf/current/mule-cxf.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
 
-    <sub-flow name="tweet_statistics_subflow">
-        <logger message="Tweeting statistics" level="INFO" doc:name="Logger"/>
-        <db:select config-ref="MySQL_Configuration" doc:name="Select Statistics from Database">
-            <db:parameterized-query><![CDATA[SELECT * FROM statistics limit 1;]]></db:parameterized-query>
-        </db:select>
-        <logger message="#[message.payload]" level="INFO" doc:name="Logger"/>
-        <set-payload value="#[message.payload[0]]" doc:name="Set Statistics Payload"/>
-        <logger message="statistics output: #[message.payload]" level="DEBUG" doc:name="Logger"/>
-        <set-payload value="#[new org.mule.el.datetime.DateTime().toString();] Statistics: #[message.payload.'num_updates_to_smartphones'] update(s), #[message.payload.'num_cur_smartphones'] smartphone(s), #[message.payload.'num_sent_emails'] email(s), #[message.payload.'num_sent_tweets'] tweet(s)" doc:name="Set Tweet Message Payload"/>
-        <logger message="twitter input: #[message.payload]" level="DEBUG" doc:name="Logger"/>
-        <twitter:update-status config-ref="Twitter" status="#[message.payload]" doc:name="Tweet Statistics"/>
-        <logger message="twitter output: #[message.payload]" level="DEBUG" doc:name="Logger"/>
-        <json:object-to-json-transformer doc:name="Object to JSON"/>
-        <json:json-to-object-transformer returnClass="java.util.HashMap" doc:name="JSON to HashMap" />
-        <choice doc:name="Should update number of tweets in database">
-            <when expression="#[payload.id != -1]">
-				<db:update config-ref="MySQL_Configuration" doc:name="Update number of sent tweets in Database">
-                    <db:parameterized-query><![CDATA[UPDATE statistics SET num_sent_tweets = num_sent_tweets + 1;]]></db:parameterized-query>
-                </db:update>
-                <logger message="Updated number of tweets in database" level="INFO" doc:name="Logger"/>
-            </when>
-            <otherwise>
-                <logger message="Failed to post to twitter" level="WARN" doc:name="Logger"/>
-            </otherwise>
-        </choice>
-        <logger message="Finished tweeting statistics" level="INFO" doc:name="Logger"/>
-    </sub-flow>
     <sub-flow name="insert_smartphone_subflow">
         <logger message="smartphone input: #[flowVars.smartphone]" level="DEBUG" doc:name="Logger"/>
         <db:insert config-ref="MySQL_Configuration" doc:name="Insert Smartphone into Database">
@@ -69,7 +42,7 @@ num_cur_smartphones = (SELECT COUNT(*) FROM smartphones);]]></db:parameterized-q
             </otherwise>
         </choice>
     </sub-flow>
-    <sub-flow name="unmarshall_subflow">
+    <sub-flow name="unmarshall_smartphone_subflow">
         <logger message="smartphones input: #[message.payload]" level="DEBUG" doc:name="Logger"/>
         <mulexml:schema-validation-filter schemaLocations="smartphone_schema/smartphone.xsd" returnResult="false" doc:name="Schema Validation for Smartphone XML"/>
         <logger message="Smartphone XML was confirmed by the schema" level="INFO" doc:name="Logger"/>
@@ -80,7 +53,7 @@ num_cur_smartphones = (SELECT COUNT(*) FROM smartphones);]]></db:parameterized-q
     </sub-flow>
     <sub-flow name="unmarshall_and_insert_smartphone_subflow">
         <logger message="Unmarshalling and inserting smartphone" level="INFO" doc:name="Logger"/>
-        <flow-ref name="unmarshall_subflow" doc:name="Unmarshall Smartphone"/>
+        <flow-ref name="unmarshall_smartphone_subflow" doc:name="Unmarshall Smartphone"/>
         <choice doc:name="Should insert smartphone into Database">
             <when expression="payload.equals(true)">
                 <flow-ref name="insert_smartphone_subflow" doc:name="Insert Smartphone"/>
