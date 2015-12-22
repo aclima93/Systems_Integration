@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+<mule xmlns:json="http://www.mulesoft.org/schema/mule/json"
+	xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:db="http://www.mulesoft.org/schema/mule/db"
 	xmlns:mulexml="http://www.mulesoft.org/schema/mule/xml"
 	xmlns:file="http://www.mulesoft.org/schema/mule/file"
 	xmlns:twitter="http://www.mulesoft.org/schema/mule/twitter"
 	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
 	xmlns:spring="http://www.springframework.org/schema/beans" 
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
 http://www.mulesoft.org/schema/mule/xml http://www.mulesoft.org/schema/mule/xml/current/mule-xml.xsd
 http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
 http://www.mulesoft.org/schema/mule/twitter http://www.mulesoft.org/schema/mule/twitter/current/mule-twitter.xsd
@@ -17,9 +19,6 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
 
     <sub-flow name="tweet_statistics_subflow">
         <logger message="Starting subflow for tweeting statistics" level="INFO" doc:name="Logger"/>
-        <db:update config-ref="MySQL_Configuration" doc:name="Update number of sent tweets in Database">
-            <db:parameterized-query><![CDATA[UPDATE statistics SET num_sent_tweets = num_sent_tweets + 1;]]></db:parameterized-query>
-        </db:update>
         <db:select config-ref="MySQL_Configuration" doc:name="Select Statistics from Database">
             <db:parameterized-query><![CDATA[SELECT * FROM statistics;]]></db:parameterized-query>
         </db:select>
@@ -29,6 +28,19 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
         <logger message="twitter input: #[message.payload]" level="INFO" doc:name="Logger"/>
         <twitter:update-status config-ref="Twitter" status="#[message.payload]" doc:name="Tweet Statistics"/>
         <logger message="twitter output: #[message.payload]" level="INFO" doc:name="Logger"/>
+        <json:object-to-json-transformer doc:name="Object to JSON"/>
+        <json:json-to-object-transformer returnClass="java.util.HashMap" doc:name="JSON to HashMap" />
+        <choice doc:name="Should update number of tweets in database">
+            <when expression="#[payload.id != -1]">
+				<db:update config-ref="MySQL_Configuration" doc:name="Update number of sent tweets in Database">
+                    <db:parameterized-query><![CDATA[UPDATE statistics SET num_sent_tweets = num_sent_tweets + 1;]]></db:parameterized-query>
+                </db:update>
+                <logger message="Updated number of tweets in database" level="INFO" doc:name="Logger"/>
+            </when>
+            <otherwise>
+                <logger message="Failed to post to twitter" level="INFO" doc:name="Logger"/>
+            </otherwise>
+        </choice>
     </sub-flow>
     <sub-flow name="unmarshall_and_insert_smartphone_subflow">
         <logger message="smartphones input: #[message.payload]" level="INFO" doc:name="Logger"/>
