@@ -18,6 +18,9 @@ public class FilterSmartphone extends AbstractTransformer{
     		for( Smartphone.TechnicalData.Table.TableData tableData : table.getTableData() ){
     			
     			if(tableData.getDataName().equals("Tamanho do ecrã")){
+    				
+    				System.out.println("Data Value: " + tableData.getDataValue());
+    				
     				//TODO:
     				//if( Integer.getInteger(tableData.getDataValue()) >= 10 ){
     					return true;
