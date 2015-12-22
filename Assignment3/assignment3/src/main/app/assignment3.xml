@@ -39,8 +39,9 @@ http://www.mulesoft.org/schema/mule/ws http://www.mulesoft.org/schema/mule/ws/cu
 	
     <twitter:config name="Twitter" accessKey="4517518408-3y5AGk1NNzgkDK50m4BunRZYp5PcSXUEwBpp1Gb" accessSecret="6i3h29N3MYYFB3OyPSbqZ5ZBpgafosRvlrWqJGwYczTHk" consumerKey="8zjMgss0csnIDq3TFSqmb91Qv" consumerSecret="DNEsnrLJtlBJDhe1BkrqADSYqvQ8FqwjLWVtgG9Eh4WqIfbZAZ" doc:name="Twitter"/>
     <mulexml:jaxb-context name="JAXB_Context" packageNames="generated" doc:name="JAXB Context"/>
-    <file:connector name="File" readFromDirectory="/Users/aclima/Documents/Repositories/Systems_Integration/Assignment3/assignment3/smartphones" autoDelete="false" streaming="true" validateConnections="true" doc:name="File"/>
+    <file:connector name="File" readFromDirectory="/home/pedro/Documents/Programming/IS/Assignment3/assignment3/smartphones" autoDelete="false" streaming="true" validateConnections="true" doc:name="File"/>
     <ws:consumer-config name="Web_Service_Consumer" wsdlLocation="src/main/soap/smartphone.wsdl" service="AddSmartphoneService" port="AddSmartphonePort" serviceAddress="http://localhost:8081/addsmartphonesoap" doc:name="Web Service Consumer"/>
+    <cxf:configuration name="AddSmartphoneSOAP" enableMuleSoapHeaders="true" initializeStaticBusInstance="true" doc:name="CXF Configuration"/>
 
     <catch-exception-strategy name="Global_Catch_Exception_Strategy">
         <logger message="Oops, something went wrong... #[exception]" level="INFO" doc:name="Logger"/>
@@ -120,7 +121,7 @@ num_cur_smartphones = (SELECT COUNT(*) FROM smartphones);]]></db:parameterized-q
     </sub-flow>
 
     <flow name="add_smartphones_from_directory">
-        <file:inbound-endpoint path="/Users/aclima/Documents/Repositories/Systems_Integration/Assignment3/assignment3/smartphones" connector-ref="File" pollingFrequency="10000" fileAge="5000" responseTimeout="10000" doc:name="File"/>
+        <file:inbound-endpoint path="/home/pedro/Documents/Programming/IS/Assignment3/assignment3/smartphones" connector-ref="File" pollingFrequency="10000" fileAge="5000" responseTimeout="10000" doc:name="File"/>
         <flow-ref name="add_smartphones_and_send_tweet_subflow" doc:name="add_smartphones_and_send_tweet_subflow"/>
         <exception-strategy ref="Global_Catch_Exception_Strategy" doc:name="Reference Exception Strategy"/>
     </flow>
@@ -163,8 +164,9 @@ num_cur_smartphones = (SELECT COUNT(*) FROM smartphones);]]></db:parameterized-q
         <exception-strategy ref="Global_Catch_Exception_Strategy" doc:name="Reference Exception Strategy"/>
     </flow>
     <flow name="add_smartphone_soap">
-        <http:listener config-ref="HTTP_Listener_Configuration" path="/addsmartphonesoap" doc:name="HTTP"/>
-        <ws:consumer config-ref="Web_Service_Consumer" operation="AddSmartphone" doc:name="Web Service Consumer"/>
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/addsmartphonesoap" doc:name="HTTP" allowedMethods="GET,POST"/>
+        <cxf:jaxws-service configuration-ref="AddSmartphoneSOAP" serviceClass="generated.SmartphoneXML" doc:name="CXF"/>
+        <set-variable variableName="Doc" value="#[payload]" doc:name="Variable"/>
         <flow-ref name="unmarshall_and_store_smartphones_subflow" doc:name="unmarshall_and_store_smartphones_subflow"/>
         <exception-strategy ref="Global_Catch_Exception_Strategy" doc:name="Reference Exception Strategy"/>
     </flow>

@@ -1,0 +1,632 @@
+<metadata__catalog__entry>
+  <version>5.2.0.0</version>
+  <types class="tree-map">
+    <entry>
+      <org.mule.common.metadata.DefaultMetaDataKey>
+        <id>response</id>
+        <displayName>response</displayName>
+        <category>DEFAULT</category>
+        <metaDataKeyPropertiesManager>
+          <properties>
+            <org.mule.common.metadata.key.property.dsql.DsqlFromMetaDataKeyProperty/>
+          </properties>
+        </metaDataKeyPropertiesManager>
+      </org.mule.common.metadata.DefaultMetaDataKey>
+      <org.mule.common.metadata.DefaultXmlMetaDataModel>
+        <dataType>XML</dataType>
+        <metaDataModelPropertiesManager>
+          <properties>
+            <org.mule.common.metadata.property.TextBasedExampleMetaDataModelProperty/>
+            <org.mule.common.metadata.property.xml.SchemaTypeMetaDataProperty>
+              <typeQName>
+                <namespaceURI>http://www.w3.org/2001/XMLSchema</namespaceURI>
+                <localPart>anyType</localPart>
+                <prefix></prefix>
+              </typeQName>
+            </org.mule.common.metadata.property.xml.SchemaTypeMetaDataProperty>
+            <org.mule.common.metadata.property.StructureIdentifierMetaDataModelProperty>
+              <metaDataKey class="org.mule.common.metadata.DefaultMetaDataKey" reference="../../../../../org.mule.common.metadata.DefaultMetaDataKey"/>
+              <derivedStructure>false</derivedStructure>
+              <generatedStructure>false</generatedStructure>
+            </org.mule.common.metadata.property.StructureIdentifierMetaDataModelProperty>
+          </properties>
+        </metaDataModelPropertiesManager>
+        <fields>
+          <org.mule.common.metadata.DefaultMetaDataField>
+            <name>text()</name>
+            <model class="org.mule.common.metadata.DefaultSimpleMetaDataModel">
+              <dataType>STRING</dataType>
+              <metaDataModelPropertiesManager>
+                <properties/>
+              </metaDataModelPropertiesManager>
+            </model>
+            <accessType>READ_WRITE</accessType>
+            <metaDataFieldPropertyManager>
+              <properties>
+                <org.mule.common.metadata.property.QNameMetaDataProperty>
+                  <name>
+                    <namespaceURI></namespaceURI>
+                    <localPart>text()</localPart>
+                    <prefix></prefix>
+                  </name>
+                </org.mule.common.metadata.property.QNameMetaDataProperty>
+              </properties>
+            </metaDataFieldPropertyManager>
+          </org.mule.common.metadata.DefaultMetaDataField>
+        </fields>
+        <rootElement>
+          <namespaceURI>http://localhost:8081/smartphone.xsd</namespaceURI>
+          <localPart>response</localPart>
+          <prefix>ns0</prefix>
+        </rootElement>
+        <schemas class="org.mule.common.metadata.StringBasedSchemaProvider">
+          <schemas>
+            <string>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;xs:schema xmlns:xs=&quot;http://www.w3.org/2001/XMLSchema&quot; xmlns=&quot;http://www.w3.org/2000/10/XMLSchema&quot; xmlns:soap=&quot;http://schemas.xmlsoap.org/wsdl/soap/&quot; xmlns:tns=&quot;http://localhost:8081/smartphone.wsdl&quot; xmlns:xsd1=&quot;http://localhost:8081/smartphone.xsd&quot; targetNamespace=&quot;http://localhost:8081/smartphone.xsd&quot;&gt;
+            &lt;xs:element name=&quot;smartphone&quot;&gt;
+                &lt;xs:complexType&gt;
+                    &lt;xs:sequence&gt;
+
+                        &lt;!--
+                        NOTA:
+                        * Precisamos deste nó intermédio porque apesar de podermos NÃO ter technical data,
+                        * caso tenhamos então temos de ter pelo menos uma tabela associada.
+                        --&gt;
+
+                        &lt;!-- Ficha Técnica --&gt;
+                        &lt;xs:element maxOccurs=&quot;1&quot; minOccurs=&quot;0&quot; name=&quot;technical_data&quot;&gt;
+                            &lt;xs:complexType&gt;
+                                &lt;xs:sequence&gt;
+
+                                    &lt;!-- Tabelas --&gt;
+                                    &lt;xs:element maxOccurs=&quot;unbounded&quot; minOccurs=&quot;1&quot; name=&quot;table&quot;&gt;
+                                        &lt;xs:complexType&gt;
+                                            &lt;xs:sequence&gt;
+
+                                                &lt;!-- Título da Tabela --&gt;
+                                                &lt;xs:element name=&quot;table_title&quot; type=&quot;xs:string&quot;/&gt;
+
+                                                &lt;!-- Dados da Tabela --&gt;
+                                                &lt;xs:element maxOccurs=&quot;unbounded&quot; minOccurs=&quot;1&quot; name=&quot;table_data&quot;&gt;
+                                                    &lt;xs:complexType&gt;
+                                                        &lt;xs:sequence&gt;
+                                                            &lt;xs:element name=&quot;data_name&quot; type=&quot;xs:string&quot;/&gt;
+                                                            &lt;xs:element name=&quot;data_value&quot; type=&quot;xs:string&quot;/&gt;
+                                                        &lt;/xs:sequence&gt;
+                                                    &lt;/xs:complexType&gt;
+                                                &lt;/xs:element&gt;
+
+                                            &lt;/xs:sequence&gt;
+                                        &lt;/xs:complexType&gt;
+                                    &lt;/xs:element&gt;
+
+                                &lt;/xs:sequence&gt;
+                            &lt;/xs:complexType&gt;
+                        &lt;/xs:element&gt;
+                    &lt;/xs:sequence&gt;
+
+                    &lt;!-- Informação Principal --&gt;
+                    &lt;xs:attribute name=&quot;url&quot; type=&quot;xs:string&quot; use=&quot;required&quot;/&gt;
+                    &lt;xs:attribute name=&quot;name&quot; type=&quot;xs:string&quot; use=&quot;required&quot;/&gt;
+                    &lt;xs:attribute name=&quot;brand&quot; type=&quot;xs:string&quot; use=&quot;required&quot;/&gt;
+                    &lt;xs:attribute name=&quot;currency&quot; type=&quot;xs:string&quot; use=&quot;required&quot;/&gt;
+                    &lt;xs:attribute name=&quot;summary_data&quot; type=&quot;xs:string&quot; use=&quot;required&quot;/&gt;
+                    &lt;xs:attribute name=&quot;price&quot; use=&quot;required&quot;&gt;
+                        &lt;xs:simpleType&gt;
+                            &lt;xs:restriction base=&quot;xs:decimal&quot;&gt;
+                                &lt;xs:minInclusive value=&quot;0&quot;/&gt;
+                            &lt;/xs:restriction&gt;
+                        &lt;/xs:simpleType&gt;
+                    &lt;/xs:attribute&gt;
+
+                &lt;/xs:complexType&gt;
+            &lt;/xs:element&gt;
+            &lt;xs:element name=&quot;response&quot;&gt;
+                &lt;xs:attribute name=&quot;result&quot; type=&quot;xs:string&quot; use=&quot;required&quot;/&gt;
+            &lt;/xs:element&gt;
+        &lt;/xs:schema&gt;</string>
+          </schemas>
+          <encoding>UTF-8</encoding>
+          <baseUri>file:/home/pedro/Documents/Programming/IS/Assignment3/assignment3/src/main/soap/smartphone.wsdl</baseUri>
+        </schemas>
+        <namespaceManager>
+          <namespacePrefix>
+            <entry>
+              <string>http://localhost:8081/smartphone.xsd</string>
+              <string>ns0</string>
+            </entry>
+          </namespacePrefix>
+        </namespaceManager>
+      </org.mule.common.metadata.DefaultXmlMetaDataModel>
+    </entry>
+    <entry>
+      <org.mule.common.metadata.DefaultMetaDataKey>
+        <id>smartphone</id>
+        <displayName>smartphone</displayName>
+        <category>DEFAULT</category>
+        <metaDataKeyPropertiesManager>
+          <properties>
+            <org.mule.common.metadata.key.property.dsql.DsqlFromMetaDataKeyProperty/>
+          </properties>
+        </metaDataKeyPropertiesManager>
+      </org.mule.common.metadata.DefaultMetaDataKey>
+      <org.mule.common.metadata.DefaultXmlMetaDataModel>
+        <dataType>XML</dataType>
+        <metaDataModelPropertiesManager>
+          <properties>
+            <org.mule.common.metadata.property.TextBasedExampleMetaDataModelProperty/>
+            <org.mule.common.metadata.property.xml.SchemaTypeMetaDataProperty/>
+            <org.mule.common.metadata.property.StructureIdentifierMetaDataModelProperty>
+              <metaDataKey class="org.mule.common.metadata.DefaultMetaDataKey" reference="../../../../../org.mule.common.metadata.DefaultMetaDataKey"/>
+              <derivedStructure>false</derivedStructure>
+              <generatedStructure>false</generatedStructure>
+            </org.mule.common.metadata.property.StructureIdentifierMetaDataModelProperty>
+          </properties>
+        </metaDataModelPropertiesManager>
+        <fields>
+          <org.mule.common.metadata.DefaultMetaDataField>
+            <name>technical_data</name>
+            <model class="org.mule.common.metadata.DefaultXmlMetaDataModel">
+              <dataType>XML</dataType>
+              <metaDataModelPropertiesManager>
+                <properties/>
+              </metaDataModelPropertiesManager>
+              <fields>
+                <org.mule.common.metadata.DefaultMetaDataField>
+                  <name>table</name>
+                  <model class="org.mule.common.metadata.DefaultListMetaDataModel">
+                    <dataType>LIST</dataType>
+                    <metaDataModelPropertiesManager>
+                      <properties>
+                        <org.mule.common.metadata.property.xml.UnboundMetaDataProperty>
+                          <maxOccurs>2147483647</maxOccurs>
+                          <minOccurs>1</minOccurs>
+                        </org.mule.common.metadata.property.xml.UnboundMetaDataProperty>
+                      </properties>
+                    </metaDataModelPropertiesManager>
+                    <model class="org.mule.common.metadata.DefaultXmlMetaDataModel">
+                      <dataType>XML</dataType>
+                      <metaDataModelPropertiesManager>
+                        <properties/>
+                      </metaDataModelPropertiesManager>
+                      <fields>
+                        <org.mule.common.metadata.DefaultMetaDataField>
+                          <name>table_title</name>
+                          <model class="org.mule.common.metadata.DefaultSimpleMetaDataModel">
+                            <dataType>STRING</dataType>
+                            <metaDataModelPropertiesManager>
+                              <properties>
+                                <org.mule.common.metadata.property.xml.SchemaTypeMetaDataProperty>
+                                  <typeQName>
+                                    <namespaceURI>http://www.w3.org/2001/XMLSchema</namespaceURI>
+                                    <localPart>string</localPart>
+                                    <prefix></prefix>
+                                  </typeQName>
+                                </org.mule.common.metadata.property.xml.SchemaTypeMetaDataProperty>
+                              </properties>
+                            </metaDataModelPropertiesManager>
+                          </model>
+                          <accessType>READ_WRITE</accessType>
+                          <metaDataFieldPropertyManager>
+                            <properties>
+                              <org.mule.common.metadata.property.QNameMetaDataProperty>
+                                <name>
+                                  <namespaceURI></namespaceURI>
+                                  <localPart>table_title</localPart>
+                                  <prefix></prefix>
+                                </name>
+                              </org.mule.common.metadata.property.QNameMetaDataProperty>
+                            </properties>
+                          </metaDataFieldPropertyManager>
+                        </org.mule.common.metadata.DefaultMetaDataField>
+                        <org.mule.common.metadata.DefaultMetaDataField>
+                          <name>table_data</name>
+                          <model class="org.mule.common.metadata.DefaultListMetaDataModel">
+                            <dataType>LIST</dataType>
+                            <metaDataModelPropertiesManager>
+                              <properties>
+                                <org.mule.common.metadata.property.xml.UnboundMetaDataProperty>
+                                  <maxOccurs>2147483647</maxOccurs>
+                                  <minOccurs>1</minOccurs>
+                                </org.mule.common.metadata.property.xml.UnboundMetaDataProperty>
+                              </properties>
+                            </metaDataModelPropertiesManager>
+                            <model class="org.mule.common.metadata.DefaultXmlMetaDataModel">
+                              <dataType>XML</dataType>
+                              <metaDataModelPropertiesManager>
+                                <properties/>
+                              </metaDataModelPropertiesManager>
+                              <fields>
+                                <org.mule.common.metadata.DefaultMetaDataField>
+                                  <name>data_name</name>
+                                  <model class="org.mule.common.metadata.DefaultSimpleMetaDataModel">
+                                    <dataType>STRING</dataType>
+                                    <metaDataModelPropertiesManager>
+                                      <properties>
+                                        <org.mule.common.metadata.property.xml.SchemaTypeMetaDataProperty>
+                                          <typeQName reference="../../../../../../../../../../org.mule.common.metadata.DefaultMetaDataField/model/metaDataModelPropertiesManager/properties/org.mule.common.metadata.property.xml.SchemaTypeMetaDataProperty/typeQName"/>
+                                        </org.mule.common.metadata.property.xml.SchemaTypeMetaDataProperty>
+                                      </properties>
+                                    </metaDataModelPropertiesManager>
+                                  </model>
+                                  <accessType>READ_WRITE</accessType>
+                                  <metaDataFieldPropertyManager>
+                                    <properties>
+                                      <org.mule.common.metadata.property.QNameMetaDataProperty>
+                                        <name>
+                                          <namespaceURI></namespaceURI>
+                                          <localPart>data_name</localPart>
+                                          <prefix></prefix>
+                                        </name>
+                                      </org.mule.common.metadata.property.QNameMetaDataProperty>
+                                    </properties>
+                                  </metaDataFieldPropertyManager>
+                                </org.mule.common.metadata.DefaultMetaDataField>
+                                <org.mule.common.metadata.DefaultMetaDataField>
+                                  <name>data_value</name>
+                                  <model class="org.mule.common.metadata.DefaultSimpleMetaDataModel">
+                                    <dataType>STRING</dataType>
+                                    <metaDataModelPropertiesManager>
+                                      <properties>
+                                        <org.mule.common.metadata.property.xml.SchemaTypeMetaDataProperty>
+                                          <typeQName reference="../../../../../../../../../../org.mule.common.metadata.DefaultMetaDataField/model/metaDataModelPropertiesManager/properties/org.mule.common.metadata.property.xml.SchemaTypeMetaDataProperty/typeQName"/>
+                                        </org.mule.common.metadata.property.xml.SchemaTypeMetaDataProperty>
+                                      </properties>
+                                    </metaDataModelPropertiesManager>
+                                  </model>
+                                  <accessType>READ_WRITE</accessType>
+                                  <metaDataFieldPropertyManager>
+                                    <properties>
+                                      <org.mule.common.metadata.property.QNameMetaDataProperty>
+                                        <name>
+                                          <namespaceURI></namespaceURI>
+                                          <localPart>data_value</localPart>
+                                          <prefix></prefix>
+                                        </name>
+                                      </org.mule.common.metadata.property.QNameMetaDataProperty>
+                                    </properties>
+                                  </metaDataFieldPropertyManager>
+                                </org.mule.common.metadata.DefaultMetaDataField>
+                              </fields>
+                              <rootElement>
+                                <namespaceURI>http://localhost:8081/smartphone.xsd</namespaceURI>
+                                <localPart>smartphone</localPart>
+                                <prefix>ns0</prefix>
+                              </rootElement>
+                              <schemas class="org.mule.common.metadata.StringBasedSchemaProvider">
+                                <schemas>
+                                  <string>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;xs:schema xmlns:xs=&quot;http://www.w3.org/2001/XMLSchema&quot; xmlns=&quot;http://www.w3.org/2000/10/XMLSchema&quot; xmlns:soap=&quot;http://schemas.xmlsoap.org/wsdl/soap/&quot; xmlns:tns=&quot;http://localhost:8081/smartphone.wsdl&quot; xmlns:xsd1=&quot;http://localhost:8081/smartphone.xsd&quot; targetNamespace=&quot;http://localhost:8081/smartphone.xsd&quot;&gt;
+            &lt;xs:element name=&quot;smartphone&quot;&gt;
+                &lt;xs:complexType&gt;
+                    &lt;xs:sequence&gt;
+
+                        &lt;!--
+                        NOTA:
+                        * Precisamos deste nó intermédio porque apesar de podermos NÃO ter technical data,
+                        * caso tenhamos então temos de ter pelo menos uma tabela associada.
+                        --&gt;
+
+                        &lt;!-- Ficha Técnica --&gt;
+                        &lt;xs:element maxOccurs=&quot;1&quot; minOccurs=&quot;0&quot; name=&quot;technical_data&quot;&gt;
+                            &lt;xs:complexType&gt;
+                                &lt;xs:sequence&gt;
+
+                                    &lt;!-- Tabelas --&gt;
+                                    &lt;xs:element maxOccurs=&quot;unbounded&quot; minOccurs=&quot;1&quot; name=&quot;table&quot;&gt;
+                                        &lt;xs:complexType&gt;
+                                            &lt;xs:sequence&gt;
+
+                                                &lt;!-- Título da Tabela --&gt;
+                                                &lt;xs:element name=&quot;table_title&quot; type=&quot;xs:string&quot;/&gt;
+
+                                                &lt;!-- Dados da Tabela --&gt;
+                                                &lt;xs:element maxOccurs=&quot;unbounded&quot; minOccurs=&quot;1&quot; name=&quot;table_data&quot;&gt;
+                                                    &lt;xs:complexType&gt;
+                                                        &lt;xs:sequence&gt;
+                                                            &lt;xs:element name=&quot;data_name&quot; type=&quot;xs:string&quot;/&gt;
+                                                            &lt;xs:element name=&quot;data_value&quot; type=&quot;xs:string&quot;/&gt;
+                                                        &lt;/xs:sequence&gt;
+                                                    &lt;/xs:complexType&gt;
+                                                &lt;/xs:element&gt;
+
+                                            &lt;/xs:sequence&gt;
+                                        &lt;/xs:complexType&gt;
+                                    &lt;/xs:element&gt;
+
+                                &lt;/xs:sequence&gt;
+                            &lt;/xs:complexType&gt;
+                        &lt;/xs:element&gt;
+                    &lt;/xs:sequence&gt;
+
+                    &lt;!-- Informação Principal --&gt;
+                    &lt;xs:attribute name=&quot;url&quot; type=&quot;xs:string&quot; use=&quot;required&quot;/&gt;
+                    &lt;xs:attribute name=&quot;name&quot; type=&quot;xs:string&quot; use=&quot;required&quot;/&gt;
+                    &lt;xs:attribute name=&quot;brand&quot; type=&quot;xs:string&quot; use=&quot;required&quot;/&gt;
+                    &lt;xs:attribute name=&quot;currency&quot; type=&quot;xs:string&quot; use=&quot;required&quot;/&gt;
+                    &lt;xs:attribute name=&quot;summary_data&quot; type=&quot;xs:string&quot; use=&quot;required&quot;/&gt;
+                    &lt;xs:attribute name=&quot;price&quot; use=&quot;required&quot;&gt;
+                        &lt;xs:simpleType&gt;
+                            &lt;xs:restriction base=&quot;xs:decimal&quot;&gt;
+                                &lt;xs:minInclusive value=&quot;0&quot;/&gt;
+                            &lt;/xs:restriction&gt;
+                        &lt;/xs:simpleType&gt;
+                    &lt;/xs:attribute&gt;
+
+                &lt;/xs:complexType&gt;
+            &lt;/xs:element&gt;
+            &lt;xs:element name=&quot;response&quot;&gt;
+                &lt;xs:attribute name=&quot;result&quot; type=&quot;xs:string&quot; use=&quot;required&quot;/&gt;
+            &lt;/xs:element&gt;
+        &lt;/xs:schema&gt;</string>
+                                </schemas>
+                                <encoding reference="../../../../../../../../../../../../../../../entry/org.mule.common.metadata.DefaultXmlMetaDataModel/schemas/encoding"/>
+                                <baseUri>file:/home/pedro/Documents/Programming/IS/Assignment3/assignment3/src/main/soap/smartphone.wsdl</baseUri>
+                              </schemas>
+                              <namespaceManager>
+                                <namespacePrefix>
+                                  <entry>
+                                    <string>http://localhost:8081/smartphone.xsd</string>
+                                    <string>ns0</string>
+                                  </entry>
+                                </namespacePrefix>
+                              </namespaceManager>
+                            </model>
+                            <isArray>false</isArray>
+                          </model>
+                          <accessType>READ_WRITE</accessType>
+                          <metaDataFieldPropertyManager>
+                            <properties>
+                              <org.mule.common.metadata.property.QNameMetaDataProperty>
+                                <name>
+                                  <namespaceURI></namespaceURI>
+                                  <localPart>table_data</localPart>
+                                  <prefix></prefix>
+                                </name>
+                              </org.mule.common.metadata.property.QNameMetaDataProperty>
+                            </properties>
+                          </metaDataFieldPropertyManager>
+                        </org.mule.common.metadata.DefaultMetaDataField>
+                      </fields>
+                      <rootElement>
+                        <namespaceURI>http://localhost:8081/smartphone.xsd</namespaceURI>
+                        <localPart>smartphone</localPart>
+                        <prefix>ns0</prefix>
+                      </rootElement>
+                      <schemas class="org.mule.common.metadata.StringBasedSchemaProvider" reference="../fields/org.mule.common.metadata.DefaultMetaDataField[2]/model/model/schemas"/>
+                      <namespaceManager reference="../fields/org.mule.common.metadata.DefaultMetaDataField[2]/model/model/namespaceManager"/>
+                    </model>
+                    <isArray>false</isArray>
+                  </model>
+                  <accessType>READ_WRITE</accessType>
+                  <metaDataFieldPropertyManager>
+                    <properties>
+                      <org.mule.common.metadata.property.QNameMetaDataProperty>
+                        <name>
+                          <namespaceURI></namespaceURI>
+                          <localPart>table</localPart>
+                          <prefix></prefix>
+                        </name>
+                      </org.mule.common.metadata.property.QNameMetaDataProperty>
+                    </properties>
+                  </metaDataFieldPropertyManager>
+                </org.mule.common.metadata.DefaultMetaDataField>
+              </fields>
+              <rootElement>
+                <namespaceURI>http://localhost:8081/smartphone.xsd</namespaceURI>
+                <localPart>smartphone</localPart>
+                <prefix>ns0</prefix>
+              </rootElement>
+              <schemas class="org.mule.common.metadata.StringBasedSchemaProvider" reference="../fields/org.mule.common.metadata.DefaultMetaDataField/model/model/fields/org.mule.common.metadata.DefaultMetaDataField[2]/model/model/schemas"/>
+              <namespaceManager reference="../fields/org.mule.common.metadata.DefaultMetaDataField/model/model/fields/org.mule.common.metadata.DefaultMetaDataField[2]/model/model/namespaceManager"/>
+            </model>
+            <accessType>READ_WRITE</accessType>
+            <metaDataFieldPropertyManager>
+              <properties>
+                <org.mule.common.metadata.property.QNameMetaDataProperty>
+                  <name>
+                    <namespaceURI></namespaceURI>
+                    <localPart>technical_data</localPart>
+                    <prefix></prefix>
+                  </name>
+                </org.mule.common.metadata.property.QNameMetaDataProperty>
+              </properties>
+            </metaDataFieldPropertyManager>
+          </org.mule.common.metadata.DefaultMetaDataField>
+          <org.mule.common.metadata.DefaultMetaDataField>
+            <name>url</name>
+            <model class="org.mule.common.metadata.DefaultSimpleMetaDataModel">
+              <dataType>STRING</dataType>
+              <metaDataModelPropertiesManager>
+                <properties>
+                  <org.mule.common.metadata.property.xml.SchemaTypeMetaDataProperty>
+                    <typeQName reference="../../../../../../org.mule.common.metadata.DefaultMetaDataField/model/fields/org.mule.common.metadata.DefaultMetaDataField/model/model/fields/org.mule.common.metadata.DefaultMetaDataField/model/metaDataModelPropertiesManager/properties/org.mule.common.metadata.property.xml.SchemaTypeMetaDataProperty/typeQName"/>
+                  </org.mule.common.metadata.property.xml.SchemaTypeMetaDataProperty>
+                </properties>
+              </metaDataModelPropertiesManager>
+            </model>
+            <accessType>READ_WRITE</accessType>
+            <metaDataFieldPropertyManager>
+              <properties>
+                <org.mule.common.metadata.property.QNameMetaDataProperty>
+                  <name>
+                    <namespaceURI></namespaceURI>
+                    <localPart>url</localPart>
+                    <prefix></prefix>
+                  </name>
+                </org.mule.common.metadata.property.QNameMetaDataProperty>
+                <org.mule.common.metadata.property.LabelMetaDataProperty>
+                  <label>@url</label>
+                </org.mule.common.metadata.property.LabelMetaDataProperty>
+                <org.mule.common.metadata.property.xml.AttributeMetaDataFieldProperty>
+                  <isAttribute>true</isAttribute>
+                </org.mule.common.metadata.property.xml.AttributeMetaDataFieldProperty>
+              </properties>
+            </metaDataFieldPropertyManager>
+          </org.mule.common.metadata.DefaultMetaDataField>
+          <org.mule.common.metadata.DefaultMetaDataField>
+            <name>name</name>
+            <model class="org.mule.common.metadata.DefaultSimpleMetaDataModel">
+              <dataType>STRING</dataType>
+              <metaDataModelPropertiesManager>
+                <properties>
+                  <org.mule.common.metadata.property.xml.SchemaTypeMetaDataProperty>
+                    <typeQName reference="../../../../../../org.mule.common.metadata.DefaultMetaDataField/model/fields/org.mule.common.metadata.DefaultMetaDataField/model/model/fields/org.mule.common.metadata.DefaultMetaDataField/model/metaDataModelPropertiesManager/properties/org.mule.common.metadata.property.xml.SchemaTypeMetaDataProperty/typeQName"/>
+                  </org.mule.common.metadata.property.xml.SchemaTypeMetaDataProperty>
+                </properties>
+              </metaDataModelPropertiesManager>
+            </model>
+            <accessType>READ_WRITE</accessType>
+            <metaDataFieldPropertyManager>
+              <properties>
+                <org.mule.common.metadata.property.QNameMetaDataProperty>
+                  <name>
+                    <namespaceURI></namespaceURI>
+                    <localPart>name</localPart>
+                    <prefix></prefix>
+                  </name>
+                </org.mule.common.metadata.property.QNameMetaDataProperty>
+                <org.mule.common.metadata.property.LabelMetaDataProperty>
+                  <label>@name</label>
+                </org.mule.common.metadata.property.LabelMetaDataProperty>
+                <org.mule.common.metadata.property.xml.AttributeMetaDataFieldProperty>
+                  <isAttribute>true</isAttribute>
+                </org.mule.common.metadata.property.xml.AttributeMetaDataFieldProperty>
+              </properties>
+            </metaDataFieldPropertyManager>
+          </org.mule.common.metadata.DefaultMetaDataField>
+          <org.mule.common.metadata.DefaultMetaDataField>
+            <name>brand</name>
+            <model class="org.mule.common.metadata.DefaultSimpleMetaDataModel">
+              <dataType>STRING</dataType>
+              <metaDataModelPropertiesManager>
+                <properties>
+                  <org.mule.common.metadata.property.xml.SchemaTypeMetaDataProperty>
+                    <typeQName reference="../../../../../../org.mule.common.metadata.DefaultMetaDataField/model/fields/org.mule.common.metadata.DefaultMetaDataField/model/model/fields/org.mule.common.metadata.DefaultMetaDataField/model/metaDataModelPropertiesManager/properties/org.mule.common.metadata.property.xml.SchemaTypeMetaDataProperty/typeQName"/>
+                  </org.mule.common.metadata.property.xml.SchemaTypeMetaDataProperty>
+                </properties>
+              </metaDataModelPropertiesManager>
+            </model>
+            <accessType>READ_WRITE</accessType>
+            <metaDataFieldPropertyManager>
+              <properties>
+                <org.mule.common.metadata.property.QNameMetaDataProperty>
+                  <name>
+                    <namespaceURI></namespaceURI>
+                    <localPart>brand</localPart>
+                    <prefix></prefix>
+                  </name>
+                </org.mule.common.metadata.property.QNameMetaDataProperty>
+                <org.mule.common.metadata.property.LabelMetaDataProperty>
+                  <label>@brand</label>
+                </org.mule.common.metadata.property.LabelMetaDataProperty>
+                <org.mule.common.metadata.property.xml.AttributeMetaDataFieldProperty>
+                  <isAttribute>true</isAttribute>
+                </org.mule.common.metadata.property.xml.AttributeMetaDataFieldProperty>
+              </properties>
+            </metaDataFieldPropertyManager>
+          </org.mule.common.metadata.DefaultMetaDataField>
+          <org.mule.common.metadata.DefaultMetaDataField>
+            <name>currency</name>
+            <model class="org.mule.common.metadata.DefaultSimpleMetaDataModel">
+              <dataType>STRING</dataType>
+              <metaDataModelPropertiesManager>
+                <properties>
+                  <org.mule.common.metadata.property.xml.SchemaTypeMetaDataProperty>
+                    <typeQName reference="../../../../../../org.mule.common.metadata.DefaultMetaDataField/model/fields/org.mule.common.metadata.DefaultMetaDataField/model/model/fields/org.mule.common.metadata.DefaultMetaDataField/model/metaDataModelPropertiesManager/properties/org.mule.common.metadata.property.xml.SchemaTypeMetaDataProperty/typeQName"/>
+                  </org.mule.common.metadata.property.xml.SchemaTypeMetaDataProperty>
+                </properties>
+              </metaDataModelPropertiesManager>
+            </model>
+            <accessType>READ_WRITE</accessType>
+            <metaDataFieldPropertyManager>
+              <properties>
+                <org.mule.common.metadata.property.QNameMetaDataProperty>
+                  <name>
+                    <namespaceURI></namespaceURI>
+                    <localPart>currency</localPart>
+                    <prefix></prefix>
+                  </name>
+                </org.mule.common.metadata.property.QNameMetaDataProperty>
+                <org.mule.common.metadata.property.LabelMetaDataProperty>
+                  <label>@currency</label>
+                </org.mule.common.metadata.property.LabelMetaDataProperty>
+                <org.mule.common.metadata.property.xml.AttributeMetaDataFieldProperty>
+                  <isAttribute>true</isAttribute>
+                </org.mule.common.metadata.property.xml.AttributeMetaDataFieldProperty>
+              </properties>
+            </metaDataFieldPropertyManager>
+          </org.mule.common.metadata.DefaultMetaDataField>
+          <org.mule.common.metadata.DefaultMetaDataField>
+            <name>summary_data</name>
+            <model class="org.mule.common.metadata.DefaultSimpleMetaDataModel">
+              <dataType>STRING</dataType>
+              <metaDataModelPropertiesManager>
+                <properties>
+                  <org.mule.common.metadata.property.xml.SchemaTypeMetaDataProperty>
+                    <typeQName reference="../../../../../../org.mule.common.metadata.DefaultMetaDataField/model/fields/org.mule.common.metadata.DefaultMetaDataField/model/model/fields/org.mule.common.metadata.DefaultMetaDataField/model/metaDataModelPropertiesManager/properties/org.mule.common.metadata.property.xml.SchemaTypeMetaDataProperty/typeQName"/>
+                  </org.mule.common.metadata.property.xml.SchemaTypeMetaDataProperty>
+                </properties>
+              </metaDataModelPropertiesManager>
+            </model>
+            <accessType>READ_WRITE</accessType>
+            <metaDataFieldPropertyManager>
+              <properties>
+                <org.mule.common.metadata.property.QNameMetaDataProperty>
+                  <name>
+                    <namespaceURI></namespaceURI>
+                    <localPart>summary_data</localPart>
+                    <prefix></prefix>
+                  </name>
+                </org.mule.common.metadata.property.QNameMetaDataProperty>
+                <org.mule.common.metadata.property.LabelMetaDataProperty>
+                  <label>@summary_data</label>
+                </org.mule.common.metadata.property.LabelMetaDataProperty>
+                <org.mule.common.metadata.property.xml.AttributeMetaDataFieldProperty>
+                  <isAttribute>true</isAttribute>
+                </org.mule.common.metadata.property.xml.AttributeMetaDataFieldProperty>
+              </properties>
+            </metaDataFieldPropertyManager>
+          </org.mule.common.metadata.DefaultMetaDataField>
+          <org.mule.common.metadata.DefaultMetaDataField>
+            <name>price</name>
+            <model class="org.mule.common.metadata.DefaultSimpleMetaDataModel">
+              <dataType>DECIMAL</dataType>
+              <metaDataModelPropertiesManager>
+                <properties/>
+              </metaDataModelPropertiesManager>
+            </model>
+            <accessType>READ_WRITE</accessType>
+            <metaDataFieldPropertyManager>
+              <properties>
+                <org.mule.common.metadata.property.QNameMetaDataProperty>
+                  <name>
+                    <namespaceURI></namespaceURI>
+                    <localPart>price</localPart>
+                    <prefix></prefix>
+                  </name>
+                </org.mule.common.metadata.property.QNameMetaDataProperty>
+                <org.mule.common.metadata.property.LabelMetaDataProperty>
+                  <label>@price</label>
+                </org.mule.common.metadata.property.LabelMetaDataProperty>
+                <org.mule.common.metadata.property.xml.AttributeMetaDataFieldProperty>
+                  <isAttribute>true</isAttribute>
+                </org.mule.common.metadata.property.xml.AttributeMetaDataFieldProperty>
+              </properties>
+            </metaDataFieldPropertyManager>
+          </org.mule.common.metadata.DefaultMetaDataField>
+        </fields>
+        <rootElement>
+          <namespaceURI>http://localhost:8081/smartphone.xsd</namespaceURI>
+          <localPart>smartphone</localPart>
+          <prefix>ns0</prefix>
+        </rootElement>
+        <schemas class="org.mule.common.metadata.StringBasedSchemaProvider">
+          <schemas reference="../../fields/org.mule.common.metadata.DefaultMetaDataField/model/fields/org.mule.common.metadata.DefaultMetaDataField/model/model/fields/org.mule.common.metadata.DefaultMetaDataField[2]/model/model/schemas/schemas"/>
+          <encoding reference="../../../../entry/org.mule.common.metadata.DefaultXmlMetaDataModel/schemas/encoding"/>
+          <baseUri>file:/home/pedro/Documents/Programming/IS/Assignment3/assignment3/src/main/soap/smartphone.wsdl</baseUri>
+        </schemas>
+        <namespaceManager reference="../fields/org.mule.common.metadata.DefaultMetaDataField/model/fields/org.mule.common.metadata.DefaultMetaDataField/model/model/fields/org.mule.common.metadata.DefaultMetaDataField[2]/model/model/namespaceManager"/>
+      </org.mule.common.metadata.DefaultXmlMetaDataModel>
+    </entry>
+  </types>
+  <connectorName>Web_Service_Consumer</connectorName>
+</metadata__catalog__entry>

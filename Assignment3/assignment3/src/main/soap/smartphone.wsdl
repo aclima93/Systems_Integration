@@ -98,7 +98,7 @@
     </binding>
     <service name="AddSmartphoneService">
         <documentation>Please work</documentation>
-        <port name="AddSmartphonePort" binding="tns:AddSmartphoneBinding">
+        <port name="AddSmartphonePort" binding="tns:AddSmartphoneSoapBinding">
             <soap:address location="http://localhost:8081/addsmartphonesoap" />
         </port>
     </service>
