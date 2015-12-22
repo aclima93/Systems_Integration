@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule 
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	
 	xmlns:json="http://www.mulesoft.org/schema/mule/json"
 	xmlns:cxf="http://www.mulesoft.org/schema/mule/cxf"
 	xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:db="http://www.mulesoft.org/schema/mule/db"
@@ -24,8 +25,9 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
     <sub-flow name="tweet_statistics_subflow">
         <logger message="Starting subflow for tweeting statistics" level="INFO" doc:name="Logger"/>
         <db:select config-ref="MySQL_Configuration" doc:name="Select Statistics from Database">
-            <db:parameterized-query><![CDATA[SELECT * FROM statistics;]]></db:parameterized-query>
+            <db:parameterized-query><![CDATA[SELECT * FROM statistics limit 1;]]></db:parameterized-query>
         </db:select>
+        <logger message="#[message.payload]" level="INFO" doc:name="Logger"/>
         <set-payload value="#[message.payload[0]]" doc:name="Set Statistics Payload"/>
         <logger message="statistics output: #[message.payload]" level="INFO" doc:name="Logger"/>
         <set-payload value="#[new org.mule.el.datetime.DateTime().toString();] Statistics: #[message.payload.'num_updates_to_smartphones'] update(s), #[message.payload.'num_cur_smartphones'] smartphone(s), #[message.payload.'num_sent_emails'] email(s), #[message.payload.'num_sent_tweets'] tweet(s)" doc:name="Set Tweet Message Payload"/>

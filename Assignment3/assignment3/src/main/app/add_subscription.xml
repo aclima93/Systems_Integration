@@ -44,9 +44,9 @@ http://www.mulesoft.org/schema/mule/cxf http://www.mulesoft.org/schema/mule/cxf/
     <flow name="soap_add_subscription_and_send_validation_email_flow">
         <http:listener config-ref="HTTP_Listener_Configuration" path="/soap_add_subscription" allowedMethods="GET,POST" doc:name="HTTP"/>
         <cxf:jaxws-service serviceClass="soap.Subscription" doc:name="CXF"/>
-        <set-variable variableName="validation_email" value="#[message.payload[0]]" doc:name="Set Validation Email Variable"/>
-        <set-variable variableName="channel" value="'soap'" doc:name="Set Channel Variable"/>
         <custom-transformer returnClass="java.util.HashMap" class="soap.AdaptSubscription" doc:name="Java"/>
+        <set-variable variableName="validation_email" value="#[message.payload['email']]" doc:name="Set Validation Email Variable"/>
+        <set-variable variableName="channel" value="'soap'" doc:name="Set Channel Variable"/>
         <flow-ref name="add_subscription_subflow" doc:name="add_subscription_subflow"/>
         <flow-ref name="send_validation_email_subflow" doc:name="send_validation_email_subflow"/>
         <set-payload value="'#[message.payload]'" doc:name="Set Payload"/>

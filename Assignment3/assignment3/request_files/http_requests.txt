@@ -8,11 +8,17 @@ http://localhost:8081/smartphones_mailinglist/validate_subscription/?email=aclsp
 # unsubscribe email
 http://localhost:8081/smartphones_mailinglist/unsubscribe/?email=aclspam%40hotmail.com
 
+# add smartphone with soap
+http://localhost:8081/smartphones_mailinglist/soap_add_smartphone
+
+# add subscription with soap
+http://localhost:8081/smartphones_mailinglist/soap_add_subscription
+
+# unsubscribe soap
+http://localhost:8081/smartphones_mailinglist/soap_unsubscribe
+
 # cron for every minute
 0 0/1 * 1/1 * ? *
 
 # cron for every day at midnight
 0 0 0 1/1 * ? *
-
-# where the server log is stored
-.../.mule/logs/assignment3.log
