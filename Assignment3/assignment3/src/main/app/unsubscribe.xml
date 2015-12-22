@@ -11,11 +11,11 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
 http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
 
     <sub-flow name="unsubscribe_email_subflow">
-        <logger message="unsubscribe input: #[message.payload]" level="INFO" doc:name="Logger"/>
+        <logger message="unsubscribe input: #[message.payload]" level="DEBUG" doc:name="Logger"/>
         <db:delete config-ref="MySQL_Configuration" doc:name="Delete Subscription from Database">
             <db:parameterized-query><![CDATA[DELETE FROM subscriptions WHERE email = #[message.payload];]]></db:parameterized-query>
         </db:delete>
-        <logger message="unsubscribe output: #[message.payload]" level="INFO" doc:name="Logger"/>
+        <logger message="unsubscribe output: #[message.payload]" level="DEBUG" doc:name="Logger"/>
     </sub-flow>
 
     <flow name="web_unsubscribe_flow">
