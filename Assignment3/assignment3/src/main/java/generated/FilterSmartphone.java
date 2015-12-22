@@ -17,14 +17,13 @@ public class FilterSmartphone extends AbstractTransformer{
     	for(Smartphone.TechnicalData.Table table : smartphone.getTechnicalData().getTable()){
     		for( Smartphone.TechnicalData.Table.TableData tableData : table.getTableData() ){
     			
+    			// must have a screen size
     			if(tableData.getDataName().equals("Tamanho do ecrã")){
     				
-    				System.out.println("Data Value: " + tableData.getDataValue());
-    				
-    				//TODO:
-    				//if( Integer.getInteger(tableData.getDataValue()) >= 10 ){
+    				// must be greater or equal to 10
+    				if( Integer.parseInt(tableData.getDataValue()) >= 10 ){
     					return true;
-    				//}
+    				}
     			}
     		}
     	}

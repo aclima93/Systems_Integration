@@ -33,6 +33,7 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
     <sub-flow name="unmarshall_and_insert_smartphone_subflow">
         <logger message="smartphones input: #[message.payload]" level="INFO" doc:name="Logger"/>
         <mulexml:schema-validation-filter schemaLocations="smartphone_schema/smartphone.xsd" returnResult="false" doc:name="Schema Validation for Smartphone XML"/>
+        <logger message="Smartphone XML was confirmed by the schema" level="INFO" doc:name="Logger"/>
    		<mulexml:jaxb-xml-to-object-transformer returnClass="generated.Smartphone" ignoreBadInput="true" jaxbContext-ref="JAXB_Context" doc:name="XML to JAXB Object"/>
         <set-variable variableName="smartphone" value="#[message.payload]" doc:name="Set Smartphone Variable"/>
         <custom-transformer returnClass="java.lang.Boolean" class="generated.FilterSmartphone" doc:name="Check if smartphone is relevant Java"/>
@@ -70,7 +71,7 @@ num_cur_smartphones = (SELECT COUNT(*) FROM smartphones);]]></db:parameterized-q
     </sub-flow>
 
     <flow name="file_add_smartphone">
-        <file:inbound-endpoint path="/Users/aclima/Documents/Repositories/Systems_Integration/Assignment3/assignment3/smartphones" connector-ref="File" pollingFrequency="10000" fileAge="5000" responseTimeout="10000" doc:name="File"/>
+        <file:inbound-endpoint path="smartphones" connector-ref="File"   responseTimeout="10000" doc:name="File is added to Directory"/>
         <flow-ref name="add_smartphone_and_send_tweet_subflow" doc:name="Add Smartphone and Send Tweet Subflow"/>
         <exception-strategy ref="Global_Catch_Exception_Strategy" doc:name="Reference Exception Strategy"/>
     </flow>
