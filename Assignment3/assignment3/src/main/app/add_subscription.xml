@@ -50,6 +50,7 @@ http://www.mulesoft.org/schema/mule/cxf http://www.mulesoft.org/schema/mule/cxf/
         <flow-ref name="add_subscription_subflow" doc:name="add_subscription_subflow"/>
         <flow-ref name="send_validation_email_subflow" doc:name="send_validation_email_subflow"/>
         <set-payload value="'#[message.payload]'" doc:name="Set Payload"/>
+        <exception-strategy ref="Global_Catch_Exception_Strategy" doc:name="Reference Exception Strategy"/>
     </flow>
 
 </mule>
