@@ -23,17 +23,17 @@ http://www.mulesoft.org/schema/mule/cxf http://www.mulesoft.org/schema/mule/cxf/
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
 
     <sub-flow name="tweet_statistics_subflow">
-        <logger message="Starting subflow for tweeting statistics" level="INFO" doc:name="Logger"/>
+        <logger message="Tweeting statistics" level="INFO" doc:name="Logger"/>
         <db:select config-ref="MySQL_Configuration" doc:name="Select Statistics from Database">
             <db:parameterized-query><![CDATA[SELECT * FROM statistics limit 1;]]></db:parameterized-query>
         </db:select>
         <logger message="#[message.payload]" level="INFO" doc:name="Logger"/>
         <set-payload value="#[message.payload[0]]" doc:name="Set Statistics Payload"/>
-        <logger message="statistics output: #[message.payload]" level="INFO" doc:name="Logger"/>
+        <logger message="statistics output: #[message.payload]" level="DEBUG" doc:name="Logger"/>
         <set-payload value="#[new org.mule.el.datetime.DateTime().toString();] Statistics: #[message.payload.'num_updates_to_smartphones'] update(s), #[message.payload.'num_cur_smartphones'] smartphone(s), #[message.payload.'num_sent_emails'] email(s), #[message.payload.'num_sent_tweets'] tweet(s)" doc:name="Set Tweet Message Payload"/>
-        <logger message="twitter input: #[message.payload]" level="INFO" doc:name="Logger"/>
+        <logger message="twitter input: #[message.payload]" level="DEBUG" doc:name="Logger"/>
         <twitter:update-status config-ref="Twitter" status="#[message.payload]" doc:name="Tweet Statistics"/>
-        <logger message="twitter output: #[message.payload]" level="INFO" doc:name="Logger"/>
+        <logger message="twitter output: #[message.payload]" level="DEBUG" doc:name="Logger"/>
         <json:object-to-json-transformer doc:name="Object to JSON"/>
         <json:json-to-object-transformer returnClass="java.util.HashMap" doc:name="JSON to HashMap" />
         <choice doc:name="Should update number of tweets in database">
@@ -44,43 +44,52 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
                 <logger message="Updated number of tweets in database" level="INFO" doc:name="Logger"/>
             </when>
             <otherwise>
-                <logger message="Failed to post to twitter" level="INFO" doc:name="Logger"/>
+                <logger message="Failed to post to twitter" level="WARN" doc:name="Logger"/>
+            </otherwise>
+        </choice>
+        <logger message="Finished tweeting statistics" level="INFO" doc:name="Logger"/>
+    </sub-flow>
+    <sub-flow name="insert_smartphone_subflow">
+        <logger message="smartphone input: #[flowVars.smartphone]" level="DEBUG" doc:name="Logger"/>
+        <db:insert config-ref="MySQL_Configuration" doc:name="Insert Smartphone into Database">
+            <db:parameterized-query><![CDATA[INSERT INTO smartphones (technical_data, url, name, brand, currency, summary_data, price) VALUES (#[flowVars.smartphone.getTechnicalData().toString()], #[flowVars.smartphone.getUrl()], #[flowVars.smartphone.getName()], #[flowVars.smartphone.getBrand()], #[flowVars.smartphone.getCurrency()], #[flowVars.smartphone.getSummaryData()], #[flowVars.smartphone.getPrice()]);]]></db:parameterized-query>
+        </db:insert>
+        <logger message="smartphone output: #[message.payload]" level="DEBUG" doc:name="Logger"/>
+        <choice doc:name="Should update number of updates to smartphones">
+            <when expression="payload.equals(1)">
+                <db:update config-ref="MySQL_Configuration" doc:name="Update number of updates to smartphones Database">
+                    <db:parameterized-query><![CDATA[UPDATE statistics SET 
+num_updates_to_smartphones = num_updates_to_smartphones + 1, 
+num_cur_smartphones = (SELECT COUNT(*) FROM smartphones);]]></db:parameterized-query>
+                </db:update>
+                <logger message="Updated number of updates to smartphones" level="INFO" doc:name="Logger"/>
+            </when>
+            <otherwise>
+                <logger message="Failed to insert smartphone into database" level="WARN" doc:name="Logger"/>
             </otherwise>
         </choice>
     </sub-flow>
-    <sub-flow name="unmarshall_and_insert_smartphone_subflow">
-        <logger message="smartphones input: #[message.payload]" level="INFO" doc:name="Logger"/>
+    <sub-flow name="unmarshall_subflow">
+        <logger message="smartphones input: #[message.payload]" level="DEBUG" doc:name="Logger"/>
         <mulexml:schema-validation-filter schemaLocations="smartphone_schema/smartphone.xsd" returnResult="false" doc:name="Schema Validation for Smartphone XML"/>
         <logger message="Smartphone XML was confirmed by the schema" level="INFO" doc:name="Logger"/>
-   		<mulexml:jaxb-xml-to-object-transformer returnClass="generated.Smartphone" ignoreBadInput="true" jaxbContext-ref="JAXB_Context" doc:name="XML to JAXB Object"/>
+        <mulexml:jaxb-xml-to-object-transformer returnClass="generated.Smartphone" ignoreBadInput="true" jaxbContext-ref="JAXB_Context" doc:name="XML to JAXB Object"/>
         <set-variable variableName="smartphone" value="#[message.payload]" doc:name="Set Smartphone Variable"/>
         <custom-transformer returnClass="java.lang.Boolean" class="generated.FilterSmartphone" doc:name="Check if smartphone is relevant Java"/>
-        <logger message="isRelevant: #[message.payload]" level="INFO" doc:name="Logger"/>
+        <logger message="Smartphone is relevant: #[message.payload]" level="INFO" doc:name="Logger"/>
+    </sub-flow>
+    <sub-flow name="unmarshall_and_insert_smartphone_subflow">
+        <logger message="Unmarshalling and inserting smartphone" level="INFO" doc:name="Logger"/>
+        <flow-ref name="unmarshall_subflow" doc:name="Unmarshall Smartphone"/>
         <choice doc:name="Should insert smartphone into Database">
             <when expression="payload.equals(true)">
-                <logger message="smartphone input: #[flowVars.smartphone]" level="INFO" doc:name="Logger"/>
-                <db:insert config-ref="MySQL_Configuration" doc:name="Insert Smartphone into Database">
-                    <db:parameterized-query><![CDATA[INSERT INTO smartphones (technical_data, url, name, brand, currency, summary_data, price) VALUES (#[flowVars.smartphone.getTechnicalData().toString()], #[flowVars.smartphone.getUrl()], #[flowVars.smartphone.getName()], #[flowVars.smartphone.getBrand()], #[flowVars.smartphone.getCurrency()], #[flowVars.smartphone.getSummaryData()], #[flowVars.smartphone.getPrice()]);]]></db:parameterized-query>
-                </db:insert>
-                <logger message="smartphone output: #[message.payload]" level="INFO" doc:name="Logger"/>
-                <choice doc:name="Should update number of updates to smartphones">
-                    <when expression="payload.equals(1)">
-                        <db:update config-ref="MySQL_Configuration" doc:name="Update number of updates to smartphones Database">
-                            <db:parameterized-query><![CDATA[UPDATE statistics SET 
-num_updates_to_smartphones = num_updates_to_smartphones + 1, 
-num_cur_smartphones = (SELECT COUNT(*) FROM smartphones);]]></db:parameterized-query>
-                        </db:update>
-                    </when>
-                    <otherwise>
-                        <logger message="Failed to insert smartphone into database" level="WARN" doc:name="Logger"/>
-                    </otherwise>
-                </choice>
+                <flow-ref name="insert_smartphone_subflow" doc:name="Insert Smartphone"/>
             </when>
             <otherwise>
-                <logger message="Smartphone did not meet the requierments" level="INFO" doc:name="Logger"/>
+                <logger message="Smartphone did not meet the requierments" level="WARN" doc:name="Logger"/>
             </otherwise>
         </choice>
-        <logger message="smartphones output: #[message.payload]" level="INFO" doc:name="Logger"/>
+        <logger message="Finished and inserting smartphone" level="INFO" doc:name="Logger"/>
     </sub-flow>
     <sub-flow name="add_smartphone_and_send_tweet_subflow">
         <flow-ref name="unmarshall_and_insert_smartphone_subflow" doc:name="Unmarshall and Insert Smartphone Subflow"/>
@@ -103,7 +112,7 @@ num_cur_smartphones = (SELECT COUNT(*) FROM smartphones);]]></db:parameterized-q
     <flow name="soap_add_smartphone">
         <http:listener config-ref="HTTP_Listener_Configuration" path="/soap_add_smartphone" allowedMethods="GET,POST" doc:name="HTTP"/>
         <cxf:jaxws-service serviceClass="soap.Smartphone" doc:name="CXF"/>
-        <flow-ref name="add_smartphone_and_send_tweet_subflow" doc:name="add_smartphone_and_send_tweet_subflow"/>
+        <flow-ref name="add_smartphone_and_send_tweet_subflow" doc:name="Add Smartphone and Send Tweet Subflow"/>
         <exception-strategy ref="Global_Catch_Exception_Strategy" doc:name="Reference Exception Strategy"/>
     </flow>
 

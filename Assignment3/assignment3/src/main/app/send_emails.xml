@@ -27,7 +27,6 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
             </db:select>
             <set-payload value="Here is your list of smartphones: #[message.payload]" doc:name="Set smartphone list content Payload"/>
             <smtp:outbound-endpoint host="smtp.gmail.com" port="587" user="is.spammer.2015%40gmail.com" password="vamoster20" connector-ref="Gmail" to="#[flowVars.email]" from="is.spammer" subject="Testing mule email" responseTimeout="10000" doc:name="Send smartphone list email"/>
-            <logger message="'#[message.payload]'" level="INFO" doc:name="Logger"/>
             <db:update config-ref="MySQL_Configuration" doc:name="Update number of emails sent in Database">
                 <db:parameterized-query><![CDATA[UPDATE statistics SET num_sent_emails = num_sent_emails + 1;]]></db:parameterized-query>
             </db:update>

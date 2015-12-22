@@ -13,11 +13,11 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
 http://www.mulesoft.org/schema/mule/cxf http://www.mulesoft.org/schema/mule/cxf/current/mule-cxf.xsd">
 
     <sub-flow name="unsubscribe_email_subflow">
-        <logger message="unsubscribe input: #[message.payload]" level="INFO" doc:name="Logger"/>
+        <logger message="unsubscribe input: #[message.payload]" level="DEBUG" doc:name="Logger"/>
         <db:delete config-ref="MySQL_Configuration" doc:name="Delete Subscription from Database">
             <db:parameterized-query><![CDATA[DELETE FROM subscriptions WHERE email = #[message.payload];]]></db:parameterized-query>
         </db:delete>
-        <logger message="unsubscribe output: #[message.payload]" level="INFO" doc:name="Logger"/>
+        <logger message="unsubscribe output: #[message.payload]" level="DEBUG" doc:name="Logger"/>
     </sub-flow>
 
     <flow name="web_unsubscribe_flow">
