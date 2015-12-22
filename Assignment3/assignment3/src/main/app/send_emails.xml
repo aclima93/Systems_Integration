@@ -23,7 +23,10 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
         <foreach doc:name="For Each">
             <set-variable variableName="email" value="#[message.payload.'email']" doc:name="Set Email Variable"/>
             <db:select config-ref="MySQL_Configuration" doc:name="Select relevant smartphones from Database">
-                <db:parameterized-query><![CDATA[SELECT * FROM smartphones WHERE (name LIKE #[message.payload.'name']) AND (brand LIKE #[message.payload.'brand']) AND (price BETWEEN #[message.payload.'min_price'] and #[message.payload.'max_price']);]]></db:parameterized-query>
+                <db:parameterized-query><![CDATA[SELECT * FROM smartphones WHERE 
+(name LIKE #['%' + message.payload.'name' + '%' ]) AND 
+(brand LIKE #['%' + message.payload.'brand' + '%']) AND 
+(price BETWEEN #[message.payload.'min_price'] AND #[message.payload.'max_price']);]]></db:parameterized-query>
             </db:select>
             <set-payload value="Here is your list of smartphones: #[message.payload]" doc:name="Set smartphone list content Payload"/>
             <smtp:outbound-endpoint host="smtp.gmail.com" port="587" user="is.spammer.2015%40gmail.com" password="vamoster20" connector-ref="Gmail" to="#[flowVars.email]" from="is.spammer" subject="Testing mule email" responseTimeout="10000" doc:name="Send smartphone list email"/>
