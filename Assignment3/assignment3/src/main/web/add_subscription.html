@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Mule</title>
+    <link rel="stylesheet" href="http://www.w3schools.com/lib/w3.css">
+</head>
+<body>
+    <header class="w3-container w3-teal">
+        <h1 class="w3-jumbo">Smartphone Newsletter</h1>
+        <a class="w3-btn w3-teal" href="/index.html">Main page</a>
+    </header>
+    <div id="modal" class="w3-modal"></div>
+    <div class="w3-container">
+        <h3 class="w3-xxxlarge">Insert information to add subscription</h3>
+        <form class="w3-form" id="form" method="get" action="javascript: void();">
+            <input type="text" class="w3-input" name="email" required/>
+            <label>Your e-mail address</label>
+            <input type="text" class="w3-input" name="name" required/>
+            <label>Smartphone name (oh, well, parts of it, at least)</label>
+            <input type="text" class="w3-input" name="brand" required/>
+            <label>Brand</label>
+            <input type="number" class="w3-input" name="min_price" required/>
+            <label>Minimum price</label>
+            <input type="number" class="w3-input" name="max_price" required/>
+            <label>Maximum price</label>
+            <br />
+            <br />
+            <input type="submit" class="w3-btn w3-cyan" value="Add subscription"/>
+        </form>
+    </div>
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="http://malsup.github.io/jquery.form.js" type="text/javascript" charset="utf-8"></script>
+    <script type="text/javascript">
+    $(document).ready(function() {
+        var options = {
+            url:        "http://localhost:8081/smartphones_mailinglist/add_subscription",
+            clearForm:  true,
+            resetForm:  true,
+            success:    function(responseText, statusText, xhr, $form) {
+                $("#modal").html("<div class=\"w3-modal-content\"><header class=\"w3-container w3-teal\"><span onclick=\"$('#modal').css('display','none')\" class=\"w3-closebtn\">&times;</span><h2>The server has spoken!</h2></header><div class=\"w3-container\">"+responseText+"</div></div>");
+                $("#modal").css("display","block");
+            }
+        };
+        $("#form").submit(function() {
+            $(this).ajaxSubmit(options);
+        });
+    });
+    </script>
+</body>
+</html>

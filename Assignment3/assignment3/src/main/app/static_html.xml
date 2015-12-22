@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
+    <flow name="index_html_flow">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/index.html" allowedMethods="GET,POST" doc:name="HTTP"/>
+        <http:static-resource-handler resourceBase="src/main/web" defaultFile="index.html" doc:name="HTTP Static Resource Handler"/>
+    </flow>
+    <flow name="add_subscription_html_flow">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/add_subscription.html" allowedMethods="GEt,POST" doc:name="HTTP"/>
+        <http:static-resource-handler resourceBase="src/main/web" defaultFile="add_subscription.html" doc:name="HTTP Static Resource Handler"/>
+    </flow>
+    <flow name="unsubscribe_html_flow">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/unsubscribe.html" allowedMethods="GET,POST" doc:name="HTTP"/>
+        <http:static-resource-handler resourceBase="src/main/web" defaultFile="unsubscribe.html" doc:name="HTTP Static Resource Handler"/>
+    </flow>
+</mule>
